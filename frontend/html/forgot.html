@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Zylo | Forgot Password</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
+  <script src="/libs/tailwind/tailwind.js"></script>
+  <script src="/libs/feather/feather.min.js"></script>
+  <link rel="stylesheet" href="/files/style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          animation: {
+            fadeIn: 'fadeIn 0.6s ease-out',
+            fadeZoom: 'fadeZoom 0.6s ease-out',
+            ringPulse: 'ringPulse 4s infinite ease-in-out',
+            slideIn: 'slideIn 0.3s ease-out',
+            pop: 'pop 0.5s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            fadeZoom: {
+              '0%': { opacity: '0', transform: 'scale(0.8)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            },
+            ringPulse: {
+              '0%, 100%': { boxShadow: '0 0 0 0 rgba(59,130,246,0.7)' },
+              '50%': { boxShadow: '0 0 0 6px rgba(59,130,246,0)' },
+            },
+            slideIn: {
+              '0%': { transform: 'translateX(-100%)' },
+              '100%': { transform: 'translateX(0)' }
+            },
+            pop: {
+              '0%': { transform: 'scale(0.8)', opacity: '0' },
+              '50%': { transform: 'scale(1.1)', opacity: '1' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+      }
+    });
+  </script>
+</head>
+
+<body class="min-h-screen flex items-center justify-center px-4 transition-colors duration-500 text-gray-900 dark:text-white">
+
+  <!-- Forgot Password Card -->
+  <div class="bg-white/20 backdrop-blur-md dark:bg-gray-800/30 shadow-2xl rounded-xl w-[90%] max-w-sm p-6 space-y-4 border border-white/10">
+
+    <div class="text-center">
+      <img src="/images/Zylo_icon.png" alt="Zylo Logo" class="w-10 h-10 mx-auto mb-4">
+      <h2 class="text-2xl font-bold">
+        Forgot Password
+      </h2>
+      <p class="text-sm text-gray-700 dark:text-gray-300">Enter your email or username to reset your password.</p>
+    </div>
+
+    <input type="text" id="emailOrUsername" placeholder="Email or Username"
+      class="zylo-input w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none" />
+
+    <button onclick="reset()" id="resetBtn"
+      class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2 rounded-lg transition duration-200 flex items-center justify-center space-x-2">
+      <span>Send Reset Link</span>
+      <svg id="spinner" class="w-4 h-4 text-black animate-spin hidden" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor"
+          d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"></path>
+      </svg>
+    </button>
+
+    <p id="reset-msg" class="text-sm text-center hidden"></p>
+
+    <p class="text-center text-sm text-gray-800 dark:text-gray-300">
+      <i data-feather="arrow-left" class="w-4 h-4 inline"></i>
+      Remember your password?
+      <a href="login.html" class="text-yellow-700 dark:text-yellow-400 hover:underline font-medium">Back to Login</a>
+    </p>
+  </div>
+
+  <script>
+    async function reset() {
+      const identifier = document.getElementById("emailOrUsername").value.trim();
+      const msg = document.getElementById("reset-msg");
+      const spinner = document.getElementById("spinner");
+      const btn = document.getElementById("resetBtn");
+
+      if (!identifier) {
+        msg.innerHTML = `<i data-feather="alert-circle" class="w-4 h-4"></i> Please enter your email or username.`;
+        msg.className = "text-sm text-center text-red-600";
+        msg.classList.remove("hidden");
+        feather.replace();
+        return;
+      }
+
+      spinner.classList.remove("hidden");
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("http://localhost:5000/api/forgot", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier })
+        });
+
+        const result = await res.json();
+        msg.textContent = result.success
+          ? `<i data-feather="check-circle" class="w-4 h-4"></i> Reset instructions sent to your email.`
+          : `<i data-feather="x-circle" class="w-4 h-4"></i> ${result.error || "Something went wrong."}`;
+        msg.className = "text-sm text-center " + (result.success ? "text-green-500" : "text-red-600");
+        msg.classList.remove("hidden");
+      } catch (err) {
+        msg.innerHTML = `<i data-feather="x-circle" class="w-4 h-4"></i> Failed to connect to server.`;
+        msg.className = "text-sm text-center text-red-600";
+        msg.classList.remove("hidden");
+      } finally {
+        spinner.classList.add("hidden");
+        btn.disabled = false;
+      }
+      feather.replace();
+    }
+
+    function goToPage(href) { 
+      document.body.classList.add("fade-out"); 
+      setTimeout(() => { 
+        window.location.href = href; 
+      }, 1000); 
+    }
+
+    // Fade-out transition on link clicks
+    document.querySelectorAll("a").forEach(link => {
+      if (link.hostname === window.location.hostname) {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const href = this.getAttribute("href");
+          document.body.classList.add("fade-out");
+          setTimeout(() => {
+            goToPage(href);
+          }, 1000);
+        });
+      }
+    });
+  </script>
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

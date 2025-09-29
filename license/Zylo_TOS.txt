@@ -1,0 +1,51 @@
+                                            				**Zylo - Terms of Service**
+
+Last Updated: [4:07 PM 7/31/2025]
+
+Welcome to Zylo! These Terms of Service ("Terms") govern your access to and use of our services, software, and website located at [https://]github.com/D4niel-dev. By accessing or using Zylo, you agree to be bound by these Terms. If you do not agree with any part of the Terms, you must not access or use our Service.
+
+1. Acceptance of Terms
+By accessing or using Zylo, you affirm that you are at least 13 years of age and have the legal capacity to enter into this agreement. If you are using Zylo on behalf of an organization, you represent and warrant that you are authorized to accept these Terms on its behalf.
+
+2. Account Registration
+To access certain features of Zylo, you may be required to register for an account. When registering, you must provide accurate and complete information. You are responsible for safeguarding your password and all activities that occur under your account.
+
+3. User Conduct
+You agree not to:
+
+Use the Service for any unlawful purpose.
+
+Upload, transmit, or distribute content that is illegal, abusive, harmful, or otherwise objectionable.
+
+Impersonate any person or entity.
+
+Engage in data mining, scraping, or similar data collection methods.
+
+Circumvent any security features of the Service.
+
+4. User Content
+Zylo may allow users to submit, upload, publish, or share content ("User Content"). You retain all rights to your User Content, but grant Zylo a non-exclusive, worldwide, royalty-free license to use, display, and distribute such content for the purpose of operating and improving the Service.
+
+5. Intellectual Property
+All content and materials on Zylo (excluding User Content), including software, text, graphics, logos, and trademarks, are the property of Zylo or its licensors and are protected by intellectual property laws.
+
+6. Payment and Subscriptions
+Some features of Zylo may require a paid subscription. By purchasing a subscription, you agree to our pricing, billing, and cancellation terms, which are made available at the time of purchase.
+
+7. Termination
+We may suspend or terminate your account if you violate these Terms or for any other reason at our sole discretion. Upon termination, your right to use Zylo will immediately cease.
+
+8. Disclaimers
+Zylo is provided on an "as is" and "as available" basis. We make no warranties regarding the accuracy, reliability, or availability of the Service.
+
+9. Limitation of Liability
+To the maximum extent permitted by law, Zylo and its affiliates shall not be liable for any indirect, incidental, or consequential damages resulting from the use or inability to use the Service.
+
+10. Modifications to Terms
+We reserve the right to modify these Terms at any time. We will notify users of any changes by updating the "Last Updated" date. Continued use of the Service after changes constitute acceptance of the new Terms.
+
+11. Governing Law
+These Terms are governed by and construed in accordance with the laws of [Your Country/Region], without regard to its conflict of law principles.
+
+12. Contact Us
+If you have questions about these Terms, please contact us at [https://]github.com/D4niel-dev.

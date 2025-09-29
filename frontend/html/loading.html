@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Zylo | Loading</title>
+    <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
+    <script src="/libs/tailwind/tailwind.js"></script>
+    <link rel="stylesheet" href="/files/style.css">
+</head>
+<body class="text-white h-screen flex items-center justify-center flex-col gap-6">
+
+    <!-- Logo -->
+    <img src="/images/Zylo_icon.png" alt="Zylo Logo" class="app-icon w-20 h-20">
+
+    <!-- Welcome -->
+    <h2 id="welcomeMsg" class="zylo-heading text-xl font-semibold text-gray-200"></h2>
+
+    <!-- Loading Text -->
+    <p id="loadingText" class="zylo-heading text-lg font-medium">
+        <span id="taskText"></span>
+        <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>
+    </p>
+
+    <!-- Progress Bar -->
+    <div class="progress-wrapper">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <script>
+        const tasks = [
+        "Initializing Zylo",
+        "Fetching user data",
+        "Loading chats",
+        "Preparing your profile",
+        "Almost ready",
+        "Just a moment more",
+        "Finalizing setup",
+        "Just a few more seconds"
+        ];
+
+        let index = 0;
+        const textEl = document.getElementById("taskText");
+        const progressBar = document.getElementById("progressBar");
+        const welcomeEl = document.getElementById("welcomeMsg");
+
+        // Show welcome with stored username
+        const username = localStorage.getItem("username");
+        if (username) {
+            welcomeEl.textContent = `Welcome back, ${username}!`;
+        }
+
+        function cycleText() {
+            textEl.textContent = tasks[index];
+            progressBar.style.width = `${((index+1)/tasks.length) * 100}%`;
+            index++;
+
+            if (index >= tasks.length) {
+                clearInterval(textInterval); // stop cycling
+                index = tasks.length - 1;
+            }
+        }
+
+        function goToPage(href) { 
+            document.body.classList.add("fade-out"); 
+            setTimeout(() => { 
+                window.location.href = href; 
+            }, 1000); 
+        }
+
+        cycleText();
+        const textInterval = setInterval(cycleText, 2000);
+
+        // Redirect after all tasks are shown
+        window.addEventListener("load", () => {
+            const totalTime = tasks.length * 2000;
+            const pauseTime = 1000;
+
+            setTimeout(() => {
+                clearInterval(textInterval);
+
+                textEl.textContent = "Done!";
+                document.querySelector(".loading-dots").style.display = "None";
+                progressBar.style.width = "100%"; // make sure it's full
+
+                setTimeout(() => {
+                    document.body.style.animation = "fadeOut 1s forwards";
+                    setTimeout(() => {
+                        goToPage("mainapp.html");
+                    }, 1000);
+                }, pauseTime);
+            }, totalTime);
+        });
+
+        // Fade-out transition on link clicks
+        document.querySelectorAll("a").forEach(link => {
+        if (link.hostname === window.location.hostname) {
+            link.addEventListener("click", function (e) {
+            e.preventDefault();
+            const href = this.getAttribute("href");
+            document.body.classList.add("fade-out");
+            setTimeout(() => {
+                goToPage(href);
+            }, 1000);
+            });
+        }
+        });
+
+        // Apply saved theme (from localStorage)
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add("dark");
+        } else if (savedTheme === 'light') {
+            document.body.classList.remove("dark");
+        }
+    </script>
+</body>
+</html>

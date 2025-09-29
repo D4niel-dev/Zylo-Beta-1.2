@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Zylo | Reset Password</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
+  <script src="/libs/tailwind/tailwind.js"></script>
+  <script src="/libs/feather/feather.min.js"></script>
+  <link rel="stylesheet" href="/files/style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          animation: {
+            fadeIn: 'fadeIn 0.6s ease-out',
+            fadeZoom: 'fadeZoom 0.6s ease-out',
+            ringPulse: 'ringPulse 4s infinite ease-in-out',
+            slideIn: 'slideIn 0.3s ease-out',
+            pop: 'pop 0.5s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            fadeZoom: {
+              '0%': { opacity: '0', transform: 'scale(0.8)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            },
+            ringPulse: {
+              '0%, 100%': { boxShadow: '0 0 0 0 rgba(59,130,246,0.7)' },
+              '50%': { boxShadow: '0 0 0 6px rgba(59,130,246,0)' },
+            },
+            slideIn: {
+              '0%': { transform: 'translateX(-100%)' },
+              '100%': { transform: 'translateX(0)' }
+            },
+            pop: {
+              '0%': { transform: 'scale(0.8)', opacity: '0' },
+              '50%': { transform: 'scale(1.1)', opacity: '1' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="min-h-screen flex items-center justify-center px-4 transition-colors duration-500">
+  <div class="w-full max-w-sm bg-white/20 backdrop-blur-md dark:bg-gray-800/30 border border-white/10 rounded-xl shadow-2xl p-6 space-y-4">
+
+    <h2 class="zylo-heading text-2xl font-bold text-center "><i data-feather="refresh-ccw" class="w-5 h-5"></i>
+      Reset Your Password
+    </h2>
+    <p class="zylo-heading text-sm">Enter your new password.</p>
+
+    <input id="resetUser" type="text" placeholder="Username"
+      class="zylo-input w-full px-4 py-2 rounded-lg" />
+
+    <div class="relative">
+      <input id="newPassword" type="password" placeholder="New Password"
+        class="zylo-input w-full px-4 py-2 pr-10 rounded-lg" />
+      <span onclick="togglePassword('newPassword', this)" 
+        class="absolute top-2.5 right-3 text-green-600 dark:text-green-400 cursor-pointer text-sm">
+        <i data-feather="eye" class="w-5 h-5"></i>
+      </span>
+    </div>
+
+    <div class="relative">
+      <input id="confirmNewPassword" type="password" placeholder="Confirm Password"
+        class="zylo-input w-full px-4 py-2 pr-10 rounded-lg" />
+      <span onclick="togglePassword('confirmNewPassword', this)" 
+        class="absolute top-2.5 right-3 text-green-600 dark:text-green-400 cursor-pointer text-sm">
+        <i data-feather="eye" class="w-5 h-5"></i>
+      </span>
+    </div>
+
+    <button onclick="submitReset()"
+      class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition duration-200">
+      Submit
+    </button>
+
+    <p id="resetResult" class="text-sm text-center hidden"></p>
+  </div>
+
+  <script>
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      const user = params.get("user");
+      if (user) document.getElementById("resetUser").value = user;
+    };
+
+    function togglePassword(id, el) {
+      const input = document.getElementById(id);
+      const icon = el.querySelector('i[data-feather]');
+      if (input.type === "password") {
+        input.type = "text";
+        icon.setAttribute("data-feather", "eye-off");
+      } else {
+        input.type = "password";
+        icon.setAttribute("data-feather", "eye");
+      }
+      feather.replace();
+    }
+
+    async function submitReset() {
+      const username = document.getElementById("resetUser").value;
+      const newPassword = document.getElementById("newPassword").value;
+      const confirm = document.getElementById("confirmNewPassword").value;
+      const result = document.getElementById("resetResult");
+      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+
+      if (!username || !newPassword || !confirm) {
+        result.innerHTML = `<i data-feather="alert-circle" class="w-4 h-4"></i> Please fill out all fields.`;
+        result.classList.remove("hidden", "text-green-600");
+        result.classList.add("text-red-600");
+        feather.replace();
+        return;
+      }
+
+      if (newPassword !== confirm) {
+        result.innerHTML = `<i data-feather="x-circle" class="w-4 h-4"></i> Passwords do not match.`;
+        result.classList.remove("hidden", "text-green-600");
+        result.classList.add("text-red-600");
+        feather.replace();
+        return;
+      }
+
+      const res = await fetch(`${baseUrl}/api/reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, newPassword })
+      });
+
+      const data = await res.json();
+      result.innerHTML = data.success
+        ? `<i data-feather="check-circle" class="w-4 h-4"></i> Password updated successfully!`
+        : `<i data-feather="x-circle" class="w-4 h-4"></i> ${data.error || "Reset failed."}`;
+      result.classList.remove("hidden", "text-red-600", "text-green-600");
+      result.classList.add(data.success ? "text-green-600" : "text-red-600");
+      feather.replace();
+    }
+
+    // Apply saved theme (from localStorage)
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add("dark");
+    } else if (savedTheme === 'light') {
+      document.body.classList.remove("dark");
+    }
+
+    function goToPage(href) { 
+      document.body.classList.add("fade-out"); 
+      setTimeout(() => { 
+        window.location.href = href; 
+      }, 1000); 
+    }
+
+    // Fade-out transition on link clicks
+    document.querySelectorAll("a").forEach(link => {
+      if (link.hostname === window.location.hostname) {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const href = this.getAttribute("href");
+          document.body.classList.add("fade-out");
+          setTimeout(() => {
+            goToPage(href);
+          }, 1000);
+        });
+      }
+    });
+  </script>
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

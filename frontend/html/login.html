@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zylo | Login</title>
+  <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
+  <script src="/libs/tailwind/tailwind.js"></script>
+  <script src="/libs/feather/feather.min.js"></script>
+  <link rel="stylesheet" href="/files/style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          animation: {
+            fadeIn: 'fadeIn 0.6s ease-out',
+            fadeZoom: 'fadeZoom 0.6s ease-out',
+            ringPulse: 'ringPulse 4s infinite ease-in-out',
+            slideIn: 'slideIn 0.3s ease-out',
+            pop: 'pop 0.5s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            fadeZoom: {
+              '0%': { opacity: '0', transform: 'scale(0.8)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            },
+            ringPulse: {
+              '0%, 100%': { boxShadow: '0 0 0 0 rgba(59,130,246,0.7)' },
+              '50%': { boxShadow: '0 0 0 6px rgba(59,130,246,0)' },
+            },
+            slideIn: {
+              '0%': { transform: 'translateX(-100%)' },
+              '100%': { transform: 'translateX(0)' }
+            },
+            pop: {
+              '0%': { transform: 'scale(0.8)', opacity: '0' },
+              '50%': { transform: 'scale(1.1)', opacity: '1' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body id="body" class="min-h-screen flex flex-col items-center justify-center transition-colors duration-500 dark:text-white">
+
+  <!-- Theme Toggle -->
+  <div class="absolute top-4 right-4 z-50">
+    <button id="toggleTheme" class="flex items-center gap-1 bg-white text-gray-800 dark:bg-gray-800 dark:text-white px-3 py-1 rounded shadow hover:bg-gray-200 dark:hover:bg-gray-700 text-sm">
+      <i id="themeIcon" data-feather="sun" class="w-5 h-5"></i>
+      <span id="themeText" class="ml-1">
+        Light Mode
+      </span>
+    </button>
+  </div>
+  
+  <div class="w-full max-w-sm px-4 flex flex-col items-center space-y-4">
+
+    <!-- Login Card -->
+    <div class="bg-white/20 backdrop-blur-md dark:bg-gray-800/30 shadow-2xl rounded-xl w-[90%] max-w-sm p-6 space-y-4 border border-white/10">
+
+      <!-- Avatar -->
+      <div class="flex justify-center mb-1">
+        <img id="loginAvatar" src="/images/default_avatar.png" alt="Avatar" class="w-20 h-20 rounded-full shadow-md ring-2 ring-blue-400 dark:ring-blue-500 animate-ringPulse" />
+      </div>
+
+      <h2 class="zylo-heading text-2xl font-bold text-center">Welcome back!</h2>
+
+      <!-- Inputs -->
+      <div class="space-y-3">
+        <input id="username" type="text" placeholder="Username or Email" class="zylo-input w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 "/>
+
+        <div class="relative">
+          <input id="password" type="password" placeholder="Password" class="zylo-input w-full px-4 py-2 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 "/>
+          <span id="togglePassword" class="absolute top-2.5 right-3 text-blue-500 dark:text-blue-300 cursor-pointer text-sm select-none"><i id="eyeIcon" data-feather="eye"></i></span>
+        </div>
+      </div>
+
+      <!-- Remember -->
+      <div class="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-300">
+        <input type="checkbox" id="rememberMe" class="accent-blue-500">
+        <label for="rememberMe">Remember me</label>
+      </div>
+
+      <!-- Button -->
+      <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200">
+        Sign In
+      </button>
+
+      <!-- Error -->
+      <p id="error-msg" class="text-red-600 dark:text-red-400 text-sm text-center hidden">Invalid credentials.</p>
+
+      <!-- Extra -->
+      <div class="text-center text-sm space-y-1 mt-2">
+        <a href="forgot.html" class="text-blue-600 hover:underline dark:text-blue-400">Forgot your password?</a><br>
+        <span class="text-gray-600 dark:text-gray-400">Don't have an account?</span>
+        <a href="signup.html" class="text-blue-600 hover:underline dark:text-blue-400 ml-1">Create one</a>
+      </div>
+    </div>
+
+    <!-- Footer Links -->
+    <footer class="w-full mt-6 py-4 bg-white bg-opacity-70 dark:bg-transparent text-center text-xs text-gray-800 dark:text-gray-400 rounded-lg shadow-inner">
+      <p class="text-gray-700 dark:text-gray-400 mb-1">&copy; 2025 Zylo Inc. All rights reserved.</p>
+      <div class="space-x-3">
+        <button type="button" onclick="openModal('pp')" class="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</button>
+        <span class="text-gray-600 dark:text-gray-500">|</span>
+        <button type="button" onclick="openModal('tos')" class="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</button>
+      </div>
+    </footer>
+  </div>
+
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-50 hidden flex items-center justify-center px-4">
+    <div class="bg-white dark:bg-gray-800 max-w-2xl w-full p-6 rounded-lg shadow-lg overflow-y-auto max-h-[80vh]">
+      <h3 id="modalTitle" class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Document</h3>
+      <pre id="modalContent" class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap overflow-auto"></pre>
+      <div class="flex justify-end mt-4">
+        <button onclick="closeModal()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"><i data-feather="x"></i></button>
+      </div>
+    </div>
+  </div>
+</body>
+
+  <!-- JS -->
+  <script>
+    const body = document.getElementById('body');
+    const toggleBtn = document.getElementById('toggleTheme');
+    const toggleEye = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    // Toggle password visibility
+    toggleEye.onclick = () => {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        document.getElementById('eyeIcon').setAttribute('data-feather', 'eye-off');
+      } else {
+        passwordInput.type = 'password';
+        document.getElementById('eyeIcon').setAttribute('data-feather', 'eye');
+      }
+      feather.replace();
+    };
+
+    // Load username
+    window.onload = () => {
+      const saved = localStorage.getItem("savedUsername");
+      if (saved) {
+        document.getElementById("username").value = saved;
+        document.getElementById("rememberMe").checked = true;
+      }
+    };
+
+    // Theme preference
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        body.classList.add('dark');
+        document.getElementById('themeText').textContent = 'Dark Mode';
+        document.getElementById('themeIcon').setAttribute('data-feather', 'moon');
+      } else if (savedTheme === 'light') {
+        body.classList.remove('dark');
+        document.getElementById('themeText').textContent = 'Light Mode';
+        document.getElementById('themeIcon').setAttribute('data-feather', 'sun');
+      }
+      feather.replace();
+    });
+
+    toggleBtn.onclick = () => {
+      body.classList.toggle('dark');
+      const isDark = body.classList.contains('dark');
+      document.getElementById('themeText').textContent = isDark ? 'Dark Mode' : 'Light Mode';
+      document.getElementById('themeIcon').setAttribute('data-feather', isDark ? 'moon' : 'sun');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      feather.replace();
+    };
+
+    // Login logic
+    async function login() {
+      const identifier = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const remember = document.getElementById("rememberMe").checked;
+      const errorMsg = document.getElementById("error-msg");
+      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+
+      const response = await fetch(`${baseUrl}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        localStorage.setItem("username", result.username || identifier);
+        localStorage.setItem("usertag", result.usertag); 
+        remember ? localStorage.setItem("savedUsername", identifier) : localStorage.removeItem("savedUsername");
+        goToPage("loading.html");
+      } else {
+        errorMsg.textContent = result.error || "Login failed.";
+        errorMsg.classList.remove("hidden");
+      }
+    }
+
+    function goToPage(href) { 
+      document.body.classList.add("fade-out"); 
+      setTimeout(() => { 
+        window.location.href = href; 
+      }, 1000); 
+    }
+
+    // Fade-out transition on link clicks
+    document.querySelectorAll("a").forEach(link => {
+      if (link.hostname === window.location.hostname) {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const href = this.getAttribute("href");
+          document.body.classList.add("fade-out");
+          setTimeout(() => {
+            goToPage(href);
+          }, 1000);
+        });
+      }
+    });
+
+    // Enter key triggers login
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter") login();
+    });
+
+    const zyloPP = `Last Updated: 4:10 PM 7/31/2025
+
+This Privacy Policy explains how Zylo ("we", "us", or "our") collects, uses, and protects your information. By using Zylo, you agree to the collection and use of information in accordance with this policy.
+
+1. Information We Collect
+
+- Account Information : When you create an account, we may collect your name, email address, and login credentials.
+- Usage Data : We may collect information about how you access and use Zylo, including pages visited, features used, and device information.
+- Cookies : We may use cookies to enhance your experience, track usage, and remember your preferences.
+
+2. How We Use Your Information
+
+- To provide, maintain, and improve Zylo.
+- To personalize your experience.
+- To communicate with you, including support and notifications.
+- To enforce our terms and policies and ensure security.
+
+3. Sharing of Information
+
+- We do not sell your personal information.
+- We may share information with third-party services that help us operate Zylo (e.g., analytics, hosting).
+- We may disclose your information to comply with legal obligations or protect our rights.
+
+4. Data Retention
+
+We retain your information as long as necessary to provide services and fulfill our legal obligations.
+
+5. Your Rights and Choices
+
+- You can update or delete your information by contacting support.
+- You can opt out of certain communications.
+- You can disable cookies in your browser settings.
+
+6. Security
+
+We use reasonable measures to protect your data, but no method of transmission is 100% secure.
+
+7. Children's Privacy
+
+Zylo is not intended for use by children under 13. We do not knowingly collect personal information from children.
+
+8. Changes to This Policy
+
+We may update this Privacy Policy from time to time. Changes will be posted on this page.
+
+9. Contact Us
+
+If you have questions or concerns, contact us at zylosupp0rt@gmail.com.
+`;
+
+    const zyloTOS = `Last Updated: 4:07 PM 7/31/2025
+
+Welcome to Zylo! These Terms of Service ("Terms") govern your access to and use of our services, software, and website located at [https://github.com/D4niel-dev].
+
+By accessing or using Zylo, you agree to be bound by these Terms. If you do not agree with any part of the Terms, you must not access or use our Service.
+
+1. Acceptance of Terms
+
+By accessing or using Zylo, you affirm that you are at least 13 years old and that you agree to these Terms.
+
+2. Use of the Service
+
+- You agree to use Zylo only for lawful purposes and in accordance with these Terms.
+- You are responsible for maintaining the confidentiality of your account and password.
+
+3. User Conduct
+
+You agree not to:
+- Violate any applicable laws or regulations.
+- Interfere with or disrupt the Service.
+- Use Zylo to transmit harmful or illegal content.
+
+4. Intellectual Property
+
+All content and materials on Zylo, including trademarks and software, are the property of Zylo or its licensors and are protected by copyright and intellectual property laws.
+
+5. Termination
+
+We may suspend or terminate your access to Zylo if you violate these Terms or for any reason at our discretion.
+
+6. Disclaimers
+
+Zylo is provided "as is" and "as available." We do not guarantee that the Service will be error-free or uninterrupted.
+
+7. Limitation of Liability
+
+To the fullest extent permitted by law, Zylo shall not be liable for any indirect, incidental, or consequential damages resulting from your use of the Service.
+
+8. Changes to the Terms
+
+We reserve the right to modify these Terms at any time. Changes will be posted on this page, and your continued use of Zylo signifies acceptance.
+
+9. Contact Us
+
+If you have any questions about these Terms, contact us at zylosupp0rt@gmail.com.
+`;
+
+
+    function openModal(type) {
+      const title = type === 'pp' ? "Privacy Policy" : "Terms of Service";
+      const content = type === 'pp' ? zyloPP : zyloTOS;
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalContent").textContent = content;
+      document.getElementById("modal").classList.remove("hidden");
+      document.body.classList.add("overflow-hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("modal").classList.add("hidden");
+      document.body.classList.remove("overflow-hidden");
+    }
+
+    const loginAvatar = document.getElementById("loginAvatar");
+    const usernameField = document.getElementById("username");
+
+    document.getElementById("username").addEventListener("blur", async () => {
+      const identifier = document.getElementById("username").value.trim();
+      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+      if (!identifier) return;
+
+      try {
+        const res = await fetch(`${baseUrl}/api/get-user?identifier=${encodeURIComponent(identifier)}`);
+        const data = await res.json();
+
+        const avatarImg = document.getElementById("loginAvatar");
+        if (data.success && data.user.avatar) {
+          avatarImg.src = data.user.avatar;
+        } else {
+          avatarImg.src = "/images/default_avatar.png";
+        }
+      } catch (err) {
+        console.error("Failed to load avatar", err);
+        document.getElementById("loginAvatar").src = "/images/default_avatar.png";
+      }
+    });
+  </script>
+  <div id="modalOverlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+  <div id="modalBox" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-[90%] max-w-2xl max-h-[90vh] bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 rounded-lg shadow-lg overflow-y-auto hidden">
+    <div class="p-4 border-b border-gray-300 dark:border-gray-700 flex justify-between items-center">
+      <h3 id="modalTitle" class="text-lg font-semibold">Title</h3>
+      <button onclick="closeModal()" class="text-red-500 hover:text-red-600"><i data-feather="x"></i></button>
+    </div>
+    <div id="modalContent" class="p-4 space-y-2 text-sm whitespace-pre-line overflow-y-auto max-h-[70vh]"></div>
+  </div>
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>
