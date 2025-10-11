@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory, render_template
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 import base64
 import smtplib
@@ -27,6 +27,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 USER_DATA_FILE = os.path.join(DATA_DIR, 'users.json')
 FRONTEND_DIR = os.path.join(BASE_DIR, '../frontend')
 MESSAGES_FILE = os.path.join(DATA_DIR, "messages.json")
+GROUPS_FILE = os.path.join(DATA_DIR, 'groups.json')
 os.makedirs(DATA_DIR, exist_ok=True)
 
 # Helper functions
@@ -60,6 +61,22 @@ def load_messages():
 def save_messages(messages):
     with open(MESSAGES_FILE, "w", encoding="utf-8") as f:
         json.dump(messages, f, indent=2)
+
+# Group storage helpers
+def load_groups():
+    if not os.path.exists(GROUPS_FILE):
+        with open(GROUPS_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f)
+        return []
+    try:
+        with open(GROUPS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+def save_groups(groups):
+    with open(GROUPS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(groups, f, indent=2)
 
 
 def http_post_json(url: str, payload: dict, timeout: int = 20) -> dict:
@@ -137,6 +154,8 @@ def send_reset_email(to_email, reset_link):
         
 # Load existing messages
 messages = load_messages()
+# Load groups in memory (lightweight; persisted to file on changes)
+groups = load_groups()
 
 # API Endpoints
 @app.route("/api/signup", methods=["POST"])
@@ -285,6 +304,43 @@ def handle_send_file(data):
 
     emit("receive_file", msg_data, broadcast=True)
 
+@socketio.on('join_group')
+def handle_join_group(data):
+    group_id = (data or {}).get('groupId')
+    username = (data or {}).get('username')
+    if not group_id or not username:
+        return
+    for g in load_groups():
+        if g.get('id') == group_id and (username in (g.get('members') or []) or username == g.get('owner')):
+            join_room(group_id)
+            emit('group_joined', { 'groupId': group_id })
+            return
+
+@socketio.on('leave_group')
+def handle_leave_group(data):
+    group_id = (data or {}).get('groupId')
+    if not group_id:
+        return
+    leave_room(group_id)
+
+@socketio.on('send_group_message')
+def handle_send_group_message(data):
+    group_id = (data or {}).get('groupId')
+    username = (data or {}).get('username')
+    message = (data or {}).get('message')
+    if not group_id or not username or not message:
+        return
+    all_groups = load_groups()
+    for idx, g in enumerate(all_groups):
+        if g.get('id') == group_id:
+            entry = { 'username': username, 'message': message }
+            msgs = g.get('messages') or []
+            msgs.append(entry)
+            all_groups[idx]['messages'] = msgs
+            save_groups(all_groups)
+            emit('receive_group_message', { 'groupId': group_id, 'username': username, 'message': message }, room=group_id)
+            return
+
     
 @socketio.on("typing")
 def handle_typing(data):
@@ -302,7 +358,12 @@ def get_stats():
     users = load_users()
     user_count = len(users)
     message_count = len(messages) 
-    room_count = 2
+    try:
+        current_groups = load_groups()
+        # +1 for the public community room
+        room_count = (len(current_groups) or 0) + 1
+    except Exception:
+        room_count = 1
 
     return jsonify({
         "users": user_count,
@@ -702,6 +763,234 @@ def delete_account():
 
     return jsonify({"success": True})
 
+# ---------------- Friends APIs ---------------- #
+
+def _ensure_social_fields(user: dict) -> dict:
+    if user is None:
+        return {}
+    if 'friends' not in user or not isinstance(user.get('friends'), list):
+        user['friends'] = []
+    if 'friendRequests' not in user or not isinstance(user.get('friendRequests'), dict):
+        user['friendRequests'] = { 'incoming': [], 'outgoing': [] }
+    else:
+        fr = user['friendRequests']
+        if not isinstance(fr.get('incoming'), list):
+            fr['incoming'] = []
+        if not isinstance(fr.get('outgoing'), list):
+            fr['outgoing'] = []
+    return user
+
+
+@app.route('/api/friends', methods=['GET'])
+def friends_get():
+    username = (request.args.get('username') or '').strip()
+    if not username:
+        return jsonify({"success": False, "error": "Missing username"}), 400
+    users = load_users()
+    _, user = _find_user(users, username)
+    if user is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+    user = _ensure_social_fields(user)
+    return jsonify({
+        "success": True,
+        "friends": user.get('friends', []),
+        "incoming": user.get('friendRequests', {}).get('incoming', []),
+        "outgoing": user.get('friendRequests', {}).get('outgoing', []),
+    })
+
+
+@app.route('/api/friends/request', methods=['POST'])
+def friends_request():
+    data = request.json or {}
+    sender = (data.get('from') or '').strip()
+    target = (data.get('to') or '').strip()
+    if not sender or not target:
+        return jsonify({"success": False, "error": "Missing from/to"}), 400
+    if sender == target:
+        return jsonify({"success": False, "error": "Cannot add yourself"}), 400
+    users = load_users()
+    si, su = _find_user(users, sender)
+    ti, tu = _find_user(users, target)
+    if su is None or tu is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+    su = _ensure_social_fields(su)
+    tu = _ensure_social_fields(tu)
+
+    if target in su['friends']:
+        return jsonify({"success": False, "error": "Already friends"}), 409
+    if target in su['friendRequests']['outgoing']:
+        return jsonify({"success": True, "message": "Already requested"})
+    if sender in tu['friendRequests']['incoming']:
+        return jsonify({"success": True, "message": "Already requested"})
+
+    su['friendRequests']['outgoing'].append(target)
+    tu['friendRequests']['incoming'].append(sender)
+    users[si] = su
+    users[ti] = tu
+    save_users(users)
+    return jsonify({"success": True})
+
+
+@app.route('/api/friends/accept', methods=['POST'])
+def friends_accept():
+    data = request.json or {}
+    username = (data.get('username') or '').strip()
+    requester = (data.get('from') or '').strip()
+    if not username or not requester:
+        return jsonify({"success": False, "error": "Missing fields"}), 400
+    users = load_users()
+    ui, u = _find_user(users, username)
+    ri, r = _find_user(users, requester)
+    if u is None or r is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+    u = _ensure_social_fields(u)
+    r = _ensure_social_fields(r)
+
+    if requester in u['friendRequests']['incoming']:
+        u['friendRequests']['incoming'] = [x for x in u['friendRequests']['incoming'] if x != requester]
+    if username in r['friendRequests']['outgoing']:
+        r['friendRequests']['outgoing'] = [x for x in r['friendRequests']['outgoing'] if x != username]
+
+    if requester not in u['friends']:
+        u['friends'].append(requester)
+    if username not in r['friends']:
+        r['friends'].append(username)
+
+    users[ui] = u
+    users[ri] = r
+    save_users(users)
+    return jsonify({"success": True})
+
+
+@app.route('/api/friends/decline', methods=['POST'])
+def friends_decline():
+    data = request.json or {}
+    username = (data.get('username') or '').strip()
+    requester = (data.get('from') or '').strip()
+    if not username or not requester:
+        return jsonify({"success": False, "error": "Missing fields"}), 400
+    users = load_users()
+    ui, u = _find_user(users, username)
+    ri, r = _find_user(users, requester)
+    if u is None or r is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+    u = _ensure_social_fields(u)
+    r = _ensure_social_fields(r)
+    u['friendRequests']['incoming'] = [x for x in u['friendRequests']['incoming'] if x != requester]
+    r['friendRequests']['outgoing'] = [x for x in r['friendRequests']['outgoing'] if x != username]
+    users[ui] = u
+    users[ri] = r
+    save_users(users)
+    return jsonify({"success": True})
+
+
+@app.route('/api/friends/remove', methods=['POST'])
+def friends_remove():
+    data = request.json or {}
+    username = (data.get('username') or '').strip()
+    friend = (data.get('friend') or '').strip()
+    if not username or not friend:
+        return jsonify({"success": False, "error": "Missing fields"}), 400
+    users = load_users()
+    ui, u = _find_user(users, username)
+    fi, fuser = _find_user(users, friend)
+    if u is None or fuser is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+    u = _ensure_social_fields(u)
+    fuser = _ensure_social_fields(fuser)
+    u['friends'] = [x for x in u['friends'] if x != friend]
+    fuser['friends'] = [x for x in fuser['friends'] if x != username]
+    users[ui] = u
+    users[fi] = fuser
+    save_users(users)
+    return jsonify({"success": True})
+
+# ---------------- Groups APIs ---------------- #
+
+def _gen_group_id() -> str:
+    return f"g{random.randint(100000, 999999)}"
+
+
+@app.route('/api/groups', methods=['GET'])
+def list_groups():
+    username = (request.args.get('username') or '').strip()
+    all_groups = load_groups()
+    if username:
+        filtered = [g for g in all_groups if username in (g.get('members') or []) or username == g.get('owner')]
+        return jsonify({"success": True, "groups": filtered})
+    return jsonify({"success": True, "groups": all_groups})
+
+
+@app.route('/api/groups/create', methods=['POST'])
+def create_group():
+    data = request.json or {}
+    owner = (data.get('owner') or '').strip()
+    name = (data.get('name') or '').strip()
+    description = (data.get('description') or '').strip()
+    if not owner or not name:
+        return jsonify({"success": False, "error": "Missing owner/name"}), 400
+    users = load_users()
+    _, u = _find_user(users, owner)
+    if u is None:
+        return jsonify({"success": False, "error": "Owner not found"}), 404
+    gid = _gen_group_id()
+    g = {
+        "id": gid,
+        "name": name,
+        "description": description,
+        "owner": owner,
+        "members": [owner],
+        "messages": []
+    }
+    all_groups = load_groups()
+    all_groups.append(g)
+    save_groups(all_groups)
+    return jsonify({"success": True, "group": g})
+
+
+@app.route('/api/groups/join', methods=['POST'])
+def join_group_api():
+    data = request.json or {}
+    username = (data.get('username') or '').strip()
+    group_id = (data.get('groupId') or '').strip()
+    if not username or not group_id:
+        return jsonify({"success": False, "error": "Missing username/groupId"}), 400
+    all_groups = load_groups()
+    for idx, g in enumerate(all_groups):
+        if g.get('id') == group_id:
+            members = g.get('members') or []
+            if username not in members:
+                members.append(username)
+                all_groups[idx]['members'] = members
+                save_groups(all_groups)
+            return jsonify({"success": True, "group": all_groups[idx]})
+    return jsonify({"success": False, "error": "Group not found"}), 404
+
+
+@app.route('/api/groups/leave', methods=['POST'])
+def leave_group_api():
+    data = request.json or {}
+    username = (data.get('username') or '').strip()
+    group_id = (data.get('groupId') or '').strip()
+    if not username or not group_id:
+        return jsonify({"success": False, "error": "Missing username/groupId"}), 400
+    all_groups = load_groups()
+    for idx, g in enumerate(all_groups):
+        if g.get('id') == group_id:
+            members = [m for m in (g.get('members') or []) if m != username]
+            all_groups[idx]['members'] = members
+            save_groups(all_groups)
+            return jsonify({"success": True})
+    return jsonify({"success": False, "error": "Group not found"}), 404
+
+
+@app.route('/api/groups/<group_id>/messages', methods=['GET'])
+def group_messages_get(group_id):
+    all_groups = load_groups()
+    for g in all_groups:
+        if g.get('id') == group_id:
+            return jsonify(g.get('messages') or [])
+    return jsonify([])
 # Run the app (IMPORTANT: Use socketio.run to enable Socket.IO support)
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)
