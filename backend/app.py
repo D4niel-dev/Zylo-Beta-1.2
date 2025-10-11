@@ -9,6 +9,9 @@ import json
 import socket
 import os
 import random
+import urllib.request
+import urllib.error
+import ssl
 
 # Initialize Flask app and SocketIO
 app = Flask(__name__, static_folder='frontend')
@@ -52,6 +55,31 @@ def load_messages():
 def save_messages(messages):
     with open(MESSAGES_FILE, "w", encoding="utf-8") as f:
         json.dump(messages, f, indent=2)
+
+
+def http_post_json(url: str, payload: dict, timeout: int = 20) -> dict:
+    """Simple stdlib JSON POST helper to avoid extra deps."""
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+    # Accept self-signed in local networks if any
+    context = ssl.create_default_context()
+    try:
+        with urllib.request.urlopen(req, timeout=timeout, context=context) as resp:
+            raw = resp.read()
+            return json.loads(raw.decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        try:
+            return json.loads(e.read().decode("utf-8"))
+        except Exception:
+            raise
+
+
+def http_get_json(url: str, timeout: int = 10) -> dict:
+    req = urllib.request.Request(url)
+    context = ssl.create_default_context()
+    with urllib.request.urlopen(req, timeout=timeout, context=context) as resp:
+        raw = resp.read()
+        return json.loads(raw.decode("utf-8"))
 
 def send_reset_email(to_email, reset_link):
     from_email = os.getenv("Zylo_SMTP_FROM", "zylosupp0rt@gmail.com")
@@ -269,13 +297,95 @@ def get_stats():
     users = load_users()
     user_count = len(users)
     message_count = len(messages) 
-    room_count = 1
+    room_count = 2
 
     return jsonify({
         "users": user_count,
         "messages": message_count,
         "rooms": room_count
     })
+
+
+@app.route('/api/ai/models', methods=['GET'])
+def ai_models():
+    """Return available AI models. Prefers Ollama if reachable."""
+    provider = os.getenv('Zylo_AI_PROVIDER', 'auto').lower()
+    # Try Ollama if explicitly requested or auto
+    if provider in ('ollama', 'auto'):
+        try:
+            tags = http_get_json('http://127.0.0.1:11434/api/tags', timeout=3)
+            models = [m.get('name') for m in tags.get('models', []) if m.get('name')]
+            if models:
+                return jsonify({"success": True, "provider": "ollama", "models": models})
+        except Exception:
+            pass
+    # Fallback list (may not be installed; UI can allow selection anyway)
+    fallback_models = [
+        "llama3.2:1b",
+        "llama3.1:8b",
+        "tinyllama",
+        "phi3:mini",
+        "qwen2.5:0.5b",
+    ]
+    return jsonify({"success": True, "provider": "mock", "models": fallback_models})
+
+
+def mock_ai_response(messages: list) -> str:
+    """Very simple fallback responder when no local model is available."""
+    last_user = ""
+    for m in reversed(messages or []):
+        if (m.get('role') or '').lower() == 'user':
+            last_user = m.get('content', '')
+            break
+    if not last_user:
+        return "Hello! Ask me anything and I'll do my best to help."
+    # Friendly reflection with a tiny bit of guidance
+    snippet = last_user.strip()
+    if len(snippet) > 240:
+        snippet = snippet[:240] + "…"
+    return (
+        "Here's a quick thought: " + snippet + "\n\n"
+        "- If you want step-by-step help, tell me your goal and constraints.\n"
+        "- For code, paste the snippet and error.\n\n"
+        "I can also draft examples or explain trade-offs."
+    )
+
+
+@app.route('/api/ai/chat', methods=['POST'])
+def ai_chat():
+    """Chat with an AI assistant. Uses Ollama if available, else mock."""
+    data = request.get_json(silent=True) or {}
+    messages_in = data.get('messages') or []
+    single_message = data.get('message')
+    if not messages_in and single_message:
+        messages_in = [{"role": "user", "content": str(single_message)}]
+
+    model = (data.get('model') or os.getenv('Zylo_AI_MODEL') or 'llama3.1:8b')
+    provider = os.getenv('Zylo_AI_PROVIDER', 'auto').lower()
+
+    # Try Ollama first if configured/auto
+    if provider in ('ollama', 'auto'):
+        try:
+            payload = {
+                "model": model,
+                "stream": False,
+                "messages": messages_in,
+            }
+            resp = http_post_json('http://127.0.0.1:11434/api/chat', payload, timeout=30)
+            # Expected schema: { message: { role, content }, ... }
+            reply = (
+                ((resp or {}).get('message') or {}).get('content')
+                or (resp.get('response') if isinstance(resp, dict) else None)
+            )
+            if reply:
+                return jsonify({"success": True, "provider": "ollama", "model": model, "reply": reply})
+        except Exception as e:
+            # Fall through to mock
+            pass
+
+    # Mock fallback
+    reply = mock_ai_response(messages_in)
+    return jsonify({"success": True, "provider": "mock", "model": "mock", "reply": reply})
 
 @app.route('/api/get-user')
 def get_user():

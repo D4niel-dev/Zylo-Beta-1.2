@@ -196,12 +196,24 @@
 
         <!-- Header -->
         <div class="p-3 border-b border-gray-700">
-          <h1 class="chat-title text-lg font-bold flex items-center gap-2">💬 Chat Room</h1>
-          <p class="chat-subtitle text-sm text-gray-400">Start chatting with other users or your friends!</p>
+          <h1 class="chat-title text-lg font-bold flex items-center gap-2">💬 Chat Rooms</h1>
+          <p class="chat-subtitle text-sm text-gray-400">Start chatting with the community or try the AI assistant.</p>
+          <div class="flex flex-wrap items-center gap-2 mt-2">
+            <div class="inline-flex rounded-md bg-gray-800/70 border border-gray-700 p-1">
+              <button id="btnRoomCommunity" class="px-3 py-1 rounded-md text-xs bg-blue-600 text-white" onclick="switchChatRoom('community')">Community</button>
+              <button id="btnRoomAI" class="px-3 py-1 rounded-md text-xs text-gray-300 hover:bg-gray-700" onclick="switchChatRoom('ai')">AI Chat</button>
+            </div>
+            <div id="aiControls" class="hidden items-center gap-2">
+              <label for="aiModelSelect" class="text-xs text-gray-400">Model</label>
+              <select id="aiModelSelect" class="text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200"></select>
+              <button id="aiClearBtn" class="px-2 py-1 rounded bg-gray-700 text-white text-xs" onclick="clearAiConversation()">Clear</button>
+            </div>
+          </div>
         </div>
 
-        <!-- Messages Area -->
-        <div id="chatMessages" class="chat-messages"></div>
+        <!-- Messages Areas -->
+        <div id="chatMessagesCommunity" class="chat-messages"></div>
+        <div id="chatMessagesAI" class="chat-messages hidden"></div>
 
         <!-- Typing indicator -->
         <div id="typingIndicator" class="typing-indicator"></div>
@@ -737,7 +749,12 @@
     const baseUrl = window.location.origin;
     const socket = navigator.onLine ? io(baseUrl) : { emit: function(){}, on: function(){}, off: function(){}};
     const chatInput = document.getElementById("chatInput");
-    const chatMessages = document.getElementById("chatMessages");
+    const chatMessagesCommunity = document.getElementById("chatMessagesCommunity");
+    const chatMessagesAI = document.getElementById("chatMessagesAI");
+    const aiControls = document.getElementById("aiControls");
+    const aiModelSelect = document.getElementById("aiModelSelect");
+    let currentChatRoom = localStorage.getItem('chatRoom') || 'community';
+    let aiConversation = [];
     const username = localStorage.getItem("savedUsername") || "N/A";
     const email = localStorage.getItem("savedEmail") || "N/A";
     const typingIndicator = document.getElementById("typingIndicator");
@@ -745,7 +762,9 @@
     let emojiPickerVisible = false;
 
     chatInput.addEventListener("input", () => {
-      socket.emit("typing", { username });
+      if (navigator.onLine && currentChatRoom === 'community') {
+        socket.emit("typing", { username });
+      }
     });
 
     chatInput.addEventListener("keydown", function (event) {
@@ -769,7 +788,7 @@
       this.style.height = this.scrollHeight + "px";
     });
     
-    function appendMessage(data) {
+    function appendCommunityMessage(data) {
       const isOwnMessage = data.username === username;
 
       // Create message wrapper
@@ -833,16 +852,85 @@
       }
 
       // Append to chat
-      chatMessages.appendChild(msgWrapper);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      chatMessagesCommunity.appendChild(msgWrapper);
+      chatMessagesCommunity.scrollTop = chatMessagesCommunity.scrollHeight;
     }
 
-    function sendMessage() {
+    function appendAiBubble(role, content) {
+      const isOwn = role === 'user';
+
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('flex', 'items-start', 'gap-2', 'mb-2');
+      wrapper.classList.add(isOwn ? 'justify-end' : 'justify-start');
+
+      const avatar = document.createElement('img');
+      avatar.src = isOwn ? (localStorage.getItem('avatar') || '/images/default_avatar.png') : '/images/Zylo_icon.ico';
+      avatar.alt = isOwn ? `${username}'s avatar` : 'AI avatar';
+      avatar.className = 'w-8 h-8 rounded-full object-cover';
+
+      const bubble = document.createElement('div');
+      bubble.classList.add('message', isOwn ? 'self' : 'other');
+
+      const header = document.createElement('div');
+      header.className = 'text-xs opacity-75 mb-1';
+      header.textContent = `${isOwn ? username : 'AI'} | ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
+      const body = document.createElement('div');
+      body.textContent = content;
+
+      bubble.appendChild(header);
+      bubble.appendChild(body);
+
+      if (isOwn) {
+        wrapper.appendChild(bubble);
+        wrapper.appendChild(avatar);
+      } else {
+        wrapper.appendChild(avatar);
+        wrapper.appendChild(bubble);
+      }
+
+      chatMessagesAI.appendChild(wrapper);
+      chatMessagesAI.scrollTop = chatMessagesAI.scrollHeight;
+    }
+
+    async function sendMessage() {
       const message = chatInput.value.trim();
-      if (message) {
+      if (!message) return;
+
+      if (currentChatRoom === 'community') {
         socket.emit("send_message", { username, message });
         chatInput.value = "";
         chatInput.style.height = "auto";
+        return;
+      }
+
+      // AI chat path
+      const model = aiModelSelect?.value || '';
+      const payload = {
+        model,
+        messages: [...aiConversation, { role: 'user', content: message }]
+      };
+
+      // Optimistically render user message
+      appendAiBubble('user', message);
+      aiConversation.push({ role: 'user', content: message });
+      localStorage.setItem('ai_conversation', JSON.stringify(aiConversation));
+      chatInput.value = "";
+      chatInput.style.height = "auto";
+
+      try {
+        const res = await fetch('/api/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const reply = data.reply || data.response || 'Sorry, no reply available.';
+        appendAiBubble('assistant', reply);
+        aiConversation.push({ role: 'assistant', content: reply });
+        localStorage.setItem('ai_conversation', JSON.stringify(aiConversation));
+      } catch (e) {
+        appendAiBubble('assistant', 'There was an error contacting the AI.');
       }
     }
 
@@ -895,7 +983,7 @@
     });
 
     socket.on("receive_message", (data) => {
-      appendMessage(data);
+      appendCommunityMessage(data);
     });
 
     socket.on("receive_file", (data) => {
@@ -947,8 +1035,8 @@
         wrapper.appendChild(bubble);
       }
 
-      chatMessages.appendChild(wrapper);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      chatMessagesCommunity.appendChild(wrapper);
+      chatMessagesCommunity.scrollTop = chatMessagesCommunity.scrollHeight;
     });
 
     function updateTypingIndicator() {
@@ -971,10 +1059,69 @@
     if (navigator.onLine) {
       fetch("/api/messages")
         .then((res) => res.json())
-        .then((msgs) => msgs.forEach(appendMessage))
+        .then((msgs) => msgs.forEach(appendCommunityMessage))
         .catch(() => {});
     } else {
       // Render nothing; app still loads offline
+    }
+
+    function switchChatRoom(room) {
+      currentChatRoom = room;
+      localStorage.setItem('chatRoom', room);
+      const btnCommunity = document.getElementById('btnRoomCommunity');
+      const btnAI = document.getElementById('btnRoomAI');
+
+      if (room === 'community') {
+        chatMessagesCommunity.classList.remove('hidden');
+        chatMessagesAI.classList.add('hidden');
+        aiControls.classList.add('hidden');
+        btnCommunity.classList.add('bg-blue-600', 'text-white');
+        btnAI.classList.remove('bg-blue-600', 'text-white');
+      } else {
+        chatMessagesCommunity.classList.add('hidden');
+        chatMessagesAI.classList.remove('hidden');
+        aiControls.classList.remove('hidden');
+        btnAI.classList.add('bg-blue-600', 'text-white');
+        btnCommunity.classList.remove('bg-blue-600', 'text-white');
+        // Render saved AI conversation
+        restoreAiConversation();
+      }
+    }
+
+    function restoreAiConversation() {
+      try {
+        aiConversation = JSON.parse(localStorage.getItem('ai_conversation') || '[]');
+      } catch { aiConversation = []; }
+      chatMessagesAI.innerHTML = '';
+      aiConversation.forEach(msg => appendAiBubble(msg.role, msg.content));
+    }
+
+    function clearAiConversation() {
+      aiConversation = [];
+      localStorage.removeItem('ai_conversation');
+      chatMessagesAI.innerHTML = '';
+    }
+
+    async function loadAiModels() {
+      try {
+        const res = await fetch('/api/ai/models');
+        const data = await res.json();
+        const models = data.models || [];
+        aiModelSelect.innerHTML = '';
+        models.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m;
+          opt.textContent = m;
+          aiModelSelect.appendChild(opt);
+        });
+        const saved = localStorage.getItem('ai_model');
+        if (saved && models.includes(saved)) {
+          aiModelSelect.value = saved;
+        }
+        aiModelSelect.addEventListener('change', () => {
+          localStorage.setItem('ai_model', aiModelSelect.value);
+        });
+      } catch {}
     }
 
     // Profile Functions
@@ -1700,6 +1847,10 @@
       }
 
       if (savedTheme) updateThemeButtons(savedTheme);
+
+      // Initialize chat room + models
+      loadAiModels();
+      switchChatRoom(currentChatRoom);
     });
 
     function switchTab(tabName) {
@@ -1812,10 +1963,29 @@
         const message = input.value.trim();
         if (!message) return;
         if (!navigator.onLine) {
-          const username = localStorage.getItem('savedUsername') || 'N/A';
-          const q = getQueue();
-          q.push({ username, message, ts: Date.now() });
-          setQueue(q);
+          // Only queue community messages. AI requires online access.
+          if (typeof currentChatRoom !== 'undefined' && currentChatRoom === 'community') {
+            const username = localStorage.getItem('savedUsername') || 'N/A';
+            const q = getQueue();
+            q.push({ username, message, ts: Date.now() });
+            setQueue(q);
+          } else {
+            // Offline AI: render locally and inform user
+            try {
+              if (typeof appendAiBubble === 'function') {
+                appendAiBubble('user', message);
+                if (Array.isArray(aiConversation)) {
+                  aiConversation.push({ role: 'user', content: message });
+                  localStorage.setItem('ai_conversation', JSON.stringify(aiConversation));
+                }
+                appendAiBubble('assistant', 'You are offline. AI chat requires internet.');
+                if (Array.isArray(aiConversation)) {
+                  aiConversation.push({ role: 'assistant', content: 'You are offline. AI chat requires internet.' });
+                  localStorage.setItem('ai_conversation', JSON.stringify(aiConversation));
+                }
+              }
+            } catch (e) {}
+          }
           input.value = '';
           input.style.height = 'auto';
           return;
