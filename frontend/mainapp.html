@@ -427,7 +427,7 @@
                 <select id="startupPage" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
                   <option value="home">Home</option>
                   <option value="profile">Profile</option>
-                  <option value="messages">Messages</option>
+                  <option value="chats">Messages</option>
                   <option value="settings">Settings</option>
                 </select>
               </div>
@@ -1144,8 +1144,8 @@
                 document.getElementById("profileUsername").textContent = updated.username;
                 document.getElementById("profileUsertag").textContent = updated.usertag;
                 document.getElementById("aboutMe").value = updated.aboutMe || "";
-                document.getElementById("avatarImage").src = updated.avatar || "/images/default-avatar.png";
-                document.getElementById("bannerImage").src = updated.banner || "/images/default-banner.png";
+                document.getElementById("avatarImage").src = updated.avatar || "/images/default_avatar.png";
+                document.getElementById("bannerImage").src = updated.banner || "/images/default_banner.png";
             } else {
                 console.error("User not found");
             }
@@ -1293,8 +1293,8 @@
 
           document.getElementById("profileUsername").textContent = user.username || "N/A";
           document.getElementById("profileUsertag").textContent = user.usertag || "N/A";
-          document.getElementById("avatarImage").src = user.avatar || "images/default_avatar.png";
-          document.getElementById("bannerImage").src = user.banner || "images/default_banner.png";
+          document.getElementById("avatarImage").src = user.avatar || "/images/default_avatar.png";
+          document.getElementById("bannerImage").src = user.banner || "/images/default_banner.png";
           document.getElementById("aboutMe").value = user.aboutMe || "";
           document.getElementById("statLevel").textContent = user.level || 0;
           document.getElementById("statGold").textContent = user.gold || 0;
@@ -1338,41 +1338,35 @@
     }
 
     function getRankColor(rank) {
-      rank = rank.toLowerCase();
-      if (rank.startsWith("stone")) return "#808080"; // gray
-      if (rank.startsWith("metal")) return "#a8a9ad"; // silver
-      if (rank.startsWith("gold")) return "#FFD700"; // gold yellow
-      if (rank.startsWith("mithril") && !rank.startsWith("black")) return "#87CEFA"; // light blue
-      if (rank.startsWith("black mithril")) return "#4682B4"; // dark light blue
-      if (rank.startsWith("grand master")) return "#4B0082"; // dark purple
-      if (rank.startsWith("master")) return "#800080"; // purple
-      if (rank.startsWith("Master Slayer")) return "#FF4500"; // Bright orange-red
+      const lowered = String(rank || '').toLowerCase();
+      if (lowered.startsWith("stone")) return "#808080"; // gray
+      if (lowered.startsWith("metal")) return "#a8a9ad"; // silver
+      if (lowered.startsWith("gold")) return "#FFD700"; // gold yellow
+      if (lowered.startsWith("mithril") && !lowered.startsWith("black")) return "#87CEFA"; // light blue
+      if (lowered.startsWith("black mithril")) return "#4682B4"; // dark light blue
+      if (lowered.startsWith("grand master")) return "#4B0082"; // dark purple
+      if (lowered.startsWith("master slayer")) return "#FF4500"; // Bright orange-red
+      if (lowered.startsWith("master")) return "#800080"; // purple
       return "#ffffff"; // default white
     }
 
     document.addEventListener("keydown", function (e) {
       if (e.ctrlKey && e.key.toLowerCase() === "a") {
         e.preventDefault();
-
-        const levelEl = document.querySelector("#tab-profile .grid div:nth-child(1) p.font-bold");
-        const goldEl = document.querySelector("#tab-profile .grid div:nth-child(2) p.font-bold");
+        const levelEl = document.getElementById("statLevel");
+        const goldEl = document.getElementById("statGold");
         const rankEl = document.getElementById("statRank");
-
-        let level = parseInt(levelEl.textContent) || 0;
-        let gold = parseInt(goldEl.textContent.replace(/,/g, "")) || 0;
-
-        // +1000 for testing
-        level += 10;
-        if (level > 450) level = 450; // cap at max level
+        let level = parseInt(levelEl?.textContent || '0', 10) || 0;
+        let gold = parseInt((goldEl?.textContent || '0').replace(/,/g, ""), 10) || 0;
+        level = Math.min(level + 10, 450);
         gold += 1000;
-
-        levelEl.textContent = level;
-        goldEl.textContent = gold.toLocaleString();
-
-        // Update rank & color
+        if (levelEl) levelEl.textContent = String(level);
+        if (goldEl) goldEl.textContent = gold.toLocaleString();
         const rank = getRank(level);
-        rankEl.textContent = rank;
-        rankEl.style.color = getRankColor(rank);
+        if (rankEl) {
+          rankEl.textContent = rank;
+          rankEl.style.color = getRankColor(rank);
+        }
       }
     });
 
@@ -1565,6 +1559,15 @@
     // Settings Functions
 
     /// General Settings
+    function persistSettings(partial) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      fetch('/api/update-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, settings: partial })
+      }).catch(() => {});
+    }
     const settingsMap = [
       { id: "animationsToggle", key: "enableAnimations" },
       { id: "compactToggle", key: "compactMode" },
@@ -1594,6 +1597,7 @@
           const value = this.type === "checkbox" ? this.checked : this.value;
           localStorage.setItem(key, value);
           applyGeneralSettings();
+          persistSettings({ [key]: value });
         });
       }
     });
@@ -1624,71 +1628,176 @@
     document.getElementById("animationsToggle").addEventListener("change", function() {
       localStorage.setItem("enableAnimations", this.checked);
       applyGeneralSettings();
+      persistSettings({ enableAnimations: this.checked });
     });
 
     document.getElementById("compactToggle").addEventListener("change", function() {
       localStorage.setItem("compactMode", this.checked);
       applyGeneralSettings();
+      persistSettings({ compactMode: this.checked });
     });
 
     document.getElementById("tooltipToggle").addEventListener("change", function() {
       localStorage.setItem("showTooltips", this.checked);
       applyGeneralSettings();
+      persistSettings({ showTooltips: this.checked });
     });
 
     document.getElementById("languageSelect").addEventListener("change", function() {
       localStorage.setItem("language", this.value);
+      persistSettings({ language: this.value });
       alert("Language set to: " + this.value);
     });
 
+    // Sound settings
+    (function initSoundSettings(){
+      const soundControls = [
+        { id: 'soundVolume', key: 'soundVolume' },
+        { id: 'musicVolume', key: 'musicVolume' },
+        { id: 'muteAll', key: 'muteAll', checkbox: true },
+        { id: 'enableSound', key: 'enableSound', checkbox: true },
+        { id: 'enableMusic', key: 'enableMusic', checkbox: true },
+      ];
+      soundControls.forEach(({ id, key, checkbox }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const saved = localStorage.getItem(key);
+        if (saved != null) {
+          if (checkbox) el.checked = saved === 'true';
+          else el.value = saved;
+        }
+        el.addEventListener('change', function(){
+          const value = checkbox ? this.checked : this.value;
+          localStorage.setItem(key, value);
+          persistSettings({ [key]: value });
+        });
+      });
+    })();
+
     /// Account Settings
-    function updateUsername() {
+    async function updateUsername() {
       const newUsername = document.getElementById("changeUsername").value.trim();
+      const current = localStorage.getItem('username');
       if (!newUsername) return alert("Please enter a username.");
-      alert(`Username changed to: ${newUsername}`); // TODO: Send to backend API
+      if (!current) return alert("You are not logged in.");
+      try {
+        const res = await fetch('/api/update-username', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: current, newUsername })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        localStorage.setItem('username', data.username);
+        const saved = localStorage.getItem('savedUsername');
+        if (saved === current) localStorage.setItem('savedUsername', data.username);
+        document.getElementById('profileUsername').textContent = data.username;
+        alert('Username updated.');
+      } catch (e) {
+        alert('Failed to update username: ' + (e.message || 'Unknown error'));
+      }
     }
 
-    function updateUsertag() {
+    async function updateUsertag() {
       const newTag = document.getElementById("changeUsertag").value.trim();
+      const username = localStorage.getItem('username');
       if (!newTag) return alert("Please enter a usertag.");
       if (!/^\d{4}$/.test(newTag)) return alert("Usertag must be exactly 4 digits.");
-      alert(`Usertag changed to: #${newTag}`);  // TODO: Send to backend API
+      try {
+        const res = await fetch('/api/update-usertag', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, newUsertag: newTag })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        document.getElementById('profileUsertag').textContent = data.usertag;
+        localStorage.setItem('usertag', data.usertag);
+        alert('Usertag updated.');
+      } catch (e) {
+        alert('Failed to update usertag: ' + (e.message || 'Unknown error'));
+      }
     }
 
-    function updateEmail() {
+    async function updateEmail() {
       const newEmail = document.getElementById("changeEmail").value.trim();
+      const username = localStorage.getItem('username');
       if (!newEmail) return alert("Please enter a new email.");
-      alert(`Email updated to: ${newEmail}`); // TODO: Send to backend API
+      try {
+        const res = await fetch('/api/update-email', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, newEmail })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        localStorage.setItem('savedEmail', data.email);
+        alert('Email updated.');
+      } catch (e) {
+        alert('Failed to update email: ' + (e.message || 'Unknown error'));
+      }
     }
 
-    function updatePassword() {
+    async function updatePassword() {
       const oldPass = document.getElementById("oldPassword").value;
       const newPass = document.getElementById("newPassword").value;
       const confirmPass = document.getElementById("confirmPassword").value;
-
+      const username = localStorage.getItem('username');
       if (!oldPass || !newPass || !confirmPass) return alert("Fill out all password fields.");
       if (newPass !== confirmPass) return alert("New passwords do not match.");
-      
-      alert("Password updated successfully.");  // TODO: Send to backend API
+      try {
+        const res = await fetch('/api/update-password', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, oldPassword: oldPass, newPassword: newPass })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        alert('Password updated successfully.');
+        document.getElementById("oldPassword").value = '';
+        document.getElementById("newPassword").value = '';
+        document.getElementById("confirmPassword").value = '';
+      } catch (e) {
+        alert('Failed to update password: ' + (e.message || 'Unknown error'));
+      }
     }
 
     // Two-factor authentication toggle
     document.getElementById("twoFactorToggle").addEventListener("change", function() {
       localStorage.setItem("twoFactorEnabled", this.checked);
+      const username = localStorage.getItem('username');
+      if (username) {
+        fetch('/api/update-settings', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, settings: { twoFactorEnabled: this.checked } })
+        }).catch(() => {});
+      }
       alert(`Two-Factor Authentication ${this.checked ? 'enabled' : 'disabled'}.`);
     });
 
     // Privacy toggles
     document.getElementById("showEmail").addEventListener("change", function() {
       localStorage.setItem("showEmail", this.checked);
+      const username = localStorage.getItem('username');
+      if (username) fetch('/api/update-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, settings: { showEmail: this.checked } }) }).catch(() => {});
     });
     document.getElementById("shareActivity").addEventListener("change", function() {
       localStorage.setItem("shareActivity", this.checked);
+      const username = localStorage.getItem('username');
+      if (username) fetch('/api/update-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, settings: { shareActivity: this.checked } }) }).catch(() => {});
     });
 
-    function deleteAccount() {
-      if (confirm("Are you sure you want to delete your account?\nThis cannot be undone.")) {
-        alert("Account deleted.");  // TODO: Backend account deletion call
+    async function deleteAccount() {
+      if (!confirm("Are you sure you want to delete your account?\nThis cannot be undone.")) return;
+      const username = localStorage.getItem('username');
+      try {
+        const res = await fetch('/api/delete-account', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        // Clear local data and go to login
+        localStorage.clear();
+        window.location.href = '/login.html';
+      } catch (e) {
+        alert('Failed to delete account: ' + (e.message || 'Unknown error'));
       }
     }
 
@@ -1712,12 +1821,9 @@
       if (window.innerWidth <= 768) {
         const mobileSidebar = document.getElementById("mobileSidebar");
         const overlay = document.getElementById("overlay");
-        sidebar.classList.toggle("active");
         document.body.classList.toggle("sidebar-open");
-    
         mobileSidebar.classList.toggle("show");
         overlay.classList.toggle("hidden");
-    
         if (mobileSidebar.classList.contains("show")) {
           document.body.style.overflow = "hidden";
         } else {
@@ -1789,11 +1895,20 @@
       localStorage.setItem("theme", isDark ? "dark" : "light");
       localStorage.setItem("notifications", notifs);
 
-      // Apply theme immediately
       if (isDark) {
-        document.documentElement.classList.add("dark");
+        document.body.classList.add("dark");
       } else {
-        document.documentElement.classList.remove("dark");
+        document.body.classList.remove("dark");
+      }
+
+      // Persist to backend (best effort)
+      const username = localStorage.getItem('username');
+      if (username) {
+        fetch('/api/update-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, settings: { theme: isDark ? 'dark' : 'light', notifications: notifs } })
+        }).catch(() => {});
       }
 
       alert("✅ Settings saved!");
@@ -1810,11 +1925,26 @@
     function saveSettings() {
       const darkMode = document.getElementById('themeToggle').checked;
       const notifications = document.getElementById('notifToggle').checked;
-
       localStorage.setItem('theme', darkMode ? 'dark' : 'light');
       localStorage.setItem('notifications', notifications);
-
+      if (darkMode) document.body.classList.add('dark'); else document.body.classList.remove('dark');
+      const username = localStorage.getItem('username');
+      if (username) {
+        fetch('/api/update-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, settings: { theme: darkMode ? 'dark' : 'light', notifications } })
+        }).catch(() => {});
+      }
       closeSettings();
+    }
+
+    function openSettingsPage() {
+      // Close quick settings panel and open full settings tab
+      closeSettings();
+      switchTab('settings');
+      // Highlight the first settings sub-tab
+      document.querySelector('.settings-tab')?.click();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1851,6 +1981,11 @@
       // Initialize chat room + models
       loadAiModels();
       switchChatRoom(currentChatRoom);
+
+      // Apply startup page if set
+      const startup = (localStorage.getItem('startupPage') || 'home');
+      const page = startup === 'messages' ? 'chats' : startup;
+      switchTab(page);
     });
 
     function switchTab(tabName) {
@@ -1868,8 +2003,6 @@
       loadStats();
       loadUserData();
     }
-
-    switchTab('home');
     document.addEventListener("DOMContentLoaded", loadUserData);
 
     document.addEventListener("DOMContentLoaded", () => {
