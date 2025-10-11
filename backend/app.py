@@ -55,8 +55,8 @@ def save_messages(messages):
         json.dump(messages, f, indent=2)
 
 def send_reset_email(to_email, reset_link):
-    from_email = "zylosupp0rt@gmail.com"
-    password = "kgawzxrfthcytgfu"
+    from_email = os.getenv("Zylo_SMTP_FROM", "zylosupp0rt@gmail.com")
+    password = os.getenv("Zylo_SMTP_PASSWORD", "kgawzxrfthcytgfu")
 
     subject = "🔐 Reset Your Zylo Password"
 
@@ -260,6 +260,9 @@ def handle_typing(data):
     
 @app.route('/<path:path>')
 def serve_static_file(path):
+    # Serve frontend files, and map service worker, manifest to root scope
+    if path in ('service-worker.js', 'manifest.webmanifest'):
+        return send_from_directory(FRONTEND_DIR, path)
     return send_from_directory(FRONTEND_DIR, path)
     
 @app.route("/api/stats", methods=["GET"])

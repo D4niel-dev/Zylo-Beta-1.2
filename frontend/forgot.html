@@ -5,6 +5,8 @@
   <title>Zylo | Forgot Password</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0b1020" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/feather-icons"></script>
   <link rel="stylesheet" href="/files/style.css">
@@ -93,16 +95,16 @@
       btn.disabled = true;
 
       try {
-        const res = await fetch("http://localhost:5000/api/forgot", {
+        const res = await fetch(`${window.location.origin}/api/forgot`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ identifier })
         });
 
         const result = await res.json();
-        msg.textContent = result.success
+        msg.innerHTML = result.success
           ? `<i data-feather="check-circle" class="w-4 h-4"></i> Reset instructions sent to your email.`
-          : `<i data-feather="x-circle" class="w-4 h-4"></i> ${result.error || "Something went wrong."}`;
+          : `<i data-feather=\"x-circle\" class=\"w-4 h-4\"></i> ${result.error || "Something went wrong."}`;
         msg.className = "text-sm text-center " + (result.success ? "text-green-500" : "text-red-600");
         msg.classList.remove("hidden");
       } catch (err) {
@@ -140,5 +142,6 @@
   <script>
     feather.replace();
   </script>
+  <script src="/files/sw-register.js"></script>
 </body>
 </html>

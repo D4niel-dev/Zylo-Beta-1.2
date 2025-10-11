@@ -6,6 +6,8 @@
   <title>Zylo | Sign Up</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon"/>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0b1020" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/feather-icons"></script>
   <link rel="stylesheet" href="/files/style.css">
@@ -280,7 +282,7 @@
       const avatar = await encodeImageToBase64("avatarUpload");
       const banner = await encodeImageToBase64("bannerUpload");
 
-      const response = await fetch("http://localhost:5000/api/signup", {
+      const response = await fetch(`${window.location.origin}/api/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -475,5 +477,6 @@ If you have any questions about these Terms, contact us at zylosupp0rt@gmail.com
   <script>
     feather.replace();
   </script>
+  <script src="/files/sw-register.js"></script>
 </body>
 </html>

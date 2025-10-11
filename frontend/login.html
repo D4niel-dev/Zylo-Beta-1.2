@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Zylo | Login</title>
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0b1020" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/feather-icons"></script>
   <link rel="stylesheet" href="/files/style.css">
@@ -182,7 +184,7 @@
       const password = document.getElementById("password").value.trim();
       const remember = document.getElementById("rememberMe").checked;
       const errorMsg = document.getElementById("error-msg");
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+      const baseUrl = window.location.origin;
 
       const response = await fetch(`${baseUrl}/api/login`, {
         method: "POST",
@@ -345,7 +347,7 @@ If you have any questions about these Terms, contact us at zylosupp0rt@gmail.com
 
     document.getElementById("username").addEventListener("blur", async () => {
       const identifier = document.getElementById("username").value.trim();
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+      const baseUrl = window.location.origin;
       if (!identifier) return;
 
       try {
@@ -375,5 +377,6 @@ If you have any questions about these Terms, contact us at zylosupp0rt@gmail.com
   <script>
     feather.replace();
   </script>
+  <script src="/files/sw-register.js"></script>
 </body>
 </html>

@@ -5,6 +5,8 @@
   <title>Zylo | Reset Password</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0b1020" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/feather-icons"></script>
   <link rel="stylesheet" href="/files/style.css">
@@ -90,7 +92,7 @@
       const newPassword = document.getElementById("newPassword").value;
       const confirm = document.getElementById("confirmNewPassword").value;
       const result = document.getElementById("resetResult");
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+      const baseUrl = window.location.origin;
 
       if (!username || !newPassword || !confirm) {
         result.innerHTML = `<i data-feather="alert-circle" class="w-4 h-4"></i> Please fill out all fields.`;
@@ -155,5 +157,6 @@
   <script>
     feather.replace();
   </script>
+  <script src="/files/sw-register.js"></script>
 </body>
 </html>

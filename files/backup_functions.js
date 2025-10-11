@@ -46,7 +46,7 @@ async function login() {
     const password = document.getElementById("password").value.trim();
     const remember = document.getElementById("rememberMe").checked;
     const errorMsg = document.getElementById("error-msg");
-    const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+    const baseUrl = window.location.origin;
 
     const response = await fetch(`${baseUrl}/api/login`, {
         method: "POST",
@@ -188,7 +188,7 @@ const usernameField = document.getElementById("username");
 
 document.getElementById("username").addEventListener("blur", async () => {
     const identifier = document.getElementById("username").value.trim();
-    const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+    const baseUrl = window.location.origin;
     if (!identifier) return;
 
     try {
@@ -263,7 +263,7 @@ async function register() {
     const avatar = await encodeImageToBase64("avatarUpload");
     const banner = await encodeImageToBase64("bannerUpload");
 
-    const response = await fetch("http://localhost:5000/api/signup", {
+    const response = await fetch(`${window.location.origin}/api/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -344,7 +344,7 @@ async function reset() {
     btn.disabled = true;
 
     try {
-        const res = await fetch("http://localhost:5000/api/forgot", {
+        const res = await fetch(`${window.location.origin}/api/forgot`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ identifier })
@@ -419,7 +419,7 @@ async function submitReset() {
 
 // mainapp.html functions
 // Chat Functions
-const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+const baseUrl = window.location.origin;
 const socket = io(baseUrl);
 const chatInput = document.getElementById("chatInput");
 const chatMessages = document.getElementById("chatMessages");
@@ -559,7 +559,7 @@ function updateBanner(event) {
 }
 
 async function loadStats() {
-    const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+    const baseUrl = window.location.origin;
     try {
         const res = await fetch(`${baseUrl}/api/stats`);
         const data = await res.json();
