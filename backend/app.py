@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 import json
 import socket
 import os
+import shutil
 import random
 import urllib.request
 import urllib.error
@@ -34,6 +35,10 @@ def load_users():
         return []
     with open(USER_DATA_FILE, "r") as file:
         return json.load(file)
+
+def save_users(users):
+    with open(USER_DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(users, f, indent=2)
 
 def save_user(username, email, password):
     users = load_users()
@@ -516,6 +521,186 @@ def update_profile():
         json.dump(users, f, indent=2)
 
     return jsonify({"success": True, "user": user})
+
+
+# -------- Settings and Account Management Endpoints -------- #
+
+def _find_user(users, username):
+    for idx, u in enumerate(users):
+        if u.get("username") == username:
+            return idx, u
+    return -1, None
+
+
+@app.route('/api/update-username', methods=['POST'])
+def update_username():
+    data = request.json or {}
+    username = (data.get("username") or "").strip()
+    new_username = (data.get("newUsername") or "").strip()
+    if not username or not new_username:
+        return jsonify({"success": False, "error": "Missing username/newUsername"}), 400
+
+    users = load_users()
+    # Ensure new username unique
+    for u in users:
+        if u.get("username", "").lower() == new_username.lower():
+            return jsonify({"success": False, "error": "Username already exists"}), 409
+
+    idx, user = _find_user(users, username)
+    if user is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    # Rename uploads dir if exists
+    old_dir = os.path.join(BASE_DIR, '..', 'uploads', username)
+    new_dir = os.path.join(BASE_DIR, '..', 'uploads', new_username)
+    if os.path.exists(old_dir):
+        os.makedirs(os.path.join(BASE_DIR, '..', 'uploads'), exist_ok=True)
+        try:
+            shutil.move(old_dir, new_dir)
+        except Exception:
+            # If move fails for any reason, continue without blocking update
+            pass
+
+    # Update user record
+    users[idx]["username"] = new_username
+
+    # Update messages author names to keep history aligned
+    global messages
+    changed = False
+    for m in messages:
+        if m.get("username") == username:
+            m["username"] = new_username
+            changed = True
+    if changed:
+        save_messages(messages)
+
+    save_users(users)
+    return jsonify({"success": True, "username": new_username})
+
+
+@app.route('/api/update-usertag', methods=['POST'])
+def update_usertag():
+    data = request.json or {}
+    username = (data.get("username") or "").strip()
+    new_tag = (data.get("newUsertag") or data.get("newTag") or "").strip()
+    if not username or not new_tag:
+        return jsonify({"success": False, "error": "Missing username/newUsertag"}), 400
+
+    # Normalize to @xxxx (keep other formats too)
+    raw = str(new_tag)
+    if raw.startswith("@"):  # already with @
+        normalized = raw
+    else:
+        normalized = f"@{raw}"
+
+    # If strictly enforce 4 digits, keep it lenient but validate
+    if not any(c.isdigit() for c in raw):
+        return jsonify({"success": False, "error": "Usertag must contain digits (e.g., 4 digits)."}), 400
+
+    users = load_users()
+    idx, user = _find_user(users, username)
+    if user is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    users[idx]["usertag"] = normalized
+    save_users(users)
+    return jsonify({"success": True, "usertag": normalized})
+
+
+@app.route('/api/update-email', methods=['POST'])
+def update_email():
+    data = request.json or {}
+    username = (data.get("username") or "").strip()
+    new_email = (data.get("newEmail") or "").strip()
+    if not username or not new_email:
+        return jsonify({"success": False, "error": "Missing username/newEmail"}), 400
+
+    users = load_users()
+    # Ensure email unique
+    for u in users:
+        if u.get("email", "").lower() == new_email.lower():
+            return jsonify({"success": False, "error": "Email already in use"}), 409
+
+    idx, user = _find_user(users, username)
+    if user is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    users[idx]["email"] = new_email
+    save_users(users)
+    return jsonify({"success": True, "email": new_email})
+
+
+@app.route('/api/update-password', methods=['POST'])
+def update_password():
+    data = request.json or {}
+    username = (data.get("username") or "").strip()
+    old_password = data.get("oldPassword")
+    new_password = data.get("newPassword")
+    if not username or not old_password or not new_password:
+        return jsonify({"success": False, "error": "Missing fields"}), 400
+
+    users = load_users()
+    idx, user = _find_user(users, username)
+    if user is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    if user.get("password") != old_password:
+        return jsonify({"success": False, "error": "Old password incorrect"}), 401
+
+    users[idx]["password"] = new_password
+    save_users(users)
+    return jsonify({"success": True})
+
+
+@app.route('/api/update-settings', methods=['POST'])
+def update_settings():
+    data = request.json or {}
+    username = (data.get("username") or "").strip()
+    settings_payload = data.get("settings") or {}
+    if not username:
+        return jsonify({"success": False, "error": "Missing username"}), 400
+
+    users = load_users()
+    idx, user = _find_user(users, username)
+    if user is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    user_settings = user.get("settings") or {}
+    # Merge shallowly
+    user_settings.update(settings_payload)
+    users[idx]["settings"] = user_settings
+    save_users(users)
+    return jsonify({"success": True, "settings": user_settings})
+
+
+@app.route('/api/delete-account', methods=['POST'])
+def delete_account():
+    data = request.json or {}
+    username = (data.get("username") or "").strip()
+    if not username:
+        return jsonify({"success": False, "error": "Missing username"}), 400
+
+    users = load_users()
+    new_users = [u for u in users if u.get("username") != username]
+    if len(new_users) == len(users):
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    save_users(new_users)
+
+    # Remove uploads dir if exists
+    user_upload_dir = os.path.join(BASE_DIR, '..', 'uploads', username)
+    try:
+        if os.path.isdir(user_upload_dir):
+            shutil.rmtree(user_upload_dir)
+    except Exception:
+        pass
+
+    # Remove user's messages
+    global messages
+    messages = [m for m in messages if m.get("username") != username]
+    save_messages(messages)
+
+    return jsonify({"success": True})
 
 # Run the app (IMPORTANT: Use socketio.run to enable Socket.IO support)
 if __name__ == "__main__":
