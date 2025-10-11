@@ -124,6 +124,14 @@
             <i data-feather="message-circle"></i>
             <span class="sidebar-text hidden">Chats</span>
           </a>
+          <a href="#" data-tab="friends" onclick="switchTab('friends')" class="sidebar-tab">
+            <i data-feather="users"></i>
+            <span class="sidebar-text hidden">Friends</span>
+          </a>
+          <a href="#" data-tab="groups" onclick="switchTab('groups')" class="sidebar-tab">
+            <i data-feather="hash"></i>
+            <span class="sidebar-text hidden">Groups</span>
+          </a>
           <a href="#" data-tab="profile" onclick="switchTab('profile')" class="sidebar-tab">
             <i data-feather="user"></i>
             <span class="sidebar-text hidden">Profile</span>
@@ -184,9 +192,11 @@
         <div>
           <h2 class="text-xl font-bold mb-2 text-gray-800 dark:text-white">📢 Announcements</h2>
           <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-xl">
-            <p class="text-sm text-gray-700 dark:text-gray-300">
-              🚀 Zylo v1.0.0 is now live! Includes enhanced chat performance, responsive mobile fixes, and modern UI updates for login/signup. Check it out!
-            </p>
+            <div class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+              <p>🚀 v1.1 adds Friends and Groups with room chat.</p>
+              <p>✨ Home quick stats now update from backend.</p>
+              <p>🤖 Optional AI chat toggle in Chats tab.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -242,6 +252,55 @@
           </button>
         </div>
       </div>
+
+
+      <!-- Friends Area -->
+      <section id="tab-friends" class="tab-content hidden ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] flex flex-col space-y-4 animate-fadeIn">
+        <div class="flex items-center gap-2">
+          <input id="addFriendInput" type="text" placeholder="Enter username to add" class="zylo-input p-2 flex-1" />
+          <button id="addFriendBtn" class="px-3 py-2 bg-blue-600 text-white rounded" onclick="requestFriend()">Add</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 overflow-y-auto">
+          <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
+            <h3 class="font-semibold mb-2">Friends</h3>
+            <ul id="friendsList" class="space-y-2 text-sm"></ul>
+          </div>
+          <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
+            <h3 class="font-semibold mb-2">Incoming</h3>
+            <ul id="incomingList" class="space-y-2 text-sm"></ul>
+          </div>
+          <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
+            <h3 class="font-semibold mb-2">Outgoing</h3>
+            <ul id="outgoingList" class="space-y-2 text-sm"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Groups Area -->
+      <section id="tab-groups" class="tab-content hidden ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] flex flex-col space-y-3 animate-fadeIn">
+        <div class="flex items-center gap-2">
+          <input id="newGroupName" type="text" placeholder="Group name" class="zylo-input p-2" />
+          <input id="newGroupDesc" type="text" placeholder="Description (optional)" class="zylo-input p-2 flex-1" />
+          <button class="px-3 py-2 bg-green-600 text-white rounded" onclick="createGroup()">Create</button>
+        </div>
+        <div class="flex gap-4 flex-1 overflow-hidden">
+          <div class="w-64 shrink-0 bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 overflow-y-auto">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold">Your Groups</h3>
+              <button class="text-xs px-2 py-1 bg-gray-700 text-white rounded" onclick="refreshGroups()">Refresh</button>
+            </div>
+            <ul id="groupsList" class="space-y-1 text-sm"></ul>
+          </div>
+          <div class="flex flex-col flex-1 min-w-0">
+            <div class="p-2 border-b border-gray-700"><span id="activeGroupTitle" class="font-semibold">Select a group</span></div>
+            <div id="groupMessages" class="chat-messages flex-1"></div>
+            <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
+              <textarea id="groupChatInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message group..."></textarea>
+              <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendGroupMessage()"><i data-feather="send"></i></button>
+            </div>
+          </div>
+        </div>
+      </section>
 
 
       <!-- Profile Area -->
@@ -761,6 +820,10 @@
     const activeTypers = new Set();
     let emojiPickerVisible = false;
 
+    // Friends & Groups state
+    let friendsState = { friends: [], incoming: [], outgoing: [] };
+    let groupsState = { list: [], activeId: null };
+
     chatInput.addEventListener("input", () => {
       if (navigator.onLine && currentChatRoom === 'community') {
         socket.emit("typing", { username });
@@ -1125,6 +1188,178 @@
     }
 
     // Profile Functions
+    // ---- Friends UI logic ----
+    async function loadFriends() {
+      const u = localStorage.getItem('username');
+      if (!u) return;
+      try {
+        const res = await fetch(`/api/friends?username=${encodeURIComponent(u)}`);
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        friendsState = { friends: data.friends || [], incoming: data.incoming || [], outgoing: data.outgoing || [] };
+        renderFriends();
+      } catch {}
+    }
+
+    function renderFriends() {
+      const friendsEl = document.getElementById('friendsList');
+      const incomingEl = document.getElementById('incomingList');
+      const outgoingEl = document.getElementById('outgoingList');
+      if (!friendsEl || !incomingEl || !outgoingEl) return;
+      friendsEl.innerHTML = '';
+      incomingEl.innerHTML = '';
+      outgoingEl.innerHTML = '';
+      friendsState.friends.forEach(name => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded px-2 py-1';
+        li.innerHTML = `<span>${name}</span><button class="text-xs text-red-400" onclick="removeFriend('${name}')">Remove</button>`;
+        friendsEl.appendChild(li);
+      });
+      friendsState.incoming.forEach(name => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded px-2 py-1';
+        li.innerHTML = `<span>${name}</span><span class="space-x-1"><button class="text-xs text-green-500" onclick="acceptFriend('${name}')">Accept</button><button class="text-xs text-gray-400" onclick="declineFriend('${name}')">Decline</button></span>`;
+        incomingEl.appendChild(li);
+      });
+      friendsState.outgoing.forEach(name => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded px-2 py-1';
+        li.innerHTML = `<span>${name}</span><span class="text-xs opacity-70">Pending</span>`;
+        outgoingEl.appendChild(li);
+      });
+    }
+
+    async function requestFriend() {
+      const input = document.getElementById('addFriendInput');
+      const to = (input?.value || '').trim();
+      const from = localStorage.getItem('username');
+      if (!to || !from) return;
+      try {
+        const res = await fetch('/api/friends/request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ from, to }) });
+        await res.json();
+        input.value = '';
+        loadFriends();
+      } catch {}
+    }
+    async function acceptFriend(from) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      await fetch('/api/friends/accept', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, from }) });
+      loadFriends();
+    }
+    async function declineFriend(from) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      await fetch('/api/friends/decline', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, from }) });
+      loadFriends();
+    }
+    async function removeFriend(friend) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      await fetch('/api/friends/remove', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, friend }) });
+      loadFriends();
+    }
+
+    // ---- Groups UI logic ----
+    function setActiveGroup(group) {
+      groupsState.activeId = group?.id || null;
+      document.getElementById('activeGroupTitle').textContent = group ? `# ${group.name}` : 'Select a group';
+      document.getElementById('groupMessages').innerHTML = '';
+      if (!group) return;
+      if (navigator.onLine) socket.emit('join_group', { groupId: group.id, username: localStorage.getItem('username') });
+      fetch(`/api/groups/${group.id}/messages`).then(r => r.json()).then(msgs => {
+        msgs.forEach(m => appendGroupMessage(m));
+      }).catch(() => {});
+    }
+
+    function appendGroupMessage(data) {
+      const isOwnMessage = (data.username || '') === (localStorage.getItem('username') || '');
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('flex', 'items-start', 'gap-2', 'mb-2');
+      wrapper.classList.add(isOwnMessage ? 'justify-end' : 'justify-start');
+      const avatar = document.createElement('img');
+      avatar.src = `/uploads/${data.username}/avatar.png`;
+      avatar.alt = `${data.username}'s avatar`;
+      avatar.className = 'w-8 h-8 rounded-full object-cover';
+      const bubble = document.createElement('div');
+      bubble.classList.add('message', isOwnMessage ? 'self' : 'other');
+      const header = document.createElement('div');
+      header.className = 'text-xs opacity-75 mb-1';
+      header.textContent = `${data.username} | ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+      const body = document.createElement('div');
+      body.textContent = data.message;
+      bubble.appendChild(header);
+      bubble.appendChild(body);
+      if (isOwnMessage) { wrapper.appendChild(bubble); wrapper.appendChild(avatar); }
+      else { wrapper.appendChild(avatar); wrapper.appendChild(bubble); }
+      document.getElementById('groupMessages').appendChild(wrapper);
+      const gm = document.getElementById('groupMessages');
+      gm.scrollTop = gm.scrollHeight;
+    }
+
+    async function refreshGroups() {
+      const u = localStorage.getItem('username');
+      if (!u) return;
+      try {
+        const res = await fetch(`/api/groups?username=${encodeURIComponent(u)}`);
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        groupsState.list = data.groups || [];
+        const listEl = document.getElementById('groupsList');
+        listEl.innerHTML = '';
+        groupsState.list.forEach(g => {
+          const li = document.createElement('li');
+          li.className = 'flex items-center justify-between px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer';
+          li.innerHTML = `<span class="truncate"># ${g.name}</span><button class="text-xs text-blue-500" onclick="joinGroup('${g.id}')">Open</button>`;
+          li.addEventListener('click', () => setActiveGroup(g));
+          listEl.appendChild(li);
+        });
+      } catch {}
+    }
+
+    async function createGroup() {
+      const owner = localStorage.getItem('username');
+      const name = document.getElementById('newGroupName')?.value?.trim();
+      const description = document.getElementById('newGroupDesc')?.value?.trim();
+      if (!owner || !name) return;
+      try {
+        const res = await fetch('/api/groups/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ owner, name, description }) });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          document.getElementById('newGroupName').value = '';
+          document.getElementById('newGroupDesc').value = '';
+          refreshGroups();
+        }
+      } catch {}
+    }
+
+    async function joinGroup(groupId) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      try {
+        await fetch('/api/groups/join', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, groupId }) });
+        refreshGroups();
+        const g = (groupsState.list || []).find(x => x.id === groupId);
+        if (g) setActiveGroup(g);
+      } catch {}
+    }
+
+    function sendGroupMessage() {
+      const input = document.getElementById('groupChatInput');
+      const message = (input?.value || '').trim();
+      if (!message || !groupsState.activeId) return;
+      const payload = { groupId: groupsState.activeId, username: localStorage.getItem('username'), message };
+      if (navigator.onLine) socket.emit('send_group_message', payload);
+      appendGroupMessage(payload);
+      input.value = '';
+      input.style.height = 'auto';
+    }
+
+    if (typeof io !== 'undefined') {
+      socket.on('receive_group_message', (data) => {
+        if (data.groupId === groupsState.activeId) appendGroupMessage(data);
+      });
+    }
     window.addEventListener("DOMContentLoaded", async () => {
         const username = localStorage.getItem("username");
         if (!username) {
@@ -1986,6 +2221,9 @@
       const startup = (localStorage.getItem('startupPage') || 'home');
       const page = startup === 'messages' ? 'chats' : startup;
       switchTab(page);
+      // Load social data on entry
+      loadFriends();
+      refreshGroups();
     });
 
     function switchTab(tabName) {
