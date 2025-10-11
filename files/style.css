@@ -1,15 +1,12 @@
 /* === Main Body Themes === */
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Orbitron:wght@600&display=swap');
-
-/* Apply fonts */
+/* Apply system fonts for full offline support */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
 }
 
 h1, h2, .zylo-heading {
-    font-family: 'Orbitron', sans-serif;
+    font-family: inherit;
 }
 
 /* Light theme background */

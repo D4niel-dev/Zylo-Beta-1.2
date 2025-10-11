@@ -12,19 +12,27 @@ const CORE_ASSETS = [
   '/mainapp.html',
   '/loading.html',
   '/offline.html',
+  '/manifest.webmanifest',
+  '/files/sw-register.js',
   '/files/style.css',
+  // Local vendor assets to ensure full offline startup
+  '/files/vendor/tailwindcss.js',
+  '/files/vendor/feather-icons.js',
+  '/files/vendor/socket.io.min.js',
+  '/files/vendor/cropper.min.css',
+  '/files/vendor/cropper.min.js',
+  '/files/vendor/emoji-mart.css',
+  '/files/vendor/emoji-mart.js',
+  // Core images
   '/images/Zylo_icon.ico',
   '/images/Zylo_icon.png',
   '/images/default_avatar.png',
   '/images/default_banner.png',
-  // CDN dependencies used across pages (opaque cached if no-cors)
-  'https://cdn.tailwindcss.com',
-  'https://unpkg.com/feather-icons',
-  'https://cdn.socket.io/4.7.2/socket.io.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css',
-  'https://cdn.jsdelivr.net/npm/emoji-mart@latest/css/emoji-mart.css',
-  'https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js'
+  // Social icon assets referenced in signup
+  '/images/devicons/google-original.svg',
+  '/images/devicons/github-original.svg',
+  '/images/devicons/discordjs-original.svg',
+  '/images/devicons/windows8-original.svg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -51,21 +59,24 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // HTML navigation: Network first, fallback to cache, then offline page
+  // HTML navigation: Cache first, then network, fallback to offline page
   if (wantsHTML(req)) {
     event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
-          return res;
-        })
-        .catch(() => caches.match(req).then((r) => r || caches.match('/offline.html')))
+      caches.match(req).then((cached) => {
+        const fetchPromise = fetch(req)
+          .then((res) => {
+            const copy = res.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
+            return res;
+          })
+          .catch(() => cached || caches.match('/offline.html'));
+        return cached || fetchPromise;
+      })
     );
     return;
   }
 
-  // Same-origin API GETs: Network first with cache fallback
+  // Same-origin API GETs: Network first with cache fallback (still works offline after first load)
   if (url.origin === self.location.origin && url.pathname.startsWith('/api/') && req.method === 'GET') {
     event.respondWith(
       fetch(req)
