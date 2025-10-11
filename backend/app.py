@@ -1,8 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
-import eventlet
-import eventlet.wsgi
 import base64
 import smtplib
 from email.mime.text import MIMEText
@@ -20,7 +18,8 @@ host_ip = socket.gethostbyname(socket.gethostname())
 
 # File paths and user data
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'files')
+# Persisted app data (JSON, SQLite, etc.) lives in top-level `data/`
+DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 USER_DATA_FILE = os.path.join(DATA_DIR, 'users.json')
 FRONTEND_DIR = os.path.join(BASE_DIR, '../frontend')
 MESSAGES_FILE = os.path.join(DATA_DIR, "messages.json")
@@ -408,6 +407,6 @@ def update_profile():
 
     return jsonify({"success": True, "user": user})
 
-# Run the app (IMPORTANT: Use socketio.run to enable WebSocket support)
+# Run the app (IMPORTANT: Use socketio.run to enable Socket.IO support)
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=False)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)
