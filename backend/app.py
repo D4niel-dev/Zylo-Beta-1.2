@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
-# import eventlet
-# import eventlet.wsgi
+import eventlet
+import eventlet.wsgi
 import base64
 import smtplib
 from email.mime.text import MIMEText
@@ -12,24 +12,17 @@ import socket
 import os
 import random
 
-# File paths and user data
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
-FRONTEND_DIR = os.path.join(ROOT_DIR, "frontend")
-HTML_DIR = os.path.join(FRONTEND_DIR, "html")
-ASSETS_DIR = os.path.join(FRONTEND_DIR, "assets")
-DATA_DIR = os.path.join(ROOT_DIR, "data")
-FILES_DIR = os.path.join(ROOT_DIR, "files")
-LIBS_DIR = os.path.join(FILES_DIR, "libs")
-
 # Initialize Flask app and SocketIO
-app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="", template_folder=HTML_DIR)
+app = Flask(__name__, static_folder='frontend')
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 host_ip = socket.gethostbyname(socket.gethostname())
 
-# Other file paths
+# File paths and user data
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'files')
 USER_DATA_FILE = os.path.join(DATA_DIR, 'users.json')
+FRONTEND_DIR = os.path.join(BASE_DIR, '../frontend')
 MESSAGES_FILE = os.path.join(DATA_DIR, "messages.json")
 os.makedirs(DATA_DIR, exist_ok=True)
 
@@ -318,29 +311,22 @@ def check_user():
 
     return jsonify({"exists": False})
 
+
 @app.route('/')
-def serve_login():
-    return send_from_directory(HTML_DIR, 'login.html')
-
-@app.route('/main')
 def serve_main():
-    return send_from_directory(HTML_DIR, 'mainapp.html')
-
-@app.route("/libs/<path:filename>")
-def serve_libs(filename):
-    return send_from_directory(LIBS_DIR, filename)
+    return send_from_directory(FRONTEND_DIR, 'login.html')
 
 @app.route('/images/<path:filename>')
 def serve_images(filename):
-    return send_from_directory(os.path.join(ASSETS_DIR, '../images'), filename)
+    return send_from_directory(os.path.join(BASE_DIR, '../images'), filename)
 
 @app.route('/uploads/<username>/<filename>')
 def serve_upload(username, filename):
-    return send_from_directory(os.path.join(DATA_DIR, 'uploads', username), filename)
+    return send_from_directory(os.path.join(BASE_DIR, '..', 'uploads', username), filename)
 
 @app.route('/files/<path:filename>')
 def serve_files(filename):
-    return send_from_directory(FILES_DIR, filename)
+    return send_from_directory(os.path.join(BASE_DIR, '../files'), filename)
 
 @app.route('/api/update-profile', methods=['POST'])
 def update_profile():

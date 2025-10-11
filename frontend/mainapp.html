@@ -5,50 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <title>Zylo | Main Window</title>
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
-  <script src="/libs/tailwind/tailwind.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/files/style.css">
-  <script src="/libs/feather/feather.min.js"></script>
-  <link href="/libs/cropper/cropper.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="/libs/emoji/emoji-mart.css" />
-  <script src="/libs/emoji/browser.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-mart@latest/css/emoji-mart.css" />
+  <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           animation: {
-            fadeIn: 'fadeIn 0.6s ease-out',
-            fadeZoom: 'fadeZoom 0.6s ease-out',
             ringPulse: 'ringPulse 4s infinite ease-in-out',
-            slideIn: 'slideIn 0.3s ease-out',
-            pop: 'pop 0.5s ease-out',
+            fadeIn: 'fadeIn 0.5s ease-out',
+            slideIn: 'slideIn 0.3s ease-out'
           },
           keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0', transform: 'translateY(20px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' }
-            },
-            fadeZoom: {
-              '0%': { opacity: '0', transform: 'scale(0.8)' },
-              '100%': { opacity: '1', transform: 'scale(1)' }
-            },
             ringPulse: {
-              '0%, 100%': { boxShadow: '0 0 0 0 rgba(59,130,246,0.7)' },
-              '50%': { boxShadow: '0 0 0 6px rgba(59,130,246,0)' },
+              '0%, 100%': {
+                boxShadow: '0 0 0 0 rgba(59,130,246,0.7)',
+              },
+              '50%': {
+                boxShadow: '0 0 0 6px rgba(59,130,246,0)',
+              },
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
             },
             slideIn: {
               '0%': { transform: 'translateX(-100%)' },
               '100%': { transform: 'translateX(0)' }
             },
             pop: {
-              '0%': { transform: 'scale(0.8)', opacity: '0' },
-              '50%': { transform: 'scale(1.1)', opacity: '1' },
-              '100%': { transform: 'scale(1)', opacity: '1' }
+            '0%': { transform: 'scale(0.9)', opacity: '0' },
+            '100%': { transform: 'scale(1)', opacity: '1' }
             }
           }
         }
       }
-    }
+    };
   </script>
 </head>
 <body class="bg-gray-900 text-white h-screen flex flex-col md:flex-row overflow-hidden">
@@ -1763,6 +1759,6 @@
       feather.replace();
     });
   </script>
-  <script src="/libs/cropper/cropper.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </body>
 </html>

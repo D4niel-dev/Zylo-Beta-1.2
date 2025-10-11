@@ -5,8 +5,8 @@
   <title>Zylo | Reset Password</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
-  <script src="/libs/tailwind/tailwind.js"></script>
-  <script src="/libs/feather/feather.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
   <link rel="stylesheet" href="/files/style.css">
   <script>
     tailwind.config = {
@@ -15,37 +15,16 @@
         extend: {
           animation: {
             fadeIn: 'fadeIn 0.6s ease-out',
-            fadeZoom: 'fadeZoom 0.6s ease-out',
-            ringPulse: 'ringPulse 4s infinite ease-in-out',
-            slideIn: 'slideIn 0.3s ease-out',
-            pop: 'pop 0.5s ease-out',
           },
           keyframes: {
             fadeIn: {
-              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '0%': { opacity: '0', transform: 'translateY(15px)' },
               '100%': { opacity: '1', transform: 'translateY(0)' }
-            },
-            fadeZoom: {
-              '0%': { opacity: '0', transform: 'scale(0.8)' },
-              '100%': { opacity: '1', transform: 'scale(1)' }
-            },
-            ringPulse: {
-              '0%, 100%': { boxShadow: '0 0 0 0 rgba(59,130,246,0.7)' },
-              '50%': { boxShadow: '0 0 0 6px rgba(59,130,246,0)' },
-            },
-            slideIn: {
-              '0%': { transform: 'translateX(-100%)' },
-              '100%': { transform: 'translateX(0)' }
-            },
-            pop: {
-              '0%': { transform: 'scale(0.8)', opacity: '0' },
-              '50%': { transform: 'scale(1.1)', opacity: '1' },
-              '100%': { transform: 'scale(1)', opacity: '1' }
             }
           }
         }
       }
-    }
+    };
   </script>
 </head>
 
