@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <title>Zylo | Main Window</title>
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0b1020" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/files/style.css">
   <script src="https://unpkg.com/feather-icons"></script>
@@ -732,7 +734,7 @@
   <script>
 
     // Chat Functions
-    const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+    const baseUrl = window.location.origin;
     const socket = io(baseUrl);
     const chatInput = document.getElementById("chatInput");
     const chatMessages = document.getElementById("chatMessages");
@@ -1029,7 +1031,7 @@
     }
 
     async function loadStats() {
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+      const baseUrl = window.location.origin;
       try {
         const res = await fetch(`${baseUrl}/api/stats`);
         const data = await res.json();
@@ -1754,6 +1756,66 @@
       }
     });
   </script>
+  <script>
+    // Offline banner + queued sends
+    (function(){
+      const banner = document.createElement('div');
+      banner.id = 'offlineBanner';
+      banner.textContent = 'You are offline. Messages will send when reconnected.';
+      banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#b91c1c;color:#fff;padding:8px 12px;text-align:center;z-index:9999;display:none';
+      document.body.appendChild(banner);
+
+      function updateBanner(){
+        banner.style.display = navigator.onLine ? 'none' : 'block';
+      }
+      window.addEventListener('online', updateBanner);
+      window.addEventListener('offline', updateBanner);
+      updateBanner();
+
+      const pendingKey = 'pendingMessages';
+      function getQueue(){
+        try { return JSON.parse(localStorage.getItem(pendingKey) || '[]'); } catch { return []; }
+      }
+      function setQueue(arr){ localStorage.setItem(pendingKey, JSON.stringify(arr)); }
+
+      const originalSendMessage = sendMessage;
+      window.sendMessage = function(){
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message) return;
+        if (!navigator.onLine) {
+          const username = localStorage.getItem('savedUsername') || 'N/A';
+          const q = getQueue();
+          q.push({ username, message, ts: Date.now() });
+          setQueue(q);
+          input.value = '';
+          input.style.height = 'auto';
+          return;
+        }
+        return originalSendMessage();
+      }
+
+      async function flushQueue(){
+        if (!navigator.onLine) return;
+        const q = getQueue();
+        if (!q.length) return;
+        try {
+          q.forEach(item => {
+            if (typeof io !== 'undefined') {
+              const s = window.socket || io(window.location.origin);
+              s.emit('send_message', { username: item.username, message: item.message });
+            }
+          });
+          setQueue([]);
+        } catch (e) {
+          // keep queue on error
+        }
+      }
+      window.addEventListener('online', flushQueue);
+      setTimeout(flushQueue, 1000);
+    })();
+  </script>
+  <script src="/files/sw-register.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       feather.replace();
