@@ -7,8 +7,8 @@
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#0b1020" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="/files/vendor/tailwindcss.js"></script>
+  <script src="/files/vendor/feather-icons.js"></script>
   <link rel="stylesheet" href="/files/style.css">
   <script>
     tailwind.config = {
@@ -186,6 +186,12 @@
       const errorMsg = document.getElementById("error-msg");
       const baseUrl = window.location.origin;
 
+      if (!navigator.onLine) {
+        document.getElementById("error-msg").textContent = "You're offline. Login requires a connection (local users only).";
+        document.getElementById("error-msg").classList.remove("hidden");
+        return;
+      }
+
       const response = await fetch(`${baseUrl}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -349,6 +355,7 @@ If you have any questions about these Terms, contact us at zylosupp0rt@gmail.com
       const identifier = document.getElementById("username").value.trim();
       const baseUrl = window.location.origin;
       if (!identifier) return;
+      if (!navigator.onLine) return;
 
       try {
         const res = await fetch(`${baseUrl}/api/get-user?identifier=${encodeURIComponent(identifier)}`);

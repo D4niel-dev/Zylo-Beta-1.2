@@ -7,12 +7,12 @@
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#0b1020" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/files/vendor/tailwindcss.js"></script>
   <link rel="stylesheet" href="/files/style.css">
-  <script src="https://unpkg.com/feather-icons"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-mart@latest/css/emoji-mart.css" />
-  <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+  <script src="/files/vendor/feather-icons.js"></script>
+  <link href="/files/vendor/cropper.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/files/vendor/emoji-mart.css" />
+  <script src="/files/vendor/emoji-mart.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -730,12 +730,12 @@
     </div>
   </div>
 
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="/files/vendor/socket.io.min.js"></script>
   <script>
 
     // Chat Functions
     const baseUrl = window.location.origin;
-    const socket = io(baseUrl);
+    const socket = navigator.onLine ? io(baseUrl) : { emit: function(){}, on: function(){}, off: function(){}};
     const chatInput = document.getElementById("chatInput");
     const chatMessages = document.getElementById("chatMessages");
     const username = localStorage.getItem("savedUsername") || "N/A";
@@ -968,9 +968,14 @@
       }
     }
 
-    fetch("/api/messages")
-      .then((res) => res.json())
-      .then((msgs) => msgs.forEach(appendMessage));
+    if (navigator.onLine) {
+      fetch("/api/messages")
+        .then((res) => res.json())
+        .then((msgs) => msgs.forEach(appendMessage))
+        .catch(() => {});
+    } else {
+      // Render nothing; app still loads offline
+    }
 
     // Profile Functions
     window.addEventListener("DOMContentLoaded", async () => {
@@ -982,6 +987,7 @@
         }
 
         try {
+            if (!navigator.onLine) throw new Error('offline');
             const res = await fetch(`/api/get-user?identifier=${username}`);
             const data = await res.json();
 
@@ -997,7 +1003,25 @@
                 console.error("User not found");
             }
         } catch (err) {
-            console.error("Error fetching user data", err);
+            // Offline fallback: populate from localStorage if available
+            const cached = {
+              username: localStorage.getItem('username'),
+              usertag: localStorage.getItem('usertag'),
+              aboutMe: localStorage.getItem('aboutMe') || '',
+              avatar: localStorage.getItem('avatar') || '/images/default_avatar.png',
+              banner: localStorage.getItem('banner') || '/images/default_banner.png',
+              level: parseInt(localStorage.getItem('level') || '0', 10),
+              gold: parseInt(localStorage.getItem('gold') || '0', 10),
+              rank: localStorage.getItem('rank') || 'Unranked'
+            };
+            document.getElementById("profileUsername").textContent = cached.username || 'N/A';
+            document.getElementById("profileUsertag").textContent = cached.usertag || 'N/A';
+            document.getElementById("aboutMe").value = cached.aboutMe;
+            document.getElementById("avatarImage").src = cached.avatar;
+            document.getElementById("bannerImage").src = cached.banner;
+            document.getElementById("statLevel").textContent = cached.level;
+            document.getElementById("statGold").textContent = cached.gold;
+            document.getElementById("statRank").textContent = cached.rank;
         }
     });
 
@@ -1033,13 +1057,17 @@
     async function loadStats() {
       const baseUrl = window.location.origin;
       try {
+        if (!navigator.onLine) throw new Error('offline');
         const res = await fetch(`${baseUrl}/api/stats`);
         const data = await res.json();
         document.getElementById("stat-users").textContent = data.users;
         document.getElementById("stat-messages").textContent = data.messages;
         document.getElementById("stat-rooms").textContent = data.rooms;
       } catch (err) {
-        console.error("Failed to load stats", err);
+        // Populate with cached or default values when offline
+        document.getElementById("stat-users").textContent = localStorage.getItem('stat-users') || '0';
+        document.getElementById("stat-messages").textContent = localStorage.getItem('stat-messages') || '0';
+        document.getElementById("stat-rooms").textContent = localStorage.getItem('stat-rooms') || '1';
       }
     }
 
@@ -1821,6 +1849,6 @@
       feather.replace();
     });
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  <script src="/files/vendor/cropper.min.js"></script>
 </body>
 </html>
