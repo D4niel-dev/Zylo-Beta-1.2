@@ -81,10 +81,8 @@ def save_groups(groups):
 
 
 def http_post_json(url: str, payload: dict, timeout: int = 20) -> dict:
-    """Simple stdlib JSON POST helper to avoid extra deps."""
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
-    # Accept self-signed in local networks if any
     context = ssl.create_default_context()
     try:
         with urllib.request.urlopen(req, timeout=timeout, context=context) as resp:
