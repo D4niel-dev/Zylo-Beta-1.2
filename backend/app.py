@@ -153,9 +153,8 @@ def send_reset_email(to_email, reset_link):
         server.login(from_email, password)
         server.send_message(message)
         
-# Load existing messages
+# Load existing messages and groups
 messages = load_messages()
-# Load groups in memory (lightweight; persisted to file on changes)
 groups = load_groups()
 
 # API Endpoints
