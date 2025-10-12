@@ -1,7 +1,7 @@
 **PLEASE NOTED THAT** this is still a *test* version of Zylo, it'll have some bugs here and there but will be fix
 when the full release of the app is out!
 
-```The app use some of libs of Python and Javascript libs for HTML files. Some are pre-installed in the file folder, some aren't like the Python libs so you will need to install them manually by command prompt.```
+*The app use some of libs of Python and Javascript libs for HTML files. Some are pre-installed in the file folder, some aren't like the Python libs so you will need to install them manually by command prompt.*
 
 > **On how to install the Python libs :**
 - Download the Official Python app, any version is fine if it's above 3.1x, *older version of Python may break or bug the app*.
