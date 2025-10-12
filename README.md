@@ -11,4 +11,4 @@ when the full release of the app is out!
 
 **Note :** The app can be run without *Internet* but some features of the app maybe disable because most of them need Wi-Fi to process.
 
-> [7:09 AM 10/12/2025]
+> **[ 7:09 AM 10/12/2025 ]**
