@@ -85,9 +85,17 @@
         <i data-feather="user" class="w-5 h-5"></i>
         <span>Profile</span>
       </a>
-      <a href="#" data-tab="files" onclick="switchTab('files'); toggleSidebar();" class="sidebar-tab">
-        <i data-feather="folder" class="w-5 h-5"></i>
-        <span>Files</span>
+      <a href="#" data-tab="friends" onclick="switchTab('friends'); toggleSidebar();" class="sidebar-tab">
+        <i data-feather="users" class="w-5 h-5"></i>
+        <span>Friends</span>
+      </a>
+      <a href="#" data-tab="groups" onclick="switchTab('groups'); toggleSidebar();" class="sidebar-tab">
+        <i data-feather="hash" class="w-5 h-5"></i>
+        <span>Groups</span>
+      </a>
+      <a href="#" data-tab="explore" onclick="switchTab('explore'); toggleSidebar();" class="sidebar-tab">
+        <i data-feather="compass" class="w-5 h-5"></i>
+        <span>Explore</span>
       </a>
       <a href="#" data-tab="settings" onclick="switchTab('settings'); toggleSidebar();" class="sidebar-tab ">
         <i data-feather="settings" class="w-5 h-5"></i>
@@ -136,9 +144,9 @@
             <i data-feather="user"></i>
             <span class="sidebar-text hidden">Profile</span>
           </a>
-          <a href="#" data-tab="files" onclick="switchTab('files')" class="sidebar-tab">
-            <i data-feather="folder"></i>
-            <span class="sidebar-text hidden">Files</span>
+          <a href="#" data-tab="explore" onclick="switchTab('explore')" class="sidebar-tab">
+            <i data-feather="compass"></i>
+            <span class="sidebar-text hidden">Explore</span>
           </a>
           <a href="#" data-tab="settings" onclick="switchTab('settings')" class="sidebar-tab">
             <i data-feather="settings"></i>
@@ -313,8 +321,7 @@
           <div class="profile-banner">
             <label for="bannerUpload" class="banner-label">
               <img id="bannerImage" src="/images/default_banner.png" alt="Banner" 
-                  class="banner-img" 
-                  onclick="document.getElementById('bannerUpload').click()">
+                  class="banner-img">
             </label>
             <button id="saveProfileBtn" onclick="saveProfileChanges()" 
                     class="save-profile-btn hidden absolute top-2 right-2 p-2 rounded-full shadow-lg bg-white dark:bg-gray-800 text-green-600 hover:text-green-700 transition" 
@@ -327,8 +334,7 @@
             <div class="avatar-wrapper">
               <label for="avatarUpload" class="avatar-label">
                 <img id="avatarImage" src="/images/default_avatar.png" alt="Avatar" 
-                    class="avatar-img"
-                    onclick="document.getElementById('avatarUpload').click()"/>
+                    class="avatar-img"/>
               </label>
               <input type="file" id="avatarUpload" accept="image/*" class="hidden">
               <span class="status-dot online"></span>
@@ -393,7 +399,7 @@
 
       <!-- Files Area -->
       <div id="tab-files" class="tab-content ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] flex flex-col overflow-y-auto animate-fadeIn">
-        <h1 class="text-xl font-bold mb-4 text-while">📦 Download Page</h1>
+        <h1 class="text-xl font-bold mb-4 text-white">📦 Download Page</h1>
 
         <div class="mb-6">
           <label for="speed" class="block text-sm font-semibold mb-1">Enter your internet speed (Mbps):</label>
@@ -405,6 +411,24 @@
           <!-- File cards will be rendered here -->
         </div>
       </div>
+
+      <!-- Explore Area -->
+      <section id="tab-explore" class="tab-content ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] hidden animate-fadeIn">
+        <div class="max-w-3xl mx-auto w-full">
+          <h1 class="text-2xl font-bold mb-4">🧭 Explore</h1>
+          <p class="text-gray-300 mb-6">Discover upcoming features, community highlights, and release notes.</p>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="p-4 rounded-lg bg-white/10 border border-white/10">
+              <h2 class="font-semibold mb-1">Coming Soon</h2>
+              <p class="text-sm text-gray-300">App marketplace, in-app themes, and more.</p>
+            </div>
+            <div class="p-4 rounded-lg bg-white/10 border border-white/10">
+              <h2 class="font-semibold mb-1">Community Pick</h2>
+              <p class="text-sm text-gray-300">Top groups and trending chats.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- Settings Area -->
       <section id="tab-settings" class="tab-content ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] flex flex-col space-y-6 hidden animate-fadeIn">
@@ -487,6 +511,9 @@
                   <option value="home">Home</option>
                   <option value="profile">Profile</option>
                   <option value="chats">Messages</option>
+                  <option value="friends">Friends</option>
+                  <option value="groups">Groups</option>
+                  <option value="explore">Explore</option>
                   <option value="settings">Settings</option>
                 </select>
               </div>
@@ -1476,8 +1503,21 @@
           dragMode: 'move',
           responsive: true,
         });
+
+        const zoomSlider = document.getElementById('zoomSlider');
+        if (zoomSlider) {
+          zoomSlider.oninput = (ev) => {
+            try {
+              const level = parseFloat(ev.target.value || '1');
+              if (cropper) cropper.zoomTo(level);
+            } catch {}
+          };
+        }
       };
       reader.readAsDataURL(file);
+
+      // reset file input so selecting the same file twice still triggers change
+      event.target.value = "";
     }
 
     function rotateImage(deg) {
@@ -1488,6 +1528,9 @@
       cropper?.destroy();
       cropper = null;
       document.getElementById('cropperModal').classList.add('hidden');
+      // also clear zoom slider back to default
+      const z = document.getElementById('zoomSlider');
+      if (z) z.value = '1';
     }
 
     function applyCrop() {
