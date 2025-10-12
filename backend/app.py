@@ -22,6 +22,7 @@ host_ip = socket.gethostbyname(socket.gethostname())
 
 # File paths and user data
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
 # Persisted app data (JSON, SQLite, etc.) lives in top-level `data/`
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 USER_DATA_FILE = os.path.join(DATA_DIR, 'users.json')
