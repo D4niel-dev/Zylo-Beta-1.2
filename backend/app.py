@@ -989,6 +989,7 @@ def group_messages_get(group_id):
         if g.get('id') == group_id:
             return jsonify(g.get('messages') or [])
     return jsonify([])
+
 # Run the app (IMPORTANT: Use socketio.run to enable Socket.IO support)
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)
