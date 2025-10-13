@@ -29,6 +29,7 @@ USER_DATA_FILE = os.path.join(DATA_DIR, 'users.json')
 FRONTEND_DIR = os.path.join(BASE_DIR, '../frontend')
 MESSAGES_FILE = os.path.join(DATA_DIR, "messages.json")
 GROUPS_FILE = os.path.join(DATA_DIR, 'groups.json')
+EXPLORE_FILE = os.path.join(DATA_DIR, 'explore.json')
 os.makedirs(DATA_DIR, exist_ok=True)
 
 # Helper functions
@@ -78,6 +79,22 @@ def load_groups():
 def save_groups(groups):
     with open(GROUPS_FILE, 'w', encoding='utf-8') as f:
         json.dump(groups, f, indent=2)
+
+# Explore storage helpers
+def load_explore():
+    if not os.path.exists(EXPLORE_FILE):
+        with open(EXPLORE_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f)
+        return []
+    try:
+        with open(EXPLORE_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+def save_explore(posts):
+    with open(EXPLORE_FILE, 'w', encoding='utf-8') as f:
+        json.dump(posts, f, indent=2)
 
 
 def http_post_json(url: str, payload: dict, timeout: int = 20) -> dict:
@@ -302,6 +319,46 @@ def handle_send_file(data):
 
     emit("receive_file", msg_data, broadcast=True)
 
+def _extract_extension_from_data_url(data_url: str) -> str:
+    try:
+        header = data_url.split(';', 1)[0]  # e.g., data:image/png
+        mime = header.split(':', 1)[1]      # image/png
+        main, sub = mime.split('/')
+        if sub.lower() in ("jpeg", "pjpeg"):
+            return "jpg"
+        if sub.lower() == "svg+xml":
+            return "svg"
+        return sub.lower()
+    except Exception:
+        return "bin"
+
+def _safe_filename(seed: str, ext: str) -> str:
+    base = f"{seed}_{random.randint(100000, 999999)}"
+    ext = (ext or "").lstrip('.').lower() or "bin"
+    return f"{base}.{ext}"
+
+def _save_data_url_for_user(username: str, base64_data: str, filename_hint: str = None) -> str:
+    """Save a data URL to /uploads/<username>/ and return the public URL path."""
+    user_upload_dir = os.path.join(BASE_DIR, '..', 'uploads', username)
+    os.makedirs(user_upload_dir, exist_ok=True)
+    try:
+        header, encoded = base64_data.split(",", 1)
+        file_bytes = base64.b64decode(encoded)
+        ext = None
+        if filename_hint and '.' in filename_hint:
+            ext = filename_hint.rsplit('.', 1)[1].lower()
+        if not ext:
+            ext = _extract_extension_from_data_url(base64_data)
+        seed = f"explore_{int(random.random()*1e9)}"
+        filename = _safe_filename(seed, ext)
+        filepath = os.path.join(user_upload_dir, filename)
+        with open(filepath, 'wb') as f:
+            f.write(file_bytes)
+        return f"/uploads/{username}/{filename}"
+    except Exception as e:
+        print("Failed to save data URL:", e)
+        return None
+
 @socketio.on('join_group')
 def handle_join_group(data):
     group_id = (data or {}).get('groupId')
@@ -337,6 +394,38 @@ def handle_send_group_message(data):
             all_groups[idx]['messages'] = msgs
             save_groups(all_groups)
             emit('receive_group_message', { 'groupId': group_id, 'username': username, 'message': message }, room=group_id)
+            return
+
+@socketio.on('send_group_file')
+def handle_send_group_file(data):
+    """Handle file sharing within a group room."""
+    group_id = (data or {}).get('groupId')
+    username = (data or {}).get('username')
+    file_name = (data or {}).get('fileName')
+    file_type = (data or {}).get('fileType')
+    file_data = (data or {}).get('fileData')
+    if not group_id or not username or not file_name or not file_data:
+        return
+    all_groups = load_groups()
+    for idx, g in enumerate(all_groups):
+        if g.get('id') == group_id:
+            entry = {
+                'username': username,
+                'fileName': file_name,
+                'fileType': file_type,
+                'fileData': file_data,
+            }
+            msgs = g.get('messages') or []
+            msgs.append(entry)
+            all_groups[idx]['messages'] = msgs
+            save_groups(all_groups)
+            emit('receive_group_file', {
+                'groupId': group_id,
+                'username': username,
+                'fileName': file_name,
+                'fileType': file_type,
+                'fileData': file_data,
+            }, room=group_id)
             return
 
     
@@ -450,6 +539,40 @@ def ai_chat():
     # Mock fallback
     reply = mock_ai_response(messages_in)
     return jsonify({"success": True, "provider": "mock", "model": "mock", "reply": reply})
+
+
+@app.route('/api/explore/posts', methods=['GET', 'POST'])
+def explore_posts():
+    """List or create Explore posts."""
+    if request.method == 'GET':
+        posts = load_explore()
+        posts_sorted = sorted(posts, key=lambda p: p.get('createdAt', 0), reverse=True)
+        return jsonify({"success": True, "posts": posts_sorted})
+
+    data = request.json or {}
+    username = (data.get('username') or '').strip()
+    caption = (data.get('caption') or '').strip()
+    file_name = data.get('fileName')
+    file_data = data.get('fileData')
+    if not username or not file_data:
+        return jsonify({"success": False, "error": "Missing username/fileData"}), 400
+
+    url = _save_data_url_for_user(username, file_data, file_name)
+    if not url:
+        return jsonify({"success": False, "error": "Failed to save file"}), 500
+
+    post = {
+        'id': f"p{random.randint(100000,999999)}",
+        'username': username,
+        'caption': caption,
+        'fileName': file_name,
+        'url': url,
+        'createdAt': int(__import__('time').time()),
+    }
+    posts = load_explore()
+    posts.append(post)
+    save_explore(posts)
+    return jsonify({"success": True, "post": post})
 
 @app.route('/api/get-user')
 def get_user():
