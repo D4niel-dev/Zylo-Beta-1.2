@@ -617,7 +617,8 @@ def serve_main():
 
 @app.route('/images/<path:filename>')
 def serve_images(filename):
-    return send_from_directory(os.path.join(BASE_DIR, '../images'), filename)
+    # Images were relocated under the frontend folder
+    return send_from_directory(os.path.join(FRONTEND_DIR, 'images'), filename)
 
 @app.route('/uploads/<username>/<filename>')
 def serve_upload(username, filename):
@@ -625,7 +626,8 @@ def serve_upload(username, filename):
 
 @app.route('/files/<path:filename>')
 def serve_files(filename):
-    return send_from_directory(os.path.join(BASE_DIR, '../files'), filename)
+    # Static files (css, vendor, audio, etc.) now live under frontend/files
+    return send_from_directory(os.path.join(FRONTEND_DIR, 'files'), filename)
 
 @app.route('/api/update-profile', methods=['POST'])
 def update_profile():

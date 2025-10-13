@@ -624,6 +624,40 @@
               <input type="checkbox" id="enableMusic" class="accent-blue-500">
               <label for="enableMusic">Enable Background Music</label>
             </div>
+
+            <!-- Sound Profile -->
+            <div>
+              <label for="soundProfile" class="block mb-2">Sound Profile</label>
+              <select id="soundProfile" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                <option value="default">Default</option>
+                <option value="soft">Soft</option>
+                <option value="retro">Retro</option>
+                <option value="clicky">Clicky</option>
+              </select>
+            </div>
+
+            <!-- Per-event toggles -->
+            <div>
+              <h3 class="font-semibold mb-2">Play on events</h3>
+              <div class="flex items-center gap-2 mb-2">
+                <input type="checkbox" id="playSend" class="accent-blue-500" checked>
+                <label for="playSend">Message sent</label>
+              </div>
+              <div class="flex items-center gap-2 mb-2">
+                <input type="checkbox" id="playReceive" class="accent-blue-500" checked>
+                <label for="playReceive">Message received</label>
+              </div>
+              <div class="flex items-center gap-2 mb-2">
+                <input type="checkbox" id="playUi" class="accent-blue-500" checked>
+                <label for="playUi">UI interactions</label>
+              </div>
+            </div>
+
+            <!-- Duck music on sound effects -->
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="duckMusic" class="accent-blue-500">
+              <label for="duckMusic">Duck music when playing effects</label>
+            </div>
           </div>
 
           <!-- Account Settings -->
@@ -2024,6 +2058,11 @@
         { id: 'muteAll', key: 'muteAll', checkbox: true },
         { id: 'enableSound', key: 'enableSound', checkbox: true },
         { id: 'enableMusic', key: 'enableMusic', checkbox: true },
+        { id: 'soundProfile', key: 'soundProfile' },
+        { id: 'duckMusic', key: 'duckMusic', checkbox: true },
+        { id: 'playSend', key: 'playSend', checkbox: true },
+        { id: 'playReceive', key: 'playReceive', checkbox: true },
+        { id: 'playUi', key: 'playUi', checkbox: true },
       ];
       soundControls.forEach(({ id, key, checkbox }) => {
         const el = document.getElementById(id);
