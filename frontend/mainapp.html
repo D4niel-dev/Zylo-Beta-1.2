@@ -375,6 +375,18 @@
                 <p id="statRank" class="stat-value rank">Unranked</p>
               </div>
             </div>
+
+            <!-- Profile Effects -->
+            <div class="mt-4">
+              <label for="profileEffectSelect" class="block mb-2">Profile Effect</label>
+              <select id="profileEffectSelect" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                <option value="none">None</option>
+                <option value="glow">Neon Glow</option>
+                <option value="pulse">Pulse</option>
+                <option value="ring">Animated Ring</option>
+                <option value="sparkle">Sparkle</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -839,11 +851,13 @@
   </div>
 
   <script src="/files/vendor/socket.io.min.js"></script>
+  <script src="/js/app-extras.js"></script>
   <script>
 
     // Chat Functions
     const baseUrl = window.location.origin;
     const socket = navigator.onLine ? io(baseUrl) : { emit: function(){}, on: function(){}, off: function(){}};
+    window.socket = socket;
     const chatInput = document.getElementById("chatInput");
     const chatMessagesCommunity = document.getElementById("chatMessagesCommunity");
     const chatMessagesAI = document.getElementById("chatMessagesAI");
@@ -2537,11 +2551,14 @@
       const banner = document.createElement('div');
       banner.id = 'offlineBanner';
       banner.textContent = 'You are offline. Messages will send when reconnected.';
-      banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#b91c1c;color:#fff;padding:8px 12px;text-align:center;z-index:9999;display:none';
+      banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#b91c1c;color:#fff;padding:8px 12px;text-align:center;z-index:40;display:none';
       document.body.appendChild(banner);
 
       function updateBanner(){
-        banner.style.display = navigator.onLine ? 'none' : 'block';
+        const show = !navigator.onLine;
+        banner.style.display = show ? 'block' : 'none';
+        // Reserve space in layout so bottom sidebar/logout remains visible
+        document.body.style.paddingBottom = show ? (banner.offsetHeight + 8) + 'px' : '';
       }
       window.addEventListener('online', updateBanner);
       window.addEventListener('offline', updateBanner);
