@@ -265,6 +265,15 @@ body.dark .sidebar-tab.active svg {
     color: white !important;
 }
 
+/* Fill icons when active (mobile + desktop) */
+.sidebar-tab.active svg,
+.sidebar-tab.active svg * {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    stroke-width: 2.4 !important;
+    transition: fill 0.15s ease, stroke 0.15s ease;
+}
+
 /* Navigation links */
 .sidebar-nav {
     padding: 1rem;
@@ -645,6 +654,60 @@ body.dark .avatar-img {
     border-color: #1f2937;
 }
 
+/* === Profile Avatar Effects === */
+.avatar-effect-none {}
+
+/* Soft neon glow around avatar */
+.avatar-effect-glow {
+    box-shadow: 0 0 10px rgba(99,102,241,0.7),
+                0 0 22px rgba(59,130,246,0.6),
+                0 0 38px rgba(236,72,153,0.45);
+    animation: glowPulse 2.2s ease-in-out infinite;
+}
+
+/* Subtle breathing pulse */
+.avatar-effect-pulse {
+    animation: pulseAvatar 1.8s ease-in-out infinite;
+}
+
+/* Animated decorative ring around avatar */
+.avatar-effect-ring {
+    position: relative;
+}
+.avatar-effect-ring::after {
+    content: "";
+    position: absolute;
+    inset: -6px; /* outside the avatar border */
+    border-radius: 9999px;
+    background: conic-gradient(
+      from 0deg,
+      #60a5fa,
+      #a78bfa,
+      #f472b6,
+      #60a5fa
+    );
+    filter: blur(1px) saturate(120%);
+    z-index: -1;
+    animation: ringRotate 8s linear infinite;
+    pointer-events: none;
+}
+
+/* Sparkle particles around avatar */
+.avatar-effect-sparkle { position: relative; }
+.avatar-effect-sparkle::before {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    background:
+      radial-gradient(6px 6px at 20% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0) 60%),
+      radial-gradient(5px 5px at 70% 20%, rgba(255,255,255,0.9), rgba(255,255,255,0) 60%),
+      radial-gradient(4px 4px at 40% 80%, rgba(255,255,255,0.9), rgba(255,255,255,0) 60%),
+      radial-gradient(3px 3px at 85% 65%, rgba(255,255,255,0.9), rgba(255,255,255,0) 60%);
+    opacity: 0.9;
+    animation: sparkleFloat 5s linear infinite;
+    pointer-events: none;
+}
+
 /* Status Dot */
 .status-dot {
     position: absolute;
@@ -786,6 +849,28 @@ body.dark .stat-label { color: #9ca3af; }
     25% { transform: rotate(10deg); }
     50% { transform: rotate(-10deg); }
     75% { transform: rotate(6deg); }
+}
+
+/* Additional keyframes for avatar effects */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(99,102,241,0.6), 0 0 18px rgba(59,130,246,0.5), 0 0 30px rgba(236,72,153,0.35); }
+  50% { box-shadow: 0 0 14px rgba(99,102,241,0.9), 0 0 28px rgba(59,130,246,0.8), 0 0 44px rgba(236,72,153,0.6); }
+}
+
+@keyframes pulseAvatar {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes ringRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes sparkleFloat {
+  0% { transform: translateY(0); opacity: 0.9; }
+  50% { transform: translateY(-6px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0.9; }
 }
 
 @keyframes fadeIn {
