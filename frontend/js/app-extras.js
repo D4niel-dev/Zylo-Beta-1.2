@@ -6,10 +6,14 @@
     _muted: false,
     _volFx: 0.75,
     _volMusic: 0.6,
+    _profile: 'default',
+    _duckMusic: false,
     _musicNode: null,
+    _musicGain: null,
     _inited: false,
     _buffers: {},
     _sampleBase: '/files/audio/',
+    _playOn: { send: true, receive: true, ui: true },
 
     _ensureCtx(){
       if (this._ctx) return;
@@ -27,6 +31,11 @@
       this._muted = localStorage.getItem('muteAll') === 'true';
       const fx = Number(localStorage.getItem('soundVolume')); if (!Number.isNaN(fx)) this._volFx = fx/100;
       const mu = Number(localStorage.getItem('musicVolume')); if (!Number.isNaN(mu)) this._volMusic = mu/100;
+      this._profile = localStorage.getItem('soundProfile') || 'default';
+      this._duckMusic = localStorage.getItem('duckMusic') === 'true';
+      this._playOn.send = (localStorage.getItem('playSend') ?? 'true') !== 'false';
+      this._playOn.receive = (localStorage.getItem('playReceive') ?? 'true') !== 'false';
+      this._playOn.ui = (localStorage.getItem('playUi') ?? 'true') !== 'false';
       this._preloadSamples();
     },
 
@@ -37,12 +46,25 @@
       if (!Number.isNaN(fx)) this._volFx = fx/100;
       const mu = Number(document.getElementById('musicVolume')?.value);
       if (!Number.isNaN(mu)) this._volMusic = mu/100;
+      const prof = document.getElementById('soundProfile')?.value;
+      if (prof) this._profile = prof;
+      const duck = document.getElementById('duckMusic')?.checked;
+      if (typeof duck === 'boolean') this._duckMusic = duck;
+      const playSend = document.getElementById('playSend')?.checked;
+      if (typeof playSend === 'boolean') this._playOn.send = playSend;
+      const playReceive = document.getElementById('playReceive')?.checked;
+      if (typeof playReceive === 'boolean') this._playOn.receive = playReceive;
+      const playUi = document.getElementById('playUi')?.checked;
+      if (typeof playUi === 'boolean') this._playOn.ui = playUi;
     },
 
     play(type){
       if (!this._enabled || this._muted) return;
       this._ensureCtx();
       if (!this._ctx) return;
+      if (type === 'send' && !this._playOn.send) return;
+      if (type === 'receive' && !this._playOn.receive) return;
+      if (type === 'ui' && !this._playOn.ui) return;
       try {
         const buf = this._buffers[type];
         if (buf) {
@@ -58,9 +80,30 @@
           const osc = this._ctx.createOscillator();
           const gain = this._ctx.createGain();
           let freq = 440, dur = 0.08, curve = 'sine';
+          // Profile- and event-aware defaults
           if (type === 'send') { freq = 660; dur = 0.07; curve = 'triangle'; }
           else if (type === 'receive') { freq = 520; dur = 0.10; curve = 'sine'; }
           else if (type === 'ui') { freq = 400; dur = 0.05; curve = 'square'; }
+          switch (this._profile) {
+            case 'soft':
+              curve = 'sine';
+              dur *= 1.2;
+              freq *= 0.85;
+              break;
+            case 'retro':
+              curve = 'square';
+              dur *= 0.9;
+              freq *= 1.05;
+              break;
+            case 'clicky':
+              curve = 'sawtooth';
+              dur *= 0.05;
+              freq *= 1.2;
+              break;
+            default:
+              // default profile leaves values as-is
+              break;
+          }
           osc.type = curve;
           osc.frequency.setValueAtTime(freq, now);
           gain.gain.setValueAtTime(this._volFx * 0.25, now);
@@ -69,6 +112,7 @@
           osc.start(now);
           osc.stop(now + dur + 0.02);
         }
+        if (this._duckMusic) this._duckMusicOnce();
       } catch {}
     },
 
@@ -82,6 +126,7 @@
         src.loop = true;
         const gain = this._ctx.createGain();
         gain.gain.value = this._volMusic;
+        this._musicGain = gain;
         src.connect(gain).connect(this._ctx.destination);
         src.start();
         this._musicNode = src;
@@ -100,6 +145,7 @@
       filter.frequency.value = 320;
       const gain = this._ctx.createGain();
       gain.gain.value = this._volMusic * 0.2;
+      this._musicGain = gain;
       noise.connect(filter).connect(gain).connect(this._ctx.destination);
       noise.start();
       this._musicNode = noise;
@@ -108,6 +154,20 @@
     stopMusic(){
       try { this._musicNode?.stop(); } catch {}
       this._musicNode = null;
+      this._musicGain = null;
+    },
+
+    _duckMusicOnce(){
+      try {
+        if (!this._musicGain) return;
+        const now = this._ctx.currentTime;
+        const g = this._musicGain.gain;
+        const base = this._volMusic * (this._buffers['bg'] ? 1.0 : 0.2);
+        g.cancelScheduledValues(now);
+        g.setValueAtTime(base, now);
+        g.linearRampToValueAtTime(base * 0.5, now + 0.02);
+        g.linearRampToValueAtTime(base, now + 0.25);
+      } catch {}
     },
 
     async _preloadSamples(){
@@ -221,7 +281,7 @@
     const iv = setInterval(() => { attempts++; tryAttachSocket(); if (attempts > 10) clearInterval(iv); }, 500);
 
     // React to settings controls changing at runtime
-    ['soundVolume','musicVolume','muteAll','enableSound','enableMusic'].forEach(id => {
+    ['soundVolume','musicVolume','muteAll','enableSound','enableMusic','soundProfile','duckMusic','playSend','playReceive','playUi'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener('change', () => {
         SoundEngine.setFromControls();
