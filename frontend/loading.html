@@ -31,14 +31,24 @@
 
     <script>
         const tasks = [
-        "Initializing Zylo",
-        "Fetching user data",
-        "Loading chats",
-        "Preparing your profile",
-        "Almost ready",
-        "Just a moment more",
-        "Finalizing setup",
-        "Just a few more seconds"
+          { key: 'init', label: 'Initializing Zylo', run: async () => { await new Promise(r => setTimeout(r, 300)); } },
+          { key: 'user', label: 'Fetching user data', run: async () => {
+              const u = localStorage.getItem('username');
+              if (!u) return;
+              try { await fetch(`/api/get-user?identifier=${encodeURIComponent(u)}`); } catch {}
+          } },
+          { key: 'messages', label: 'Loading chats', run: async () => {
+              try { await fetch('/api/messages', { method: 'GET' }); } catch {}
+          } },
+          { key: 'groups', label: 'Syncing groups', run: async () => {
+              const u = localStorage.getItem('username');
+              if (!u) return;
+              try { await fetch(`/api/groups?username=${encodeURIComponent(u)}`); } catch {}
+          } },
+          { key: 'explore', label: 'Fetching explore feed', run: async () => {
+              try { await fetch('/api/explore/posts'); } catch {}
+          } },
+          { key: 'cache', label: 'Priming offline cache', run: async () => { try { await caches.open('runtime-v1-zylo'); } catch {} } },
         ];
 
         let index = 0;
@@ -52,15 +62,18 @@
             welcomeEl.textContent = `Welcome back, ${username}!`;
         }
 
-        function cycleText() {
-            textEl.textContent = tasks[index];
-            progressBar.style.width = `${((index+1)/tasks.length) * 100}%`;
-            index++;
-
-            if (index >= tasks.length) {
-                clearInterval(textInterval); // stop cycling
-                index = tasks.length - 1;
-            }
+        async function runNext() {
+          if (index >= tasks.length) return;
+          const task = tasks[index];
+          textEl.textContent = task.label;
+          try { await task.run(); } catch {}
+          index++;
+          progressBar.style.width = `${(index/tasks.length) * 100}%`;
+          if (index < tasks.length) {
+            setTimeout(runNext, 250);
+          } else {
+            done();
+          }
         }
 
         function goToPage(href) { 
@@ -70,28 +83,18 @@
             }, 1000); 
         }
 
-        cycleText();
-        const textInterval = setInterval(cycleText, 2000);
+        function done(){
+          textEl.textContent = "Done!";
+          document.querySelector(".loading-dots").style.display = "none";
+          progressBar.style.width = "100%";
+          setTimeout(() => {
+            document.body.style.animation = "fadeOut 1s forwards";
+            setTimeout(() => { goToPage("mainapp.html"); }, 900);
+          }, 500);
+        }
 
-        // Redirect after all tasks are shown
-        window.addEventListener("load", () => {
-            const totalTime = tasks.length * 2000;
-            const pauseTime = 1000;
-
-            setTimeout(() => {
-                clearInterval(textInterval);
-
-                textEl.textContent = "Done!";
-                document.querySelector(".loading-dots").style.display = "None";
-                progressBar.style.width = "100%"; // make sure it's full
-
-                setTimeout(() => {
-                    document.body.style.animation = "fadeOut 1s forwards";
-                    setTimeout(() => {
-                        goToPage("mainapp.html");
-                    }, 1000);
-                }, pauseTime);
-            }, totalTime);
+        window.addEventListener('load', () => {
+          runNext();
         });
 
         // Fade-out transition on link clicks

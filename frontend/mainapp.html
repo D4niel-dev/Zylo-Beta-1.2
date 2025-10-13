@@ -303,6 +303,10 @@
             <div class="p-2 border-b border-gray-700"><span id="activeGroupTitle" class="font-semibold">Select a group</span></div>
             <div id="groupMessages" class="chat-messages flex-1"></div>
             <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
+              <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file to group">
+                <i data-feather="paperclip"></i>
+                <input type="file" id="groupFileInput" class="hidden" onchange="sendGroupFile(event)">
+              </label>
               <textarea id="groupChatInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message group..."></textarea>
               <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendGroupMessage()"><i data-feather="send"></i></button>
             </div>
@@ -414,19 +418,25 @@
 
       <!-- Explore Area -->
       <section id="tab-explore" class="tab-content ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] hidden animate-fadeIn">
-        <div class="max-w-3xl mx-auto w-full">
-          <h1 class="text-2xl font-bold mb-4">🧭 Explore</h1>
-          <p class="text-gray-300 mb-6">Discover upcoming features, community highlights, and release notes.</p>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div class="p-4 rounded-lg bg-white/10 border border-white/10">
-              <h2 class="font-semibold mb-1">Coming Soon</h2>
-              <p class="text-sm text-gray-300">App marketplace, in-app themes, and more.</p>
+        <div class="max-w-3xl mx-auto w-full space-y-4">
+          <h1 class="text-2xl font-bold">🧭 Explore</h1>
+          <p class="text-gray-300">Share images, videos, audio, or files with the community.</p>
+
+          <!-- Share composer -->
+          <div class="p-4 rounded-lg bg-white/10 border border-white/10 space-y-3">
+            <div class="flex items-center gap-2">
+              <input id="exploreCaption" class="zylo-input flex-1 p-2" placeholder="Say something about your media..." />
+              <label class="px-3 py-2 rounded bg-blue-600 text-white cursor-pointer">
+                Attach
+                <input type="file" id="exploreFile" class="hidden" />
+              </label>
+              <button id="exploreShareBtn" class="px-3 py-2 rounded bg-green-600 text-white">Share</button>
             </div>
-            <div class="p-4 rounded-lg bg-white/10 border border-white/10">
-              <h2 class="font-semibold mb-1">Community Pick</h2>
-              <p class="text-sm text-gray-300">Top groups and trending chats.</p>
-            </div>
+            <div id="explorePreview" class="rounded overflow-hidden"></div>
           </div>
+
+          <!-- Feed -->
+          <div id="exploreFeed" class="space-y-3 overflow-y-auto" style="max-height: calc(100dvh - 240px)"></div>
         </div>
       </section>
 
@@ -907,7 +917,9 @@
       let body;
       if (data.fileData && data.fileName) {
         const ext = data.fileName.split(".").pop().toLowerCase();
-        const imageExts = ["png", "jpg", "jpeg", "gif", "webp"];
+        const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+        const videoExts = ["mp4", "webm", "ogg", "mov", "m4v"];
+        const audioExts = ["mp3", "wav", "ogg", "m4a", "aac", "flac"];
 
         if (imageExts.includes(ext)) {
           bubble.classList.add("image-bubble");
@@ -915,6 +927,15 @@
           body.src = data.fileData;
           body.alt = data.fileName;
           body.className = "max-w-xs rounded shadow cursor-pointer";
+        } else if (videoExts.includes(ext)) {
+          body = document.createElement("video");
+          body.controls = true;
+          body.src = data.fileData;
+          body.className = "max-w-xs rounded";
+        } else if (audioExts.includes(ext)) {
+          body = document.createElement("audio");
+          body.controls = true;
+          body.src = data.fileData;
         } else {
           bubble.classList.add("message", isOwnMessage ? "self" : "other");
           body = document.createElement("a");
@@ -1099,19 +1120,33 @@
 
       let fileContent;
       const ext = data.fileName.split(".").pop().toLowerCase();
-      const imageExts = ["png", "jpg", "jpeg", "gif", "webp"];
+      const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+      const videoExts = ["mp4", "webm", "ogg", "mov", "m4v"];
+      const audioExts = ["mp3", "wav", "ogg", "m4a", "aac", "flac"];
 
       if (imageExts.includes(ext)) {
         fileContent = document.createElement("img");
         fileContent.src = data.fileData;
         fileContent.alt = data.fileName;
         fileContent.className = "max-w-xs rounded";
+      } else if (videoExts.includes(ext)) {
+        const video = document.createElement("video");
+        video.controls = true;
+        video.src = data.fileData;
+        video.className = "max-w-xs rounded";
+        fileContent = video;
+      } else if (audioExts.includes(ext)) {
+        const audio = document.createElement("audio");
+        audio.controls = true;
+        audio.src = data.fileData;
+        fileContent = audio;
       } else {
-        fileContent = document.createElement("a");
-        fileContent.href = data.fileData;
-        fileContent.download = data.fileName;
-        fileContent.textContent = `📎 ${data.fileName}`;
-        fileContent.className = "text-blue-400 underline";
+        const link = document.createElement("a");
+        link.href = data.fileData;
+        link.download = data.fileName;
+        link.textContent = `📎 ${data.fileName}`;
+        link.className = "text-blue-400 underline";
+        fileContent = link;
       }
 
       bubble.appendChild(header);
@@ -1313,8 +1348,31 @@
       const header = document.createElement('div');
       header.className = 'text-xs opacity-75 mb-1';
       header.textContent = `${data.username} | ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-      const body = document.createElement('div');
-      body.textContent = data.message;
+      let body;
+      if (data.fileData && data.fileName) {
+        const ext = (data.fileName.split('.').pop() || '').toLowerCase();
+        const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+        const videoExts = ["mp4", "webm", "ogg", "mov", "m4v"];
+        const audioExts = ["mp3", "wav", "ogg", "m4a", "aac", "flac"];
+        if (imageExts.includes(ext)) {
+          body = document.createElement('img');
+          body.src = data.fileData;
+          body.alt = data.fileName;
+          body.className = 'max-w-xs rounded';
+        } else if (videoExts.includes(ext)) {
+          body = document.createElement('video');
+          body.controls = true; body.src = data.fileData; body.className = 'max-w-xs rounded';
+        } else if (audioExts.includes(ext)) {
+          body = document.createElement('audio');
+          body.controls = true; body.src = data.fileData;
+        } else {
+          body = document.createElement('a');
+          body.href = data.fileData; body.download = data.fileName; body.textContent = `📎 ${data.fileName}`; body.className = 'text-blue-400 underline';
+        }
+      } else {
+        body = document.createElement('div');
+        body.textContent = data.message;
+      }
       bubble.appendChild(header);
       bubble.appendChild(body);
       if (isOwnMessage) { wrapper.appendChild(bubble); wrapper.appendChild(avatar); }
@@ -1382,8 +1440,25 @@
       input.style.height = 'auto';
     }
 
+    function sendGroupFile(event) {
+      const file = event.target.files?.[0];
+      if (!file || !groupsState.activeId) return;
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const payload = { groupId: groupsState.activeId, username: localStorage.getItem('username'), fileName: file.name, fileType: file.type, fileData: e.target.result };
+        if (navigator.onLine) socket.emit('send_group_file', payload);
+        // Optimistically render
+        appendGroupMessage(payload);
+        event.target.value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
     if (typeof io !== 'undefined') {
       socket.on('receive_group_message', (data) => {
+        if (data.groupId === groupsState.activeId) appendGroupMessage(data);
+      });
+      socket.on('receive_group_file', (data) => {
         if (data.groupId === groupsState.activeId) appendGroupMessage(data);
       });
     }
@@ -2259,6 +2334,113 @@
       // Initialize chat room + models
       loadAiModels();
       switchChatRoom(currentChatRoom);
+
+      // Explore: wiring share and feed
+      const exploreFile = document.getElementById('exploreFile');
+      const exploreCaption = document.getElementById('exploreCaption');
+      const explorePreview = document.getElementById('explorePreview');
+      const exploreFeed = document.getElementById('exploreFeed');
+      const exploreShareBtn = document.getElementById('exploreShareBtn');
+
+      function renderPreview(file){
+        explorePreview.innerHTML = '';
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        const type = (file.type || '').toLowerCase();
+        if (type.startsWith('image/')) {
+          const img = document.createElement('img');
+          img.src = url; img.className = 'max-h-72 rounded';
+          explorePreview.appendChild(img);
+        } else if (type.startsWith('video/')) {
+          const video = document.createElement('video');
+          video.controls = true; video.src = url; video.className = 'w-full max-h-72 rounded';
+          explorePreview.appendChild(video);
+        } else if (type.startsWith('audio/')) {
+          const audio = document.createElement('audio');
+          audio.controls = true; audio.src = url; audio.className = 'w-full';
+          explorePreview.appendChild(audio);
+        } else {
+          const a = document.createElement('div');
+          a.textContent = `📎 ${file.name}`;
+          explorePreview.appendChild(a);
+        }
+      }
+
+      exploreFile?.addEventListener('change', (e) => {
+        const f = e.target.files?.[0];
+        renderPreview(f);
+      });
+
+      async function loadExploreFeed(){
+        try {
+          const res = await fetch('/api/explore/posts');
+          const data = await res.json();
+          const posts = data.posts || [];
+          exploreFeed.innerHTML = '';
+          posts.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'p-3 rounded-lg bg-white/10 border border-white/10';
+            const header = document.createElement('div');
+            header.className = 'text-xs opacity-75 mb-2';
+            const date = new Date((p.createdAt||0)*1000).toLocaleString();
+            header.textContent = `${p.username} • ${date}`;
+            const caption = document.createElement('div');
+            caption.className = 'mb-2';
+            caption.textContent = p.caption || '';
+            const ext = (p.fileName||'').split('.').pop().toLowerCase();
+            const mediaWrap = document.createElement('div');
+            if (['png','jpg','jpeg','gif','webp','svg'].includes(ext)) {
+              const img = document.createElement('img');
+              img.src = p.url; img.className = 'w-full rounded';
+              mediaWrap.appendChild(img);
+            } else if (['mp4','webm','ogg','mov','m4v'].includes(ext)) {
+              const video = document.createElement('video');
+              video.controls = true; video.src = p.url; video.className = 'w-full rounded';
+              mediaWrap.appendChild(video);
+            } else if (['mp3','wav','ogg','m4a','aac','flac'].includes(ext)) {
+              const audio = document.createElement('audio');
+              audio.controls = true; audio.src = p.url; audio.className = 'w-full';
+              mediaWrap.appendChild(audio);
+            } else {
+              const a = document.createElement('a');
+              a.href = p.url; a.download = p.fileName || 'download'; a.textContent = `📎 ${p.fileName || 'file'}`; a.className = 'underline';
+              mediaWrap.appendChild(a);
+            }
+            card.appendChild(header);
+            if (caption.textContent) card.appendChild(caption);
+            card.appendChild(mediaWrap);
+            exploreFeed.appendChild(card);
+          });
+        } catch {}
+      }
+
+      async function shareExplore(){
+        const f = exploreFile?.files?.[0];
+        if (!f) { alert('Attach a file first.'); return; }
+        const caption = exploreCaption?.value || '';
+        const username = localStorage.getItem('username') || localStorage.getItem('savedUsername') || 'Anonymous';
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const fileData = e.target.result;
+            const res = await fetch('/api/explore/posts', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, caption, fileName: f.name, fileData })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.error || 'Failed to share');
+            // Reset and reload
+            if (exploreCaption) exploreCaption.value = '';
+            if (exploreFile) exploreFile.value = '';
+            explorePreview.innerHTML = '';
+            await loadExploreFeed();
+          } catch (err) { alert('Failed to share.'); }
+        };
+        reader.readAsDataURL(f);
+      }
+
+      exploreShareBtn?.addEventListener('click', shareExplore);
+      loadExploreFeed();
 
       // Apply startup page if set
       const startup = (localStorage.getItem('startupPage') || 'home');
