@@ -45,7 +45,22 @@ if not exist dist mkdir dist
 xcopy /e /i /y frontend dist\frontend >nul
 xcopy /e /i /y backend dist\backend >nul
 
-echo Build complete. Find Zylo.exe under dist\Zylo.exe
+REM Post-build: move dist/build into frontend\files and copy Zylo.exe to scripts
+set FILES_DIR=%REPO%\frontend\files
+if not exist "%FILES_DIR%" mkdir "%FILES_DIR%"
+
+REM Move dist to frontend\files\dist
+if exist "%FILES_DIR%\dist" rmdir /s /q "%FILES_DIR%\dist"
+if exist "%REPO%\dist" move "%REPO%\dist" "%FILES_DIR%\dist" >nul
+
+REM Move build to frontend\files\build (if present)
+if exist "%FILES_DIR%\build" rmdir /s /q "%FILES_DIR%\build"
+if exist "%REPO%\build" move "%REPO%\build" "%FILES_DIR%\build" >nul
+
+REM Copy only Zylo.exe into scripts for convenience
+if exist "%FILES_DIR%\dist\Zylo.exe" copy /y "%FILES_DIR%\dist\Zylo.exe" "%REPO%\scripts\Zylo.exe" >nul
+
+echo Build complete. Find Zylo.exe under scripts\Zylo.exe (full bundle under frontend\files\dist)
 exit /b 0
 
 :error

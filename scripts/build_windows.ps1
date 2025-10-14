@@ -64,4 +64,21 @@ pyinstaller --noconfirm --onefile --name Zylo --clean --noconsole `
 Copy-Item -Recurse -Force frontend (Join-Path $dist 'frontend')
 Copy-Item -Recurse -Force backend (Join-Path $dist 'backend')
 
-Write-Host "Build complete. Find Zylo.exe under dist\\Zylo.exe"
+# Post-build: move dist and build into frontend/files, keep only Zylo.exe in scripts
+$filesDir = Join-Path $repoRoot 'frontend\files'
+if (!(Test-Path $filesDir)) { New-Item -ItemType Directory -Path $filesDir | Out-Null }
+
+$distTarget = Join-Path $filesDir 'dist'
+if (Test-Path $distTarget) { Remove-Item -Recurse -Force $distTarget }
+if (Test-Path $dist) { Move-Item -Force $dist $distTarget }
+
+$buildDir = Join-Path $repoRoot 'build'
+$buildTarget = Join-Path $filesDir 'build'
+if (Test-Path $buildTarget) { Remove-Item -Recurse -Force $buildTarget }
+if (Test-Path $buildDir) { Move-Item -Force $buildDir $buildTarget }
+
+$exeSource = Join-Path $distTarget 'Zylo.exe'
+$exeDest = Join-Path $repoRoot 'scripts\Zylo.exe'
+if (Test-Path $exeSource) { Copy-Item -Force $exeSource $exeDest }
+
+Write-Host "Build complete. Find Zylo.exe under scripts\\Zylo.exe (bundle under frontend\\files\\dist)"
