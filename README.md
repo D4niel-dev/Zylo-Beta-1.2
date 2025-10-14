@@ -9,12 +9,12 @@ when the full release of the app is out!
 - Run *pip install -r requirements.txt*, it may take a few minutes to download all the libs for Python.
 - After the libs are installed, you can run the app either by *double clicking the main.py* or *clicking the Zylo.exe*.
 
-**Note :** The app can be run without *Internet* but some features of the app maybe disable because most of them need Wi-Fi to process.
-
-> **[ 6:43 PM 10/13/2025 ]**
-
-Storage locations update:
+> **Storage locations update :**
 
 - Data JSON now lives under `backend/data/`.
 - User uploads are now under `backend/uploads/` and are served at `/uploads/<username>/<filename>`.
 - On startup, the server will migrate any legacy `data/` and `uploads/` folders from repo root into `backend/` automatically.
+
+**Note :** The app can be run without *Internet* but some features of the app maybe disable because most of them need Wi-Fi to process.
+
+> **[ 6:43 PM 10/13/2025 ]**
