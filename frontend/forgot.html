@@ -58,13 +58,13 @@
       class="zylo-input w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none" />
 
     <button onclick="reset()" id="resetBtn"
-      class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2 rounded-lg transition duration-200 flex items-center justify-center space-x-2">
-      <span>Send Reset Link</span>
+      class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2 rounded-lg transition duration-200 flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed">
       <svg id="spinner" class="w-4 h-4 text-black animate-spin hidden" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor"
           d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"></path>
       </svg>
+      <span id="resetBtnText">Send Reset Link</span>
     </button>
 
     <p id="reset-msg" class="text-sm text-center hidden"></p>
@@ -107,10 +107,12 @@
           : `<i data-feather=\"x-circle\" class=\"w-4 h-4\"></i> ${result.error || "Something went wrong."}`;
         msg.className = "text-sm text-center " + (result.success ? "text-green-500" : "text-red-600");
         msg.classList.remove("hidden");
+        try { new Audio('/files/audio/ui.mp3').play().catch(()=>{}); } catch {}
       } catch (err) {
         msg.innerHTML = `<i data-feather="x-circle" class="w-4 h-4"></i> Failed to connect to server.`;
         msg.className = "text-sm text-center text-red-600";
         msg.classList.remove("hidden");
+        try { new Audio('/files/audio/error.mp3').play().catch(()=>{}); } catch {}
       } finally {
         spinner.classList.add("hidden");
         btn.disabled = false;
@@ -138,6 +140,8 @@
         });
       }
     });
+    // Enter to submit
+    document.addEventListener('keydown', (e) => { if (e.key === 'Enter') reset(); });
   </script>
   <script>
     feather.replace();

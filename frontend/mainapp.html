@@ -485,21 +485,21 @@
           
           <!-- Header -->
           <div class="flex items-center justify-between">
-            <h1 class="text-3xl font-bold">⚙️ Settings</h1>
+            <h1 id="settingsTitle" class="text-3xl font-bold">⚙️ Settings</h1>
           </div>
 
           <!-- Settings Navigation -->
           <div class="flex border-b border-gray-300 dark:border-gray-700 mb-6">
-            <button class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="generalSettings">
+            <button id="tabBtnGeneral" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="generalSettings">
               General
             </button>
-            <button class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="soundSettings">
+            <button id="tabBtnSounds" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="soundSettings">
               Sounds
             </button>
-            <button class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="accountSettings">
+            <button id="tabBtnAccount" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="accountSettings">
               Account
             </button>
-            <button class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="aboutSettings">
+            <button id="tabBtnAbout" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="aboutSettings">
               About Us
             </button>
           </div>
@@ -509,7 +509,7 @@
 
               <!-- Enable Animations -->
               <div class="flex items-center justify-between">
-                <span>Enable Animations</span>
+                <span id="labelEnableAnimations">Enable Animations</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="animationsToggle" class="sr-only peer">
                   <div class="w-11 h-6 bg-gray-300 peer-checked:bg-blue-600 rounded-full peer dark:bg-gray-600 
@@ -521,7 +521,7 @@
 
               <!-- Compact Mode -->
               <div class="flex items-center justify-between">
-                <span>Compact Mode</span>
+                <span id="labelCompactMode">Compact Mode</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="compactToggle" class="sr-only peer">
                   <div class="w-11 h-6 bg-gray-300 peer-checked:bg-purple-600 rounded-full peer dark:bg-gray-600 
@@ -533,7 +533,7 @@
 
               <!-- Show Tooltips -->
               <div class="flex items-center justify-between">
-                <span>Show Tooltips</span>
+                <span id="labelShowTooltips">Show Tooltips</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="tooltipToggle" class="sr-only peer">
                   <div class="w-11 h-6 bg-gray-300 peer-checked:bg-green-600 rounded-full peer dark:bg-gray-600 
@@ -545,7 +545,7 @@
 
               <!-- Language Selector -->
               <div>
-                <label for="languageSelect" class="block mb-2">Language</label>
+                <label id="labelLanguage" for="languageSelect" class="block mb-2">Language</label>
                 <select id="languageSelect" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
                   <option value="en">English</option>
                   <option value="vi">Tiếng Việt</option>
@@ -555,7 +555,7 @@
 
               <!-- Startup Page -->
               <div>
-                <label for="startupPage" class="block mb-2">Startup Page</label>
+                <label id="labelStartupPage" for="startupPage" class="block mb-2">Startup Page</label>
                 <select id="startupPage" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
                   <option value="home">Home</option>
                   <option value="profile">Profile</option>
@@ -569,7 +569,7 @@
 
               <!-- Auto Save Changes -->
               <div class="flex items-center justify-between">
-                <span>Auto Save Changes</span>
+                <span id="labelAutoSave">Auto Save Changes</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="autoSaveToggle" class="sr-only peer">
                   <div class="w-11 h-6 bg-gray-300 peer-checked:bg-yellow-500 rounded-full peer dark:bg-gray-600 
@@ -581,7 +581,7 @@
 
               <!-- Confirm Before Exit -->
               <div class="flex items-center justify-between">
-                <span>Confirm Before Exit</span>
+                <span id="labelConfirmExit">Confirm Before Exit</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="confirmExitToggle" class="sr-only peer">
                   <div class="w-11 h-6 bg-gray-300 peer-checked:bg-red-500 rounded-full peer dark:bg-gray-600 
@@ -593,7 +593,7 @@
 
               <!-- Themes -->
               <div>
-                <h2 class="text-xl font-semibold mb-3">Appearance</h2>
+                <h2 id="titleAppearance" class="text-xl font-semibold mb-3">Appearance</h2>
                 <div class="flex items-center gap-3 flex-wrap">
                   <div class="flex items-center gap-2">
                     <span>Theme</span>
@@ -627,7 +627,7 @@
                 <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <label class="inline-flex items-center gap-2">
                     <input type="checkbox" id="solidBgToggle" class="accent-blue-500">
-                    <span>Solid BG</span>
+                    <span id="labelSolidBg">Solid BG</span>
                   </label>
                   <div class="flex items-center gap-2">
                     <input type="file" id="bgImageInput" accept="image/*" class="block w-full text-sm text-gray-900 dark:text-gray-100 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-gray-700 dark:file:text-gray-100" />
@@ -638,7 +638,7 @@
 
               <!-- Reset All Settings -->
               <div class="pt-4 border-t border-gray-300 dark:border-gray-700">
-                <button onclick="resetAllSettings()" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Reset All Settings</button>
+                <button id="btnResetAll" onclick="resetAllSettings()" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Reset All Settings</button>
               </div>
           </div>
 
@@ -2158,6 +2158,22 @@
         body: JSON.stringify({ username, settings: partial })
       }).catch(() => {});
     }
+    async function hydrateSettingsFromBackend(){
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      try {
+        const resp = await fetch(`/api/get-user?identifier=${encodeURIComponent(username)}`);
+        const data = await resp.json();
+        if (!data?.success) return;
+        const settings = data.user?.settings || {};
+        // Merge backend settings into localStorage without overwriting user's local changes for this session
+        Object.entries(settings).forEach(([k, v]) => {
+          if (localStorage.getItem(k) == null) {
+            localStorage.setItem(k, typeof v === 'boolean' ? String(v) : String(v));
+          }
+        });
+      } catch {}
+    }
     const settingsMap = [
       { id: "animationsToggle", key: "enableAnimations" },
       { id: "compactToggle", key: "compactMode" },
@@ -2168,7 +2184,8 @@
       { id: "confirmExitToggle", key: "confirmBeforeExit" }
     ];
 
-    window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", async () => {
+      await hydrateSettingsFromBackend();
       settingsMap.forEach(({ id, key }) => {
         const el = document.getElementById(id);
         const savedValue = localStorage.getItem(key);
@@ -2193,11 +2210,64 @@
     });
 
     function applyGeneralSettings() {
-      document.body.classList.toggle("no-animations", localStorage.getItem("enableAnimations") === "false");
+      // Animations and compact mode
+      const animationsEnabled = (localStorage.getItem("enableAnimations") ?? 'true') !== "false";
+      document.body.classList.toggle("no-animations", !animationsEnabled);
       document.body.classList.toggle("compact", localStorage.getItem("compactMode") === "true");
-      if (localStorage.getItem("showTooltips") === "false") {
+
+      // Tooltips
+      const showTips = (localStorage.getItem("showTooltips") ?? 'true') === "true";
+      if (!showTips) {
         document.querySelectorAll("[title]").forEach(el => el.removeAttribute("title"));
       }
+
+      // Confirm before exit
+      const wantConfirm = localStorage.getItem("confirmBeforeExit") === "true";
+      window.onbeforeunload = wantConfirm ? (e) => { e.preventDefault(); e.returnValue = ''; } : null;
+
+      // Language runtime micro i18n for settings labels only
+      applySettingsLocale();
+    }
+
+    function applySettingsLocale(){
+      const lang = localStorage.getItem('language') || 'en';
+      const dict = {
+        en: {
+          settingsTitle: '⚙️ Settings', general: 'General', sounds: 'Sounds', account: 'Account', about: 'About Us',
+          enableAnimations: 'Enable Animations', compactMode: 'Compact Mode', showTooltips: 'Show Tooltips', language: 'Language',
+          startupPage: 'Startup Page', autoSave: 'Auto Save Changes', confirmExit: 'Confirm Before Exit', appearance: 'Appearance',
+          solidBg: 'Solid BG', resetAll: 'Reset All Settings'
+        },
+        es: {
+          settingsTitle: '⚙️ Ajustes', general: 'General', sounds: 'Sonidos', account: 'Cuenta', about: 'Acerca de',
+          enableAnimations: 'Habilitar animaciones', compactMode: 'Modo compacto', showTooltips: 'Mostrar consejos', language: 'Idioma',
+          startupPage: 'Página de inicio', autoSave: 'Guardar automáticamente', confirmExit: 'Confirmar antes de salir', appearance: 'Apariencia',
+          solidBg: 'Fondo sólido', resetAll: 'Restablecer todos los ajustes'
+        },
+        vi: {
+          settingsTitle: '⚙️ Cài đặt', general: 'Chung', sounds: 'Âm thanh', account: 'Tài khoản', about: 'Giới thiệu',
+          enableAnimations: 'Bật hiệu ứng', compactMode: 'Chế độ gọn', showTooltips: 'Hiển thị gợi ý', language: 'Ngôn ngữ',
+          startupPage: 'Trang khởi động', autoSave: 'Tự động lưu', confirmExit: 'Xác nhận trước khi thoát', appearance: 'Giao diện',
+          solidBg: 'Nền đồng màu', resetAll: 'Đặt lại tất cả cài đặt'
+        }
+      }[lang] || {};
+
+      const byId = (id) => document.getElementById(id);
+      if (byId('settingsTitle') && dict.settingsTitle) byId('settingsTitle').textContent = dict.settingsTitle;
+      if (byId('tabBtnGeneral') && dict.general) byId('tabBtnGeneral').textContent = dict.general;
+      if (byId('tabBtnSounds') && dict.sounds) byId('tabBtnSounds').textContent = dict.sounds;
+      if (byId('tabBtnAccount') && dict.account) byId('tabBtnAccount').textContent = dict.account;
+      if (byId('tabBtnAbout') && dict.about) byId('tabBtnAbout').textContent = dict.about;
+      if (byId('labelEnableAnimations') && dict.enableAnimations) byId('labelEnableAnimations').textContent = dict.enableAnimations;
+      if (byId('labelCompactMode') && dict.compactMode) byId('labelCompactMode').textContent = dict.compactMode;
+      if (byId('labelShowTooltips') && dict.showTooltips) byId('labelShowTooltips').textContent = dict.showTooltips;
+      if (byId('labelLanguage') && dict.language) byId('labelLanguage').textContent = dict.language;
+      if (byId('labelStartupPage') && dict.startupPage) byId('labelStartupPage').textContent = dict.startupPage;
+      if (byId('labelAutoSave') && dict.autoSave) byId('labelAutoSave').textContent = dict.autoSave;
+      if (byId('labelConfirmExit') && dict.confirmExit) byId('labelConfirmExit').textContent = dict.confirmExit;
+      if (byId('titleAppearance') && dict.appearance) byId('titleAppearance').textContent = dict.appearance;
+      if (byId('labelSolidBg') && dict.solidBg) byId('labelSolidBg').textContent = dict.solidBg;
+      if (byId('btnResetAll') && dict.resetAll) byId('btnResetAll').textContent = dict.resetAll;
     }
 
     function resetAllSettings() {
@@ -2235,8 +2305,8 @@
 
     document.getElementById("languageSelect").addEventListener("change", function() {
       localStorage.setItem("language", this.value);
+      applySettingsLocale();
       persistSettings({ language: this.value });
-      alert("Language set to: " + this.value);
     });
 
     // Sound settings
