@@ -594,16 +594,45 @@
               <!-- Themes -->
               <div>
                 <h2 class="text-xl font-semibold mb-3">Appearance</h2>
-                <div class="flex items-center gap-4">
-                  <span>Theme:</span>
-                  <button onclick="setTheme('light')" data-theme-btn="light"
-                    class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
-                    Light
-                  </button>
-                  <button onclick="setTheme('dark')" data-theme-btn="dark"
-                    class="px-3 py-1 bg-gray-800 hover:bg-gray-900 text-white rounded dark:bg-gray-600 dark:hover:bg-gray-500">
-                    Dark
-                  </button>
+                <div class="flex items-center gap-3 flex-wrap">
+                  <div class="flex items-center gap-2">
+                    <span>Theme</span>
+                    <span id="themeColorSwatch" class="inline-flex items-center gap-2 px-2 py-1 rounded border text-xs">
+                      <span id="themeColorDot" class="w-4 h-4 rounded-full border"></span>
+                      <span id="themeColorText">#ffffff</span>
+                    </span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <button onclick="setTheme('light')" data-theme-btn="light"
+                      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
+                      Light
+                    </button>
+                    <button onclick="setTheme('dark')" data-theme-btn="dark"
+                      class="px-3 py-1 bg-gray-800 hover:bg-gray-900 text-white rounded dark:bg-gray-600 dark:hover:bg-gray-500">
+                      Dark
+                    </button>
+                    <button onclick="setTheme('system')" data-theme-btn="system"
+                      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
+                      System
+                    </button>
+                    <button onclick="setTheme('custom')" data-theme-btn="custom"
+                      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
+                      Custom
+                    </button>
+                    <input type="color" id="customThemeColorPicker" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700 hidden" />
+                  </div>
+                </div>
+
+                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label class="inline-flex items-center gap-2">
+                    <input type="checkbox" id="solidBgToggle" class="accent-blue-500">
+                    <span>Solid BG</span>
+                  </label>
+                  <div class="flex items-center gap-2">
+                    <input type="file" id="bgImageInput" accept="image/*" class="block w-full text-sm text-gray-900 dark:text-gray-100 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-gray-700 dark:file:text-gray-100" />
+                    <button id="clearBgImageBtn" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded dark:bg-gray-700 dark:hover:bg-gray-600">Clear Image</button>
+                  </div>
                 </div>
               </div>
 
@@ -2518,35 +2547,169 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme === "dark") {
-        document.body.classList.add("dark");
-      } else if (savedTheme === "light") {
-        document.body.classList.remove("dark");
+      const themeColorDot = document.getElementById('themeColorDot');
+      const themeColorText = document.getElementById('themeColorText');
+      const colorPicker = document.getElementById('customThemeColorPicker');
+      const solidBgToggle = document.getElementById('solidBgToggle');
+      const bgInput = document.getElementById('bgImageInput');
+      const clearBgBtn = document.getElementById('clearBgImageBtn');
+
+      const savedTheme = localStorage.getItem('theme');
+      let themeMode = localStorage.getItem('themeMode');
+      if (!themeMode) {
+        // Back-compat with existing 'theme' storage
+        themeMode = (savedTheme === 'dark' || savedTheme === 'light') ? savedTheme : 'light';
+        localStorage.setItem('themeMode', themeMode);
       }
 
-      window.setTheme = function(mode) {
-        if (mode === "dark") {
-          document.body.classList.add("dark");
-          localStorage.setItem("theme", "dark");
-        } else {
-          document.body.classList.remove("dark");
-          localStorage.setItem("theme", "light");
-        }
-        updateThemeButtons(mode);
-      };
+      const media = window.matchMedia('(prefers-color-scheme: dark)');
+      function systemPrefersDark() { return media.matches; }
 
       function updateThemeButtons(activeMode) {
-        document.querySelectorAll("[data-theme-btn]").forEach(btn => {
+        document.querySelectorAll('[data-theme-btn]').forEach(btn => {
           if (btn.dataset.themeBtn === activeMode) {
-            btn.classList.add("ring-2", "ring-blue-500");
+            btn.classList.add('ring-2', 'ring-blue-500');
           } else {
-            btn.classList.remove("ring-2", "ring-blue-500");
+            btn.classList.remove('ring-2', 'ring-blue-500');
           }
         });
       }
 
-      if (savedTheme) updateThemeButtons(savedTheme);
+      function getCustomColor() {
+        return localStorage.getItem('customThemeColor') || '#0b1020';
+      }
+
+      function setSwatch(hex) {
+        if (!themeColorDot || !themeColorText) return;
+        themeColorDot.style.backgroundColor = hex;
+        themeColorText.textContent = hex.toUpperCase();
+      }
+
+      function clearInlineBackground() {
+        const b = document.body.style;
+        b.background = '';
+        b.backgroundImage = '';
+        b.backgroundSize = '';
+        b.backgroundAttachment = '';
+      }
+
+      function applyBackground() {
+        const img = localStorage.getItem('bgImageDataUrl');
+        const solid = localStorage.getItem('solidBg') === 'true';
+        const color = getCustomColor();
+        clearInlineBackground();
+        if (img) {
+          document.body.style.backgroundImage = `url(${img})`;
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundAttachment = 'fixed';
+        } else if (solid) {
+          document.body.style.background = color;
+        }
+        if (solidBgToggle) solidBgToggle.checked = solid;
+        if (colorPicker) colorPicker.value = color;
+        setSwatch(color);
+      }
+
+      function applyThemeMode(mode) {
+        // Persist chosen mode
+        localStorage.setItem('themeMode', mode);
+        // Remove listener to avoid duplicates
+        media.removeEventListener?.('change', handleSystemChange);
+        if (mode === 'dark') {
+          document.body.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+          clearInlineBackground();
+        } else if (mode === 'light') {
+          document.body.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+          clearInlineBackground();
+        } else if (mode === 'system') {
+          document.body.classList.toggle('dark', systemPrefersDark());
+          localStorage.setItem('theme', systemPrefersDark() ? 'dark' : 'light');
+          media.addEventListener?.('change', handleSystemChange);
+          clearInlineBackground();
+        } else if (mode === 'custom') {
+          document.body.classList.remove('dark');
+          localStorage.setItem('theme', 'custom');
+          applyBackground();
+        }
+        updateThemeButtons(mode);
+        // Toggle color picker visibility for custom mode
+        if (colorPicker) {
+          colorPicker.classList.toggle('hidden', mode !== 'custom');
+        }
+      }
+
+      function handleSystemChange() {
+        if ((localStorage.getItem('themeMode') || 'light') === 'system') {
+          document.body.classList.toggle('dark', systemPrefersDark());
+          localStorage.setItem('theme', systemPrefersDark() ? 'dark' : 'light');
+        }
+      }
+
+      // Expose to buttons
+      window.setTheme = function(mode) {
+        applyThemeMode(mode);
+      };
+
+      // Wire controls
+      colorPicker?.addEventListener('input', (e) => {
+        const hex = e.target.value;
+        localStorage.setItem('customThemeColor', hex);
+        setSwatch(hex);
+        if ((localStorage.getItem('themeMode') || 'light') === 'custom') {
+          applyBackground();
+        }
+      });
+
+      solidBgToggle?.addEventListener('change', (e) => {
+        localStorage.setItem('solidBg', e.target.checked);
+        if ((localStorage.getItem('themeMode') || 'light') === 'custom') {
+          applyBackground();
+        }
+      });
+
+      bgInput?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const maxDim = 1920;
+              let { width, height } = img;
+              if (width > maxDim || height > maxDim) {
+                const scale = Math.min(maxDim / width, maxDim / height);
+                width = Math.round(width * scale);
+                height = Math.round(height * scale);
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = width; canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+              localStorage.setItem('bgImageDataUrl', dataUrl);
+              if ((localStorage.getItem('themeMode') || 'light') === 'custom') {
+                applyBackground();
+              }
+            } catch { /* ignore */ }
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      clearBgBtn?.addEventListener('click', () => {
+        localStorage.removeItem('bgImageDataUrl');
+        if ((localStorage.getItem('themeMode') || 'light') === 'custom') {
+          applyBackground();
+        }
+      });
+
+      // Initial hydrate
+      setSwatch(getCustomColor());
+      applyThemeMode(themeMode);
 
       // Initialize chat room + models
       loadAiModels();

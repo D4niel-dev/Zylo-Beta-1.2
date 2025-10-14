@@ -12,14 +12,33 @@ python -m pip install --upgrade pip || goto :error
 python -m pip install -r requirements.txt || goto :error
 python -m pip install pyinstaller || goto :error
 
+REM Resolve icon path: prefer ICO, else convert PNG -> ICO
+set ICON_DIR=%REPO%\frontend\images
+set ICON_ARG=
+if exist "%ICON_DIR%\Zylo_icon.ico" (
+  set ICON_ARG=--icon "%ICON_DIR%\Zylo_icon.ico"
+) else if exist "%ICON_DIR%\Zylo_icon.png" (
+  echo Converting Zylo_icon.png to ICO...
+  REM Create build directory for temporary artifacts
+  if not exist "%REPO%\build" mkdir "%REPO%\build"
+  set OUT_ICO=%REPO%\build\Zylo_icon.ico
+  REM Install Pillow if needed and convert PNG -> multi-size ICO
+  python -m pip install --disable-pip-version-check --quiet pillow || goto :error
+  python -c "from PIL import Image; from pathlib import Path; png=r'%ICON_DIR%\\Zylo_icon.png'; ico=r'%OUT_ICO%'; img=Image.open(png).convert('RGBA'); sizes=[(256,256),(128,128),(64,64),(48,48),(32,32),(16,16)]; img.save(ico, sizes=sizes)" || goto :error
+  set ICON_ARG=--icon "%OUT_ICO%"
+) else (
+  echo Warning: No Zylo_icon.ico or Zylo_icon.png found. Using default icon.
+)
+
 set ENTRY=%REPO%\scripts\main.py
 
-pyinstaller --noconfirm --onefile --name Zylo --clean ^
+pyinstaller --noconfirm --onefile --name Zylo --clean --noconsole ^
   --add-data "frontend;frontend" ^
   --add-data "backend;backend" ^
   --add-data "requirements.txt;." ^
   --hidden-import "engineio.async_drivers.eventlet" ^
   --hidden-import "eventlet" ^
+  %ICON_ARG% ^
   "%ENTRY%" || goto :error
 
 if not exist dist mkdir dist
