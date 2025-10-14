@@ -12,3 +12,9 @@ when the full release of the app is out!
 **Note :** The app can be run without *Internet* but some features of the app maybe disable because most of them need Wi-Fi to process.
 
 > **[ 6:43 PM 10/13/2025 ]**
+
+Storage locations update:
+
+- Data JSON now lives under `backend/data/`.
+- User uploads are now under `backend/uploads/` and are served at `/uploads/<username>/<filename>`.
+- On startup, the server will migrate any legacy `data/` and `uploads/` folders from repo root into `backend/` automatically.

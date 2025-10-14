@@ -59,9 +59,10 @@
       </span>
     </div>
 
-    <button onclick="submitReset()"
-      class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition duration-200">
-      Submit
+    <button onclick="submitReset()" id="resetSubmitBtn"
+      class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+      <svg id="resetSpinner" class="w-4 h-4 animate-spin hidden" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="4" class="opacity-75"/></svg>
+      <span id="resetSubmitText">Submit</span>
     </button>
 
     <p id="resetResult" class="text-sm text-center hidden"></p>
@@ -93,6 +94,9 @@
       const confirm = document.getElementById("confirmNewPassword").value;
       const result = document.getElementById("resetResult");
       const baseUrl = window.location.origin;
+      const btn = document.getElementById('resetSubmitBtn');
+      const spinner = document.getElementById('resetSpinner');
+      const btnText = document.getElementById('resetSubmitText');
 
       if (!username || !newPassword || !confirm) {
         result.innerHTML = `<i data-feather="alert-circle" class="w-4 h-4"></i> Please fill out all fields.`;
@@ -110,6 +114,8 @@
         return;
       }
 
+      btn.disabled = true; spinner.classList.remove('hidden'); btnText.textContent = 'Submitting…';
+
       const res = await fetch(`${baseUrl}/api/reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -122,6 +128,8 @@
         : `<i data-feather="x-circle" class="w-4 h-4"></i> ${data.error || "Reset failed."}`;
       result.classList.remove("hidden", "text-red-600", "text-green-600");
       result.classList.add(data.success ? "text-green-600" : "text-red-600");
+      try { new Audio(`/files/audio/${data.success ? 'ui' : 'error'}.mp3`).play().catch(()=>{}); } catch {}
+      btn.disabled = false; spinner.classList.add('hidden'); btnText.textContent = 'Submit';
       feather.replace();
     }
 
@@ -153,6 +161,8 @@
         });
       }
     });
+    // Enter to submit
+    document.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitReset(); });
   </script>
   <script>
     feather.replace();

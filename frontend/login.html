@@ -80,6 +80,7 @@
           <input id="password" type="password" placeholder="Password" class="zylo-input w-full px-4 py-2 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 "/>
           <span id="togglePassword" class="absolute top-2.5 right-3 text-blue-500 dark:text-blue-300 cursor-pointer text-sm select-none"><i id="eyeIcon" data-feather="eye"></i></span>
         </div>
+        <p id="capsWarn" class="text-xs text-yellow-600 dark:text-yellow-400 hidden">Caps Lock is ON</p>
       </div>
 
       <!-- Remember -->
@@ -89,8 +90,9 @@
       </div>
 
       <!-- Button -->
-      <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200">
-        Sign In
+      <button id="loginBtn" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+        <svg id="loginSpinner" class="w-4 h-4 animate-spin hidden" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="4" class="opacity-75"/></svg>
+        <span id="loginBtnText">Sign In</span>
       </button>
 
       <!-- Error -->
@@ -132,6 +134,10 @@
     const toggleBtn = document.getElementById('toggleTheme');
     const toggleEye = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('password');
+    const capsWarn = document.getElementById('capsWarn');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginSpinner = document.getElementById('loginSpinner');
+    const loginBtnText = document.getElementById('loginBtnText');
 
     // Toggle password visibility
     toggleEye.onclick = () => {
@@ -144,6 +150,16 @@
       }
       feather.replace();
     };
+
+    // Caps Lock indicator
+    function handleCaps(e){
+      try {
+        const on = e.getModifierState && e.getModifierState('CapsLock');
+        capsWarn.classList.toggle('hidden', !on);
+      } catch {}
+    }
+    passwordInput.addEventListener('keydown', handleCaps);
+    passwordInput.addEventListener('keyup', handleCaps);
 
     // Load username
     window.onload = () => {
@@ -192,6 +208,11 @@
         return;
       }
 
+      // Disable UI and show spinner
+      loginBtn.disabled = true;
+      loginSpinner.classList.remove('hidden');
+      loginBtnText.textContent = 'Signing in…';
+
       const response = await fetch(`${baseUrl}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -203,10 +224,16 @@
         localStorage.setItem("username", result.username || identifier);
         localStorage.setItem("usertag", result.usertag); 
         remember ? localStorage.setItem("savedUsername", identifier) : localStorage.removeItem("savedUsername");
+        try { new Audio('/files/audio/login.mp3').play().catch(()=>{}); } catch {}
         goToPage("loading.html");
       } else {
         errorMsg.textContent = result.error || "Login failed.";
         errorMsg.classList.remove("hidden");
+        try { new Audio('/files/audio/error.mp3').play().catch(()=>{}); } catch {}
+        // Re-enable UI
+        loginBtn.disabled = false;
+        loginSpinner.classList.add('hidden');
+        loginBtnText.textContent = 'Sign In';
       }
     }
 
