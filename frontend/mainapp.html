@@ -301,15 +301,24 @@
 
         <!-- Groups inside Friends -->
         <div class="flex gap-4 flex-1 overflow-hidden">
-          <div class="w-64 shrink-0 bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 overflow-y-auto">
-            <div class="flex items-center justify-between mb-2">
+          <div class="w-72 shrink-0 bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 overflow-y-auto">
+            <div class="flex items-center justify-between mb-3">
               <h3 class="font-semibold">Your Groups</h3>
-              <button class="text-xs px-2 py-1 bg-gray-700 text-white rounded" onclick="refreshGroups()">Refresh</button>
+              <div class="flex items-center gap-2">
+                <button class="text-xs px-2 py-1 bg-gray-700 text-white rounded" onclick="refreshGroups()">Refresh</button>
+                <button class="text-xs px-2 py-1 bg-green-600 text-white rounded" onclick="createGroup()">+ New</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              <input id="newGroupName" type="text" placeholder="Group name" class="zylo-input p-1 flex-1 text-xs" />
             </div>
             <ul id="groupsList" class="space-y-1 text-sm"></ul>
           </div>
-          <div class="flex flex-col flex-1 min-w-0">
-            <div class="p-2 border-b border-gray-700"><span id="activeGroupTitle" class="font-semibold">Select a group</span></div>
+          <div class="flex flex-col flex-1 min-w-0 bg-white/70 dark:bg-gray-800/70 rounded-lg">
+            <div class="p-2 border-b border-gray-700 flex items-center justify-between">
+              <span id="activeGroupTitle" class="font-semibold">Select a group</span>
+              <div class="text-xs opacity-70" id="activeGroupMeta"></div>
+            </div>
             <div id="groupMessages" class="chat-messages flex-1"></div>
             <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
               <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file to group">
@@ -323,35 +332,7 @@
         </div>
       </section>
 
-      <!-- Groups Area -->
-      <section id="tab-groups" class="tab-content hidden ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] flex flex-col space-y-3 animate-fadeIn">
-        <div class="flex items-center gap-2">
-          <input id="newGroupName" type="text" placeholder="Group name" class="zylo-input p-2" />
-          <input id="newGroupDesc" type="text" placeholder="Description (optional)" class="zylo-input p-2 flex-1" />
-          <button class="px-3 py-2 bg-green-600 text-white rounded" onclick="createGroup()">Create</button>
-        </div>
-        <div class="flex gap-4 flex-1 overflow-hidden">
-          <div class="w-64 shrink-0 bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 overflow-y-auto">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="font-semibold">Your Groups</h3>
-              <button class="text-xs px-2 py-1 bg-gray-700 text-white rounded" onclick="refreshGroups()">Refresh</button>
-            </div>
-            <ul id="groupsList" class="space-y-1 text-sm"></ul>
-          </div>
-          <div class="flex flex-col flex-1 min-w-0">
-            <div class="p-2 border-b border-gray-700"><span id="activeGroupTitle" class="font-semibold">Select a group</span></div>
-            <div id="groupMessages" class="chat-messages flex-1"></div>
-            <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
-              <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file to group">
-                <i data-feather="paperclip"></i>
-                <input type="file" id="groupFileInput" class="hidden" onchange="sendGroupFile(event)">
-              </label>
-              <textarea id="groupChatInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message group..."></textarea>
-              <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendGroupMessage()"><i data-feather="send"></i></button>
-            </div>
-          </div>
-        </div>
-      </section>
+      
 
 
       <!-- Profile Area -->
@@ -497,7 +478,7 @@
           
           <!-- Header -->
           <div class="flex items-center justify-between">
-            <h1 class="text-3xl font-bold">⚙️ Settings (Beta)</h1>
+            <h1 class="text-3xl font-bold">⚙️ Settings</h1>
           </div>
 
           <!-- Settings Navigation -->
@@ -1424,6 +1405,8 @@
     function setActiveGroup(group) {
       groupsState.activeId = group?.id || null;
       document.getElementById('activeGroupTitle').textContent = group ? `# ${group.name}` : 'Select a group';
+      const meta = document.getElementById('activeGroupMeta');
+      if (meta) meta.textContent = group ? `${(group.members||[]).length} members` : '';
       document.getElementById('groupMessages').innerHTML = '';
       if (!group) return;
       if (navigator.onLine) socket.emit('join_group', { groupId: group.id, username: localStorage.getItem('username') });
@@ -1493,7 +1476,7 @@
         groupsState.list.forEach(g => {
           const li = document.createElement('li');
           li.className = 'flex items-center justify-between px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer';
-          li.innerHTML = `<span class="truncate"># ${g.name}</span><button class="text-xs text-blue-500" onclick="joinGroup('${g.id}')">Open</button>`;
+          li.innerHTML = `<div class="flex items-center gap-2"><span class="truncate"># ${g.name}</span><span class="text-[10px] opacity-60">${(g.members||[]).length} members</span></div><button class="text-xs text-blue-500" onclick="joinGroup('${g.id}')">Open</button>`;
           li.addEventListener('click', () => setActiveGroup(g));
           listEl.appendChild(li);
         });

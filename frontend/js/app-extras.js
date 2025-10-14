@@ -269,9 +269,12 @@
     });
 
     // Logout SFX
-    document.querySelectorAll('.logout-link').forEach(a => {
-      a.addEventListener('click', () => SoundEngine.play('logout'));
-    });
+    const attachLogoutSfx = () => {
+      document.querySelectorAll('.logout-link, a[href="/login.html"]').forEach(a => {
+        a.addEventListener('click', () => SoundEngine.play('logout'));
+      });
+    };
+    attachLogoutSfx();
 
     // Socket events for incoming messages
     const tryAttachSocket = () => {
