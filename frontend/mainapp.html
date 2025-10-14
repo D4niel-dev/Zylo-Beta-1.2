@@ -380,19 +380,26 @@
               <textarea id="aboutMe" rows="3" placeholder="Say something about yourself..."></textarea>
             </div>
 
-            <!-- Stats -->
-            <div class="stats-grid">
-              <div class="stat-box">
-                <p class="stat-label">Level</p>
-                <p id="statLevel" class="stat-value">0</p>
+            <!-- Quick Profile Info (replaces stats) -->
+            <div class="grid sm:grid-cols-2 gap-3 mt-4">
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Email</div>
+                  <div id="profileEmail" class="editable-value">Hidden</div>
+                </div>
+                <button class="edit-icon" onclick="promptEmailEdit()" title="Edit email"><i data-feather="edit-2"></i></button>
               </div>
-              <div class="stat-box">
-                <p class="stat-label">Gold</p>
-                <p id="statGold" class="stat-value gold">0</p>
-              </div>
-              <div class="stat-box">
-                <p class="stat-label">Rank</p>
-                <p id="statRank" class="stat-value rank">Unranked</p>
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Language</div>
+                  <div class="editable-value">
+                    <select id="profileLanguage" class="p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                      <option value="en">English</option>
+                      <option value="es">Spanish</option>
+                      <option value="fr">French</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -682,97 +689,105 @@
 
           <!-- Account Settings -->
           <div id="accountSettings" class="settings-content w-full hidden space-y-6">
-
-            <!-- Change Username -->
-            <div>
-              <label class="block mb-2">Change Username</label>
-              <input type="text" id="changeUsername" placeholder="Enter new username"
-                    class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <button onclick="updateUsername()" 
-                      class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-                Update Username
-              </button>
-            </div>
-
-            <!-- Change Usertag -->
-            <div>
-              <label class="block mb-2">Change Usertag</label>
-              <input type="text" id="changeUsertag" placeholder="Enter new usertag"
-                    class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <button onclick="updateUsertag()" 
-                      class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-                Update Usertag
-              </button>
-            </div>
-
-            <!-- Change Email -->
-            <div>
-              <label class="block mb-2">Change Email</label>
-              <input type="email" id="changeEmail" placeholder="Enter new email"
-                    class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <button onclick="updateEmail()" 
-                      class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-                Update Email
-              </button>
-            </div>
-
-            <!-- Change Password -->
-            <div>
-              <label class="block mb-2">Change Password</label>
-              <input type="password" id="oldPassword" placeholder="Current password"
-                    class="w-full p-2 mb-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <input type="password" id="newPassword" placeholder="New password"
-                    class="w-full p-2 mb-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <input type="password" id="confirmPassword" placeholder="Confirm new password"
-                    class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <button onclick="updatePassword()" 
-                      class="mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">
-                Change Password
-              </button>
-            </div>
-
-            <!-- Two-Factor Authentication -->
-            <div class="flex items-center justify-between">
-              <span>Two-Factor Authentication (2FA)</span>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="twoFactorToggle" class="sr-only peer">
-                <div class="w-11 h-6 bg-gray-300 peer-checked:bg-purple-600 rounded-full peer dark:bg-gray-600 
-                  peer-checked:after:translate-x-full peer-checked:after:border-white 
-                  after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 
-                  after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500"></div>
+            <!-- Profile quick view with edit overlays -->
+            <div class="relative rounded-xl overflow-hidden">
+              <label for="bannerUpload" class="banner-label block cursor-pointer">
+                <img id="settingsBanner" src="/images/default_banner.png" alt="Banner" class="w-full h-40 object-cover rounded-xl" />
+                <span class="edit-overlay" title="Change banner"><i data-feather="edit-2"></i></span>
               </label>
+              <input type="file" id="bannerUpload" accept="image/*" class="hidden">
+
+              <div class="absolute -bottom-8 left-6">
+                <label for="avatarUpload" class="avatar-label cursor-pointer">
+                  <img id="settingsAvatar" src="/images/default_avatar.png" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 object-cover avatar-img" />
+                  <span class="edit-overlay" title="Change avatar"><i data-feather="edit-2"></i></span>
+                </label>
+                <input type="file" id="avatarUpload" accept="image/*" class="hidden">
+              </div>
             </div>
 
-            <!-- Linked Accounts -->
-            <div>
-              <h3 class="font-semibold mb-2">Linked Accounts</h3>
-              <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg w-full text-left">
-                Link Google Account
-              </button>
-              <button class="mt-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg w-full text-left">
-                Link GitHub Account
-              </button>
+            <div class="pt-10" />
+
+            <!-- Inline editable rows -->
+            <div class="space-y-3">
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Username</div>
+                  <div id="currentUsername" class="editable-value"></div>
+                </div>
+                <button class="edit-icon" onclick="promptUsernameEdit()" title="Edit username"><i data-feather="edit-2"></i></button>
+              </div>
+
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Usertag</div>
+                  <div id="currentUsertag" class="editable-value"></div>
+                </div>
+                <button class="edit-icon" onclick="promptUsertagEdit()" title="Edit usertag"><i data-feather="edit-2"></i></button>
+              </div>
+
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Email</div>
+                  <div id="currentEmail" class="editable-value">Hidden</div>
+                </div>
+                <button class="edit-icon" onclick="promptEmailEdit()" title="Edit email"><i data-feather="edit-2"></i></button>
+              </div>
             </div>
 
-            <!-- Privacy -->
-            <div>
-              <h3 class="font-semibold mb-2">Privacy</h3>
-              <div class="flex items-center gap-2 mb-2">
-                <input type="checkbox" id="showEmail" class="accent-blue-500">
-                <label for="showEmail">Show Email on Profile</label>
+            <!-- Security -->
+            <div class="mt-4 p-4 rounded-lg bg-white/70 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="font-semibold">Two-Factor Authentication (2FA)</div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of protection.</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="twoFactorToggle" class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-300 peer-checked:bg-purple-600 rounded-full peer dark:bg-gray-600 
+                    peer-checked:after:translate-x-full peer-checked:after:border-white 
+                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 
+                    after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500"></div>
+                </label>
               </div>
-              <div class="flex items-center gap-2">
-                <input type="checkbox" id="shareActivity" class="accent-blue-500">
-                <label for="shareActivity">Share My Activity Status</label>
+            </div>
+
+            <!-- Preferences (replacing old stats with useful info) -->
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Language</div>
+                  <div class="editable-value">
+                    <select id="settingsLanguage" class="p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                      <option value="en">English</option>
+                      <option value="es">Spanish</option>
+                      <option value="fr">French</option>
+                    </select>
+                  </div>
+                </div>
               </div>
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Show Email on Profile</div>
+                  <div class="editable-value"><input type="checkbox" id="showEmail" class="accent-blue-500"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="p-4 rounded-lg bg-white/70 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
+              <div class="font-semibold mb-2">Change Password</div>
+              <div class="grid sm:grid-cols-3 gap-2">
+                <input type="password" id="oldPassword" placeholder="Current password" class="p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                <input type="password" id="newPassword" placeholder="New password" class="p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                <input type="password" id="confirmPassword" placeholder="Confirm new password" class="p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+              </div>
+              <button onclick="updatePassword()" class="mt-3 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">Change Password</button>
             </div>
 
             <!-- Danger Zone -->
             <div class="border-t border-gray-300 dark:border-gray-700 pt-4">
-              <button onclick="deleteAccount()" 
-                      class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white w-full">
-                Delete Account
-              </button>
+              <button onclick="deleteAccount()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white w-full">Delete Account</button>
             </div>
           </div>
 
@@ -1821,9 +1836,8 @@
           document.getElementById("avatarImage").src = user.avatar || "/images/default_avatar.png";
           document.getElementById("bannerImage").src = user.banner || "/images/default_banner.png";
           document.getElementById("aboutMe").value = user.aboutMe || "";
-          document.getElementById("statLevel").textContent = user.level || 0;
-          document.getElementById("statGold").textContent = user.gold || 0;
-          document.getElementById("statRank").textContent = user.rank || "Unranked";
+          const email = user.email || (localStorage.getItem('savedEmail') || 'Hidden');
+          const pe = document.getElementById('profileEmail'); if (pe) pe.textContent = email;
 
       } catch (err) {
           console.error("Error fetching user data", err);
@@ -1875,25 +1889,7 @@
       return "#ffffff"; // default white
     }
 
-    document.addEventListener("keydown", function (e) {
-      if (e.ctrlKey && e.key.toLowerCase() === "a") {
-        e.preventDefault();
-        const levelEl = document.getElementById("statLevel");
-        const goldEl = document.getElementById("statGold");
-        const rankEl = document.getElementById("statRank");
-        let level = parseInt(levelEl?.textContent || '0', 10) || 0;
-        let gold = parseInt((goldEl?.textContent || '0').replace(/,/g, ""), 10) || 0;
-        level = Math.min(level + 10, 450);
-        gold += 1000;
-        if (levelEl) levelEl.textContent = String(level);
-        if (goldEl) goldEl.textContent = gold.toLocaleString();
-        const rank = getRank(level);
-        if (rankEl) {
-          rankEl.textContent = rank;
-          rankEl.style.color = getRankColor(rank);
-        }
-      }
-    });
+    // Removed hidden stat hotkey handler
 
     const saveBtn = document.getElementById("saveProfileBtn");
     let initialProfileData = {};
@@ -1914,10 +1910,7 @@
           usertag: '@' + usertag,
           avatar: document.getElementById("avatarImage").src,
           banner: document.getElementById("bannerImage").src,
-          about: document.getElementById("aboutMe").value.trim(),
-          level: parseInt(document.getElementById("statLevel").textContent) || 0,
-          gold: parseInt(document.getElementById("statGold").textContent.replace(/,/g, "")) || 0,
-          rank: document.getElementById("statRank").textContent
+          about: document.getElementById("aboutMe").value.trim()
         };
 
         // Send update to backend
@@ -1938,9 +1931,8 @@
           document.getElementById("avatarImage").src = updated.avatar || updatedProfile.avatar;
           document.getElementById("bannerImage").src = updated.banner || updatedProfile.banner;
           document.getElementById("aboutMe").value = updated.aboutMe || updatedProfile.aboutMe;
-          document.getElementById("statLevel").textContent = updated.level ?? updatedProfile.level;
-          document.getElementById("statGold").textContent = (updated.gold ?? updatedProfile.gold).toLocaleString();
-          document.getElementById("statRank").textContent = updated.rank || updatedProfile.rank;
+          const eVal = updated.email || localStorage.getItem('savedEmail') || 'Hidden';
+          const pe = document.getElementById('profileEmail'); if (pe) pe.textContent = eVal;
 
           // Reset initial data
           captureInitialProfileData();
@@ -1991,6 +1983,50 @@
     document.getElementById("aboutMe").addEventListener("input", checkProfileChanges);
     document.getElementById("bannerUpload").addEventListener("change", (e) => openCropper(e, "banner"));
     document.getElementById("avatarUpload").addEventListener("change", (e) => openCropper(e, "avatar"));
+
+    // Account settings inline edit helpers
+    function promptUsernameEdit(){
+      const current = localStorage.getItem('username') || '';
+      const next = prompt('Enter new username', current || '');
+      if (!next || next === current) return;
+      document.getElementById('changeUsername')?.setAttribute('value', next);
+      document.getElementById('currentUsername').textContent = next;
+      updateUsername();
+    }
+    function promptUsertagEdit(){
+      const current = (localStorage.getItem('usertag')||'').replace('@','');
+      const next = prompt('Enter new 4-digit usertag', current || '');
+      if (!next) return;
+      document.getElementById('changeUsertag')?.setAttribute('value', next);
+      updateUsertag();
+    }
+    function promptEmailEdit(){
+      const current = localStorage.getItem('savedEmail') || '';
+      const next = prompt('Enter new email', current || '');
+      if (!next) return;
+      const emailInput = document.getElementById('changeEmail');
+      if (emailInput) emailInput.value = next;
+      updateEmail();
+    }
+
+    // Populate account settings quick view fields
+    (function hydrateAccountSettings(){
+      const name = localStorage.getItem('username') || '';
+      const tag = localStorage.getItem('usertag') || '';
+      const email = localStorage.getItem('savedEmail') || 'Hidden';
+      const avatar = document.getElementById('avatarImage')?.src || '/images/default_avatar.png';
+      const banner = document.getElementById('bannerImage')?.src || '/images/default_banner.png';
+      const uEl = document.getElementById('currentUsername'); if (uEl) uEl.textContent = name;
+      const tEl = document.getElementById('currentUsertag'); if (tEl) tEl.textContent = tag;
+      const eEl = document.getElementById('currentEmail'); if (eEl) eEl.textContent = email;
+      const sa = document.getElementById('settingsAvatar'); if (sa) sa.src = avatar;
+      const sb = document.getElementById('settingsBanner'); if (sb) sb.src = banner;
+      const pe = document.getElementById('profileEmail'); if (pe) pe.textContent = email;
+      const lang = localStorage.getItem('language') || 'en';
+      const sl = document.getElementById('settingsLanguage'); if (sl) sl.value = lang;
+      const pl = document.getElementById('profileLanguage'); if (pl) pl.value = lang;
+      try { feather.replace(); } catch {}
+    })();
 
     // Files Functions
     const files = [
@@ -2221,6 +2257,7 @@
         const saved = localStorage.getItem('savedUsername');
         if (saved === current) localStorage.setItem('savedUsername', data.username);
         document.getElementById('profileUsername').textContent = data.username;
+        const curU = document.getElementById('currentUsername'); if (curU) curU.textContent = data.username;
         alert('Username updated.');
       } catch (e) {
         alert('Failed to update username: ' + (e.message || 'Unknown error'));
@@ -2240,6 +2277,7 @@
         const data = await res.json();
         if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
         document.getElementById('profileUsertag').textContent = data.usertag;
+        const curT = document.getElementById('currentUsertag'); if (curT) curT.textContent = data.usertag;
         localStorage.setItem('usertag', data.usertag);
         alert('Usertag updated.');
       } catch (e) {
@@ -2259,6 +2297,8 @@
         const data = await res.json();
         if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
         localStorage.setItem('savedEmail', data.email);
+        const curE = document.getElementById('currentEmail'); if (curE) curE.textContent = data.email;
+        const pe = document.getElementById('profileEmail'); if (pe) pe.textContent = data.email;
         alert('Email updated.');
       } catch (e) {
         alert('Failed to update email: ' + (e.message || 'Unknown error'));
