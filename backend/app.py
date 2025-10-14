@@ -23,14 +23,57 @@ host_ip = socket.gethostbyname(socket.gethostname())
 # File paths and user data
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-# Persisted app data (JSON, SQLite, etc.) lives in top-level `data/`
-DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
+# Persisted app data (JSON, SQLite, etc.) should live under backend/ now
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+UPLOADS_DIR = os.path.join(BASE_DIR, 'uploads')
 USER_DATA_FILE = os.path.join(DATA_DIR, 'users.json')
 FRONTEND_DIR = os.path.join(BASE_DIR, '../frontend')
 MESSAGES_FILE = os.path.join(DATA_DIR, "messages.json")
 GROUPS_FILE = os.path.join(DATA_DIR, 'groups.json')
 EXPLORE_FILE = os.path.join(DATA_DIR, 'explore.json')
 os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+
+# One-time migration for older deployments that stored folders at repo root
+def _migrate_storage_dirs():
+    try:
+        old_uploads = os.path.join(BASE_DIR, '..', 'uploads')
+        if os.path.isdir(old_uploads):
+            # Move children to new uploads directory
+            for name in os.listdir(old_uploads):
+                src = os.path.join(old_uploads, name)
+                dst = os.path.join(UPLOADS_DIR, name)
+                if not os.path.exists(dst):
+                    try:
+                        shutil.move(src, dst)
+                    except Exception:
+                        pass
+            try:
+                os.rmdir(old_uploads)
+            except Exception:
+                pass
+
+        old_data = os.path.join(BASE_DIR, '..', 'data')
+        if os.path.isdir(old_data):
+            for name in ("users.json", "messages.json", "groups.json", "explore.json"):
+                src = os.path.join(old_data, name)
+                dst = os.path.join(DATA_DIR, name)
+                if os.path.exists(src) and not os.path.exists(dst):
+                    try:
+                        shutil.move(src, dst)
+                    except Exception:
+                        pass
+            try:
+                # If directory is empty after moving, remove it
+                if not os.listdir(old_data):
+                    os.rmdir(old_data)
+            except Exception:
+                pass
+    except Exception:
+        # Never block startup on migration
+        pass
+
+_migrate_storage_dirs()
 
 # Helper functions
 def load_users():
@@ -339,8 +382,8 @@ def _safe_filename(seed: str, ext: str) -> str:
     return f"{base}.{ext}"
 
 def _save_data_url_for_user(username: str, base64_data: str, filename_hint: str = None) -> str:
-    """Save a data URL to /uploads/<username>/ and return the public URL path."""
-    user_upload_dir = os.path.join(BASE_DIR, '..', 'uploads', username)
+    """Save a data URL to backend/uploads/<username>/ and return the public URL path."""
+    user_upload_dir = os.path.join(UPLOADS_DIR, username)
     os.makedirs(user_upload_dir, exist_ok=True)
     try:
         header, encoded = base64_data.split(",", 1)
@@ -625,7 +668,7 @@ def serve_images(filename):
 
 @app.route('/uploads/<username>/<filename>')
 def serve_upload(username, filename):
-    return send_from_directory(os.path.join(BASE_DIR, '..', 'uploads', username), filename)
+    return send_from_directory(os.path.join(UPLOADS_DIR, username), filename)
 
 @app.route('/files/<path:filename>')
 def serve_files(filename):
@@ -653,7 +696,7 @@ def update_profile():
     if not os.path.exists(USER_DATA_FILE):
         return jsonify({"success": False, "error": "users.json not found"}), 404
 
-    user_upload_dir = os.path.join(BASE_DIR, '..', 'uploads', username)
+    user_upload_dir = os.path.join(UPLOADS_DIR, username)
     os.makedirs(user_upload_dir, exist_ok=True)
 
     avatar_url = None
@@ -738,10 +781,10 @@ def update_username():
         return jsonify({"success": False, "error": "User not found"}), 404
 
     # Rename uploads dir if exists
-    old_dir = os.path.join(BASE_DIR, '..', 'uploads', username)
-    new_dir = os.path.join(BASE_DIR, '..', 'uploads', new_username)
+    old_dir = os.path.join(UPLOADS_DIR, username)
+    new_dir = os.path.join(UPLOADS_DIR, new_username)
     if os.path.exists(old_dir):
-        os.makedirs(os.path.join(BASE_DIR, '..', 'uploads'), exist_ok=True)
+        os.makedirs(UPLOADS_DIR, exist_ok=True)
         try:
             shutil.move(old_dir, new_dir)
         except Exception:
@@ -875,7 +918,7 @@ def delete_account():
     save_users(new_users)
 
     # Remove uploads dir if exists
-    user_upload_dir = os.path.join(BASE_DIR, '..', 'uploads', username)
+    user_upload_dir = os.path.join(UPLOADS_DIR, username)
     try:
         if os.path.isdir(user_upload_dir):
             shutil.rmtree(user_upload_dir)

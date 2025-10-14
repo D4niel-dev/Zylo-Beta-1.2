@@ -8,8 +8,8 @@ import os
 # If the DB is unreachable, it falls back to a JSON file.
 # Future plans include switching to a more robust DB system.
 
-# Centralize database and JSON storage under top-level `data/`
-DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
+# Centralize database and JSON storage under backend/data
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 DB_PATH = os.path.join(DATA_DIR, 'users.db')
 JSON_PATH = os.path.join(DATA_DIR, 'users.json')
 os.makedirs(DATA_DIR, exist_ok=True)

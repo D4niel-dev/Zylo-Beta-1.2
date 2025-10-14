@@ -161,6 +161,8 @@
         });
       }
     });
+    // Enter to submit
+    document.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitReset(); });
   </script>
   <script>
     feather.replace();
