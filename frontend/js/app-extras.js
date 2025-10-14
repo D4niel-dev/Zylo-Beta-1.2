@@ -174,9 +174,12 @@
       if (!this._ctx) return;
       const files = {
         send: 'send.mp3',
-        receive: 'receive.mp3',
+        receive: 'notification.mp3',
         ui: 'ui.mp3',
         bg: 'bg.mp3',
+        login: 'login.mp3',
+        logout: 'logout.mp3',
+        error: 'error.mp3',
       };
       const entries = Object.entries(files);
       await Promise.all(entries.map(async ([key, name]) => {
@@ -265,6 +268,11 @@
       });
     });
 
+    // Logout SFX
+    document.querySelectorAll('.logout-link').forEach(a => {
+      a.addEventListener('click', () => SoundEngine.play('logout'));
+    });
+
     // Socket events for incoming messages
     const tryAttachSocket = () => {
       const s = window.socket;
@@ -272,6 +280,7 @@
       try {
         s.on('receive_message', () => SoundEngine.play('receive'));
         s.on('receive_group_message', () => SoundEngine.play('receive'));
+        s.on('receive_file', () => SoundEngine.play('receive'));
         s.__zyloSoundPatched = true;
       } catch {}
     };

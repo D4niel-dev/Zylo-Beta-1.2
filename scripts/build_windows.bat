@@ -17,8 +17,7 @@ set ENTRY=%REPO%\scripts\main.py
 pyinstaller --noconfirm --onefile --name Zylo --clean ^
   --add-data "frontend;frontend" ^
   --add-data "backend;backend" ^
-  --add-data "files;files" ^
-  --add-data "images;images" ^
+  --add-data "requirements.txt;." ^
   --hidden-import "engineio.async_drivers.eventlet" ^
   --hidden-import "eventlet" ^
   "%ENTRY%" || goto :error
@@ -26,8 +25,6 @@ pyinstaller --noconfirm --onefile --name Zylo --clean ^
 if not exist dist mkdir dist
 xcopy /e /i /y frontend dist\frontend >nul
 xcopy /e /i /y backend dist\backend >nul
-xcopy /e /i /y files dist\files >nul
-xcopy /e /i /y images dist\images >nul
 
 echo Build complete. Find Zylo.exe under dist\Zylo.exe
 exit /b 0

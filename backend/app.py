@@ -435,9 +435,11 @@ def handle_typing(data):
     
 @app.route('/<path:path>')
 def serve_static_file(path):
-    # Serve frontend files, and map service worker, manifest to root scope
-    if path in ('service-worker.js', 'manifest.webmanifest'):
-        return send_from_directory(FRONTEND_DIR, path)
+    # Serve frontend files. Map service worker and manifest to root scope from /frontend/js
+    if path == 'service-worker.js':
+        return send_from_directory(os.path.join(FRONTEND_DIR, 'js'), 'service-worker.js')
+    if path == 'manifest.webmanifest':
+        return send_from_directory(os.path.join(FRONTEND_DIR, 'js'), 'manifest.webmanifest')
     return send_from_directory(FRONTEND_DIR, path)
     
 @app.route("/api/stats", methods=["GET"])
