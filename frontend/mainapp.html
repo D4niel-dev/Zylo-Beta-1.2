@@ -136,7 +136,7 @@
             <i data-feather="users"></i>
             <span class="sidebar-text hidden">Friends</span>
           </a>
-          <a href="#" data-tab="groups" onclick="switchTab('groups')" class="sidebar-tab">
+          <a href="#" data-tab="friends" onclick="switchTab('friends')" class="sidebar-tab">
             <i data-feather="hash"></i>
             <span class="sidebar-text hidden">Groups</span>
           </a>
@@ -268,7 +268,7 @@
           <input id="addFriendInput" type="text" placeholder="Enter username to add" class="zylo-input p-2 flex-1" />
           <button id="addFriendBtn" class="px-3 py-2 bg-blue-600 text-white rounded" onclick="requestFriend()">Add</button>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 overflow-y-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
             <h3 class="font-semibold mb-2">Friends</h3>
             <ul id="friendsList" class="space-y-2 text-sm"></ul>
@@ -280,6 +280,45 @@
           <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
             <h3 class="font-semibold mb-2">Outgoing</h3>
             <ul id="outgoingList" class="space-y-2 text-sm"></ul>
+          </div>
+        </div>
+        <!-- Direct Messages Panel -->
+        <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 flex flex-col gap-2 flex-1 overflow-hidden">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold">Direct Messages</h3>
+            <div id="dmHeader" class="text-xs opacity-70">Select a friend and click Message to start.</div>
+          </div>
+          <div id="dmMessages" class="chat-messages flex-1"></div>
+          <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
+            <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file">
+              <i data-feather="paperclip"></i>
+              <input type="file" id="dmFileInput" class="hidden" onchange="sendDMFile(event)">
+            </label>
+            <textarea id="dmInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message..." ></textarea>
+            <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendDMMessage()"><i data-feather="send"></i></button>
+          </div>
+        </div>
+
+        <!-- Groups inside Friends -->
+        <div class="flex gap-4 flex-1 overflow-hidden">
+          <div class="w-64 shrink-0 bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 overflow-y-auto">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold">Your Groups</h3>
+              <button class="text-xs px-2 py-1 bg-gray-700 text-white rounded" onclick="refreshGroups()">Refresh</button>
+            </div>
+            <ul id="groupsList" class="space-y-1 text-sm"></ul>
+          </div>
+          <div class="flex flex-col flex-1 min-w-0">
+            <div class="p-2 border-b border-gray-700"><span id="activeGroupTitle" class="font-semibold">Select a group</span></div>
+            <div id="groupMessages" class="chat-messages flex-1"></div>
+            <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
+              <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file to group">
+                <i data-feather="paperclip"></i>
+                <input type="file" id="groupFileInput" class="hidden" onchange="sendGroupFile(event)">
+              </label>
+              <textarea id="groupChatInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message group..."></textarea>
+              <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendGroupMessage()"><i data-feather="send"></i></button>
+            </div>
           </div>
         </div>
       </section>
@@ -935,6 +974,11 @@
       this.style.height = "auto";
       this.style.height = this.scrollHeight + "px";
     });
+
+    // Register user for DM rooms
+    if (navigator.onLine && username && username !== 'N/A') {
+      try { socket.emit('register_user', { username }); } catch {}
+    }
     
     function appendCommunityMessage(data) {
       const isOwnMessage = data.username === username;
@@ -1322,7 +1366,7 @@
       friendsState.friends.forEach(name => {
         const li = document.createElement('li');
         li.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded px-2 py-1';
-        li.innerHTML = `<span>${name}</span><button class="text-xs text-red-400" onclick="removeFriend('${name}')">Remove</button>`;
+        li.innerHTML = `<span>${name}</span><span class="space-x-1"><button class="text-xs text-blue-500" onclick="openDM('${name}')">Message</button><button class="text-xs text-red-400" onclick="removeFriend('${name}')">Remove</button></span>`;
         friendsEl.appendChild(li);
       });
       friendsState.incoming.forEach(name => {
@@ -1334,7 +1378,7 @@
       friendsState.outgoing.forEach(name => {
         const li = document.createElement('li');
         li.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded px-2 py-1';
-        li.innerHTML = `<span>${name}</span><span class="text-xs opacity-70">Pending</span>`;
+        li.innerHTML = `<span>${name}</span><span class="text-xs"><span class="opacity-70 mr-2">Pending</span><button class="text-blue-500" onclick="cancelFriendRequest('${name}')">Cancel</button></span>`;
         outgoingEl.appendChild(li);
       });
     }
@@ -1361,6 +1405,12 @@
       const username = localStorage.getItem('username');
       if (!username) return;
       await fetch('/api/friends/decline', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, from }) });
+      loadFriends();
+    }
+    async function cancelFriendRequest(target) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      await fetch('/api/friends/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, to: target }) });
       loadFriends();
     }
     async function removeFriend(friend) {
@@ -1556,6 +1606,97 @@
             document.getElementById("statRank").textContent = cached.rank;
         }
     });
+
+    // ---- DMs ----
+    let dmState = { active: null };
+    function setActiveDM(peer){
+      dmState.active = peer || null;
+      const header = document.getElementById('dmHeader');
+      const msgs = document.getElementById('dmMessages');
+      if (header) header.textContent = peer ? `DM with ${peer}` : 'Select a friend and click Message to start.';
+      if (!peer) { if (msgs) msgs.innerHTML=''; return; }
+      // Load history
+      const me = localStorage.getItem('username');
+      fetch(`/api/dm/history?userA=${encodeURIComponent(me)}&userB=${encodeURIComponent(peer)}`).then(r=>r.json()).then(list => {
+        msgs.innerHTML='';
+        list.forEach(m => appendDMMessage(m));
+        msgs.scrollTop = msgs.scrollHeight;
+      }).catch(()=>{});
+    }
+    function openDM(peer){ setActiveDM(peer); }
+    function appendDMMessage(data){
+      const me = localStorage.getItem('username') || '';
+      const isOwn = (data.from||'') === me;
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('flex','items-start','gap-2','mb-2');
+      wrapper.classList.add(isOwn ? 'justify-end':'justify-start');
+      const avatar = document.createElement('img');
+      const author = isOwn ? me : (data.from||'');
+      avatar.src = `/uploads/${author}/avatar.png`;
+      avatar.alt = `${author}'s avatar`;
+      avatar.className = 'w-8 h-8 rounded-full object-cover';
+      const bubble = document.createElement('div');
+      bubble.classList.add('message', isOwn ? 'self':'other');
+      const header = document.createElement('div');
+      header.className = 'text-xs opacity-75 mb-1';
+      header.textContent = `${author} | ${new Date((data.ts||Date.now())*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+      let body;
+      if (data.fileData && data.fileName){
+        const ext = (data.fileName.split('.').pop()||'').toLowerCase();
+        const imageExts = ["png","jpg","jpeg","gif","webp","svg"];
+        const videoExts = ["mp4","webm","ogg","mov","m4v"];
+        const audioExts = ["mp3","wav","ogg","m4a","aac","flac"];
+        if (imageExts.includes(ext)) { body = document.createElement('img'); body.src = data.fileData; body.alt = data.fileName; body.className='max-w-xs rounded'; }
+        else if (videoExts.includes(ext)) { const v=document.createElement('video'); v.controls=true; v.src=data.fileData; v.className='max-w-xs rounded'; body=v; }
+        else if (audioExts.includes(ext)) { const a=document.createElement('audio'); a.controls=true; a.src=data.fileData; body=a; }
+        else { const a=document.createElement('a'); a.href=data.fileData; a.download=data.fileName; a.textContent=`📎 ${data.fileName}`; a.className='text-blue-400 underline'; body=a; }
+      } else if (data.message){
+        body = document.createElement('div');
+        body.textContent = data.message;
+      }
+      bubble.appendChild(header); if (body) bubble.appendChild(body);
+      if (isOwn){ wrapper.appendChild(bubble); wrapper.appendChild(avatar); }
+      else { wrapper.appendChild(avatar); wrapper.appendChild(bubble); }
+      const msgs = document.getElementById('dmMessages');
+      msgs.appendChild(wrapper);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+    function sendDMMessage(){
+      const me = localStorage.getItem('username');
+      const peer = dmState.active;
+      if (!me || !peer) return;
+      const input = document.getElementById('dmInput');
+      const msg = (input?.value||'').trim();
+      if (!msg) return;
+      const payload = { from: me, to: peer, message: msg };
+      if (navigator.onLine) socket.emit('send_dm', payload);
+      appendDMMessage(payload);
+      input.value=''; input.style.height='auto';
+      fetch('/api/dm/send', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).catch(()=>{});
+    }
+    function sendDMFile(event){
+      const file = event.target.files?.[0];
+      const me = localStorage.getItem('username');
+      const peer = dmState.active;
+      if (!file || !me || !peer) return;
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const payload = { from: me, to: peer, fileName: file.name, fileType: file.type, fileData: e.target.result };
+        if (navigator.onLine) socket.emit('send_dm', payload);
+        appendDMMessage(payload);
+        fetch('/api/dm/send', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).catch(()=>{});
+        event.target.value='';
+      };
+      reader.readAsDataURL(file);
+    }
+    if (typeof io !== 'undefined') {
+      socket.on('receive_dm', (data) => {
+        const me = localStorage.getItem('username') || '';
+        if (!dmState.active) return; // ignore if no DM open
+        const { from, to } = data || {};
+        if ((from===me && to===dmState.active) || (to===me && from===dmState.active)) appendDMMessage(data);
+      });
+    }
 
     function saveAboutMe() {
       const about = document.getElementById("aboutMe").value;

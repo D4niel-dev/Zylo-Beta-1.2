@@ -281,6 +281,7 @@
         s.on('receive_message', () => SoundEngine.play('receive'));
         s.on('receive_group_message', () => SoundEngine.play('receive'));
         s.on('receive_file', () => SoundEngine.play('receive'));
+        s.on('receive_dm', () => SoundEngine.play('receive'));
         s.__zyloSoundPatched = true;
       } catch {}
     };
