@@ -9,7 +9,7 @@ when the full release of the app is out!
 - Run *pip install -r requirements.txt*, it may take a few minutes to download all the libs for Python.
 - After the libs are installed, you can run the app either by *double clicking the main.py* or *clicking the Zylo.exe*.
 
-> **Storage locations update :**
+> **Storage locations :**
 
 - Data JSON now lives under `backend/data/`.
 - User uploads are now under `backend/uploads/` and are served at `/uploads/<username>/<filename>`.
