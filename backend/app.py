@@ -171,6 +171,7 @@ def send_reset_email(to_email, reset_link):
 # Load existing messages and groups
 messages = load_messages()
 groups = load_groups()
+dms = load_dms()
 
 # API Endpoints
 @app.route("/api/signup", methods=["POST"])
@@ -435,9 +436,11 @@ def handle_typing(data):
     
 @app.route('/<path:path>')
 def serve_static_file(path):
-    # Serve frontend files, and map service worker, manifest to root scope
-    if path in ('service-worker.js', 'manifest.webmanifest'):
-        return send_from_directory(FRONTEND_DIR, path)
+    # Serve frontend files. Map service worker and manifest to root scope from /frontend/js
+    if path == 'service-worker.js':
+        return send_from_directory(os.path.join(FRONTEND_DIR, 'js'), 'service-worker.js')
+    if path == 'manifest.webmanifest':
+        return send_from_directory(os.path.join(FRONTEND_DIR, 'js'), 'manifest.webmanifest')
     return send_from_directory(FRONTEND_DIR, path)
     
 @app.route("/api/stats", methods=["GET"])
@@ -1105,6 +1108,20 @@ def leave_group_api():
             save_groups(all_groups)
             return jsonify({"success": True})
     return jsonify({"success": False, "error": "Group not found"}), 404
+
+
+@app.route('/api/groups/<group_id>/messages', methods=['GET'])
+def group_messages_get(group_id):
+    all_groups = load_groups()
+    for g in all_groups:
+        if g.get('id') == group_id:
+            return jsonify(g.get('messages') or [])
+    return jsonify([])
+
+# Run the app (IMPORTANT: Use socketio.run to enable Socket.IO support)
+if __name__ == "__main__":
+    socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)
+t found"}), 404
 
 
 @app.route('/api/groups/<group_id>/messages', methods=['GET'])

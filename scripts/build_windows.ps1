@@ -25,8 +25,6 @@ if (!(Test-Path $dist)) { New-Item -ItemType Directory -Path $dist | Out-Null }
 pyinstaller --noconfirm --onefile --name Zylo --clean `
   --add-data "frontend;frontend" `
   --add-data "backend;backend" `
-  --add-data "files;files" `
-  --add-data "images;images" `
   --add-data "requirements.txt;." `
   --hidden-import "engineio.async_drivers.eventlet" `
   --hidden-import "eventlet" `
@@ -35,7 +33,5 @@ pyinstaller --noconfirm --onefile --name Zylo --clean `
 # Copy static folders to dist for fallback serving if needed
 Copy-Item -Recurse -Force frontend (Join-Path $dist 'frontend')
 Copy-Item -Recurse -Force backend (Join-Path $dist 'backend')
-Copy-Item -Recurse -Force files (Join-Path $dist 'files')
-Copy-Item -Recurse -Force images (Join-Path $dist 'images')
 
 Write-Host "Build complete. Find Zylo.exe under dist\\Zylo.exe"
