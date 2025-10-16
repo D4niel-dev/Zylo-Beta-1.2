@@ -360,6 +360,17 @@ def handle_send_message(data):
     
     print("Message received from client:", msg_data)
     emit("receive_message", msg_data, broadcast=True)
+
+@socketio.on('register_user')
+def register_user(data):
+    # Placeholder for per-user rooms in future; currently no-op
+    try:
+        user = (data or {}).get('username')
+        if not user:
+            return
+        # Could join a personal room like f"user:{user}" if needed
+    except Exception:
+        pass
     
 @socketio.on("send_file")
 def handle_send_file(data):

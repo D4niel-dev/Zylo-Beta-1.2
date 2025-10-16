@@ -136,7 +136,7 @@
             <i data-feather="users"></i>
             <span class="sidebar-text hidden">Friends</span>
           </a>
-          <a href="#" data-tab="friends" onclick="switchTab('friends')" class="sidebar-tab">
+          <a href="#" data-tab="groups" onclick="switchTab('groups')" class="sidebar-tab">
             <i data-feather="hash"></i>
             <span class="sidebar-text hidden">Groups</span>
           </a>
@@ -1014,11 +1014,15 @@
       msgWrapper.classList.add(isOwnMessage ? "justify-end" : "justify-start");
       msgWrapper.classList.add("message", isOwnMessage ? "self" : "other");
 
-      // Add avatar
+      // Add avatar (fallback to default if missing)
       const avatar = document.createElement("img");
+      const fallbackAvatar = '/images/default_avatar.png';
+      // Prefer uploaded avatar if available; fall back to default
       avatar.src = `/uploads/${data.username}/avatar.png`;
       avatar.alt = `${data.username}'s avatar`;
       avatar.className = "w-8 h-8 rounded-full object-cover";
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
+      avatar.onerror = function(){ this.onerror=null; this.src = fallbackAvatar; };
       msgWrapper.appendChild(avatar);
 
       // Create message bubble
@@ -1092,7 +1096,9 @@
       wrapper.classList.add(isOwn ? 'justify-end' : 'justify-start');
 
       const avatar = document.createElement('img');
-      avatar.src = isOwn ? (localStorage.getItem('avatar') || '/images/default_avatar.png') : '/images/Zylo_icon.ico';
+      const myAvatar = localStorage.getItem('avatar') || `/uploads/${username}/avatar.png`;
+      avatar.src = isOwn ? myAvatar : '/images/Zylo_icon.ico';
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
       avatar.alt = isOwn ? `${username}'s avatar` : 'AI avatar';
       avatar.className = 'w-8 h-8 rounded-full object-cover';
 
@@ -1226,6 +1232,8 @@
       avatar.src = `/uploads/${data.username}/avatar.png`;
       avatar.alt = `${data.username}'s avatar`;
       avatar.className = "w-8 h-8 rounded-full object-cover";
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
 
       // File bubble
       const bubble = document.createElement("div");
@@ -2440,17 +2448,23 @@
       alert(`Two-Factor Authentication ${this.checked ? 'enabled' : 'disabled'}.`);
     });
 
-    // Privacy toggles
-    document.getElementById("showEmail").addEventListener("change", function() {
-      localStorage.setItem("showEmail", this.checked);
-      const username = localStorage.getItem('username');
-      if (username) fetch('/api/update-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, settings: { showEmail: this.checked } }) }).catch(() => {});
-    });
-    document.getElementById("shareActivity").addEventListener("change", function() {
-      localStorage.setItem("shareActivity", this.checked);
-      const username = localStorage.getItem('username');
-      if (username) fetch('/api/update-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, settings: { shareActivity: this.checked } }) }).catch(() => {});
-    });
+    // Privacy toggles (defensive binding)
+    const showEmailEl = document.getElementById("showEmail");
+    if (showEmailEl) {
+      showEmailEl.addEventListener("change", function() {
+        localStorage.setItem("showEmail", this.checked);
+        const username = localStorage.getItem('username');
+        if (username) fetch('/api/update-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, settings: { showEmail: this.checked } }) }).catch(() => {});
+      });
+    }
+    const shareActivityEl = document.getElementById("shareActivity");
+    if (shareActivityEl) {
+      shareActivityEl.addEventListener("change", function() {
+        localStorage.setItem("shareActivity", this.checked);
+        const username = localStorage.getItem('username');
+        if (username) fetch('/api/update-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, settings: { shareActivity: this.checked } }) }).catch(() => {});
+      });
+    }
 
     async function deleteAccount() {
       if (!confirm("Are you sure you want to delete your account?\nThis cannot be undone.")) return;
