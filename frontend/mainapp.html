@@ -674,6 +674,14 @@
                 </div>
               </div>
 
+              <!-- Save Settings Button -->
+              <div id="saveSettingsBtn" class="pt-4 border-t border-gray-300 dark:border-gray-700" style="display: none;">
+                <button onclick="showSaveSettingsModal()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg mb-3">
+                  <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
+                  Save Changes
+                </button>
+              </div>
+
               <!-- Reset All Settings -->
               <div class="pt-4 border-t border-gray-300 dark:border-gray-700">
                 <button id="btnResetAll" onclick="resetAllSettings()" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Reset All Settings</button>
@@ -751,6 +759,14 @@
             <div class="flex items-center gap-2">
               <input type="checkbox" id="duckMusic" class="accent-blue-500">
               <label for="duckMusic">Duck music when playing effects</label>
+            </div>
+            
+            <!-- Save Sound Settings Button -->
+            <div id="saveSoundSettingsBtn" class="pt-4 border-t border-gray-300 dark:border-gray-700" style="display: none;">
+              <button onclick="showSaveSettingsModal()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
+                Save Sound Settings
+              </button>
             </div>
           </div>
 
@@ -856,6 +872,14 @@
             <div class="border-t border-gray-300 dark:border-gray-700 pt-4">
               <button onclick="deleteAccount()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white w-full">Delete Account</button>
             </div>
+            
+            <!-- Save Account Settings Button -->
+            <div id="saveAccountSettingsBtn" class="pt-4 border-t border-gray-300 dark:border-gray-700" style="display: none;">
+              <button onclick="showSaveSettingsModal()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
+                Save Account Settings
+              </button>
+            </div>
           </div>
 
           <!-- About Settings -->
@@ -939,6 +963,39 @@
           </div>
         </div>
       </section>
+    </div>
+
+    <!-- Save Settings Modal -->
+    <div id="saveSettingsModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden flex items-center justify-center px-4">
+      <div class="bg-white dark:bg-gray-800 max-w-md w-full p-6 rounded-lg shadow-xl animate-fadeIn">
+        <div class="flex items-center mb-4">
+          <div class="flex-shrink-0">
+            <i data-feather="save" class="w-6 h-6 text-blue-600"></i>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Save Settings</h3>
+          </div>
+        </div>
+        
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
+          You have unsaved changes. Do you want to save your settings before continuing?
+        </p>
+        
+        <div class="flex gap-3">
+          <button onclick="confirmSaveSettings()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
+            <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
+            Save Changes
+          </button>
+          <button onclick="discardSettingsChanges()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors">
+            <i data-feather="x" class="w-4 h-4 inline mr-2"></i>
+            Discard
+          </button>
+          <button onclick="cancelSaveSettings()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 dark:text-gray-300 py-2 px-4 rounded-lg transition-colors">
+            <i data-feather="arrow-left" class="w-4 h-4 inline mr-2"></i>
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Settings Panel -->
@@ -2194,6 +2251,184 @@
 
     // Settings Functions
 
+    // Settings change tracking
+    let settingsChanged = false;
+    let pendingSettingsChanges = {};
+    let originalSettings = {};
+
+    // Initialize original settings
+    function initializeOriginalSettings() {
+      // General settings
+      settingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key.replace('Toggle', '').replace('Select', ''));
+        if (el) {
+          originalSettings[key] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+      });
+
+      // Sound settings
+      soundSettingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key);
+        if (el) {
+          originalSettings[key] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+      });
+    }
+
+    // Check if settings have changed
+    function checkSettingsChanges() {
+      let hasChanges = false;
+      pendingSettingsChanges = {};
+
+      // Check general settings
+      settingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key.replace('Toggle', '').replace('Select', ''));
+        if (el) {
+          const currentValue = el.type === 'checkbox' ? el.checked : el.value;
+          const originalValue = originalSettings[key];
+          
+          if (currentValue !== originalValue) {
+            hasChanges = true;
+            pendingSettingsChanges[key] = currentValue;
+          }
+        }
+      });
+
+      // Check sound settings
+      soundSettingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key);
+        if (el) {
+          const currentValue = el.type === 'checkbox' ? el.checked : el.value;
+          const originalValue = originalSettings[key];
+          
+          if (currentValue !== originalValue) {
+            hasChanges = true;
+            pendingSettingsChanges[key] = currentValue;
+          }
+        }
+      });
+
+      settingsChanged = hasChanges;
+      updateSaveButtonVisibility();
+    }
+
+    // Update save button visibility
+    function updateSaveButtonVisibility() {
+      const generalSaveBtn = document.getElementById('saveSettingsBtn');
+      const soundSaveBtn = document.getElementById('saveSoundSettingsBtn');
+      const accountSaveBtn = document.getElementById('saveAccountSettingsBtn');
+      
+      if (generalSaveBtn) {
+        generalSaveBtn.style.display = settingsChanged ? 'block' : 'none';
+      }
+      if (soundSaveBtn) {
+        soundSaveBtn.style.display = settingsChanged ? 'block' : 'none';
+      }
+      if (accountSaveBtn) {
+        accountSaveBtn.style.display = settingsChanged ? 'block' : 'none';
+      }
+    }
+
+    // Show save confirmation modal
+    function showSaveSettingsModal() {
+      const modal = document.getElementById('saveSettingsModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      }
+    }
+
+    // Hide save confirmation modal
+    function hideSaveSettingsModal() {
+      const modal = document.getElementById('saveSettingsModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+
+    // Confirm save settings
+    window.confirmSaveSettings = function() {
+      saveAllSettings();
+      hideSaveSettingsModal();
+    };
+
+    // Discard settings changes
+    window.discardSettingsChanges = function() {
+      // Revert to original settings
+      settingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key.replace('Toggle', '').replace('Select', ''));
+        if (el) {
+          const originalValue = originalSettings[key];
+          if (el.type === 'checkbox') {
+            el.checked = originalValue;
+          } else {
+            el.value = originalValue;
+          }
+        }
+      });
+      
+      settingsChanged = false;
+      pendingSettingsChanges = {};
+      updateSaveButtonVisibility();
+      hideSaveSettingsModal();
+    };
+
+    // Cancel save settings
+    window.cancelSaveSettings = function() {
+      hideSaveSettingsModal();
+    };
+
+    // Save all settings
+    function saveAllSettings() {
+      // Save general settings
+      settingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key.replace('Toggle', '').replace('Select', ''));
+        if (el) {
+          const value = el.type === 'checkbox' ? el.checked : el.value;
+          localStorage.setItem(key, value);
+          originalSettings[key] = value;
+        }
+      });
+
+      // Save sound settings
+      soundSettingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key);
+        if (el) {
+          const value = el.type === 'checkbox' ? el.checked : el.value;
+          localStorage.setItem(key, value);
+          originalSettings[key] = value;
+        }
+      });
+
+      // Persist to backend
+      persistSettings(pendingSettingsChanges);
+      
+      settingsChanged = false;
+      pendingSettingsChanges = {};
+      updateSaveButtonVisibility();
+      
+      // Show success message
+      showSettingsSaveSuccess();
+    }
+
+    // Show save success message
+    function showSettingsSaveSuccess() {
+      // Create temporary success message
+      const successMsg = document.createElement('div');
+      successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fadeIn';
+      successMsg.innerHTML = '<i data-feather="check-circle" class="w-4 h-4 inline mr-2"></i>Settings saved successfully!';
+      document.body.appendChild(successMsg);
+      
+      // Replace feather icons
+      feather.replace();
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        successMsg.remove();
+      }, 3000);
+    }
+
     /// General Settings
     function persistSettings(partial) {
       const username = localStorage.getItem('username');
@@ -2241,6 +2476,10 @@
         }
       });
       applyGeneralSettings();
+      
+      // Initialize settings change tracking
+      initializeOriginalSettings();
+      checkSettingsChanges();
     });
 
     settingsMap.forEach(({ id, key }) => {
@@ -2250,7 +2489,14 @@
           const value = this.type === "checkbox" ? this.checked : this.value;
           localStorage.setItem(key, value);
           applyGeneralSettings();
-          persistSettings({ [key]: value });
+          
+          // Track changes for save confirmation
+          checkSettingsChanges();
+          
+          // Auto-save for some settings (optional)
+          if (['enableAnimations', 'compactMode', 'showTooltips'].includes(key)) {
+            persistSettings({ [key]: value });
+          }
         });
       }
     });
@@ -2329,6 +2575,32 @@
         e.returnValue = '';
       });
     }
+
+    // Sound settings change tracking
+    const soundSettingsMap = [
+      { id: "soundVolume", key: "soundVolume" },
+      { id: "musicVolume", key: "musicVolume" },
+      { id: "muteAll", key: "muteAll" },
+      { id: "enableSound", key: "enableSound" },
+      { id: "enableMusic", key: "enableMusic" },
+      { id: "soundProfile", key: "soundProfile" },
+      { id: "duckMusic", key: "duckMusic" },
+      { id: "playSend", key: "playSend" },
+      { id: "playReceive", key: "playReceive" },
+      { id: "playUi", key: "playUi" }
+    ];
+
+    // Add sound settings to change tracking
+    soundSettingsMap.forEach(({ id, key }) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("change", function() {
+          const value = this.type === "checkbox" ? this.checked : this.value;
+          localStorage.setItem(key, value);
+          checkSettingsChanges();
+        });
+      }
+    });
 
     // Event listeners for changes
     document.getElementById("animationsToggle").addEventListener("change", function() {
