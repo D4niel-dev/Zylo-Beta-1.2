@@ -232,15 +232,12 @@
     function togglePassword(id, toggleElement) {
       const input = document.getElementById(id);
       const icon = toggleElement.querySelector('i[data-feather]');
-
-      if (input.type === "password") {
-        input.type = "text";
-        icon.setAttribute("data-feather", "eye-off");
-      } else {
-        input.type = "password";
-        icon.setAttribute("data-feather", "eye");
-      }
-      feather.replace();
+      if (!input || !icon) return;
+      const to = input.type === 'password' ? 'text' : 'password';
+      input.type = to;
+      icon.setAttribute('data-feather', to === 'text' ? 'eye-off' : 'eye');
+      // Re-render feather icon for consistent eye/eye-off display
+      try { feather.replace(); } catch {}
     }
 
     function previewImage(event, targetId) {
