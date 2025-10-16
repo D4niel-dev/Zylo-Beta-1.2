@@ -29,6 +29,7 @@ UPLOADS_DIR = os.path.join(BASE_DIR, 'uploads')
 USER_DATA_FILE = os.path.join(DATA_DIR, 'users.json')
 FRONTEND_DIR = os.path.join(BASE_DIR, '../frontend')
 MESSAGES_FILE = os.path.join(DATA_DIR, "messages.json")
+DMS_FILE = os.path.join(DATA_DIR, "dms.json")
 GROUPS_FILE = os.path.join(DATA_DIR, 'groups.json')
 EXPLORE_FILE = os.path.join(DATA_DIR, 'explore.json')
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -106,6 +107,25 @@ def load_messages():
 def save_messages(messages):
     with open(MESSAGES_FILE, "w", encoding="utf-8") as f:
         json.dump(messages, f, indent=2)
+
+# ---- Direct Messages (DMs) helpers ----
+def load_dms():
+    """Load direct messages from persistent storage."""
+    if not os.path.exists(DMS_FILE):
+        # Initialize empty file for first-time startup
+        with open(DMS_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f)
+        return []
+    try:
+        with open(DMS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+def save_dms(dms_list):
+    """Persist direct messages to disk."""
+    with open(DMS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(dms_list, f, indent=2)
 
 # Group storage helpers
 def load_groups():
