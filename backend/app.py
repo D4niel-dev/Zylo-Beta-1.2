@@ -1094,6 +1094,89 @@ def friends_remove():
     save_users(users)
     return jsonify({"success": True})
 
+@app.route('/api/friends/cancel', methods=['POST'])
+def friends_cancel():
+    data = request.json or {}
+    username = (data.get('username') or '').strip()
+    target = (data.get('to') or '').strip()
+    if not username or not target:
+        return jsonify({"success": False, "error": "Missing fields"}), 400
+    users = load_users()
+    ui, u = _find_user(users, username)
+    ti, t = _find_user(users, target)
+    if u is None or t is None:
+        return jsonify({"success": False, "error": "User not found"}), 404
+    u = _ensure_social_fields(u)
+    t = _ensure_social_fields(t)
+    u['friendRequests']['outgoing'] = [x for x in u['friendRequests']['outgoing'] if x != target]
+    t['friendRequests']['incoming'] = [x for x in t['friendRequests']['incoming'] if x != username]
+    users[ui] = u
+    users[ti] = t
+    save_users(users)
+    return jsonify({"success": True})
+
+# ---------------- Direct Messages APIs + Socket ---------------- #
+@app.route('/api/dm/history', methods=['GET'])
+def dm_history():
+    user_a = (request.args.get('userA') or '').strip()
+    user_b = (request.args.get('userB') or '').strip()
+    if not user_a or not user_b:
+        return jsonify([])
+    conv = []
+    for m in (load_dms() or []):
+        if (m.get('from') == user_a and m.get('to') == user_b) or (m.get('from') == user_b and m.get('to') == user_a):
+            conv.append(m)
+    return jsonify(conv)
+
+@app.route('/api/dm/send', methods=['POST'])
+def dm_send():
+    data = request.json or {}
+    frm = (data.get('from') or '').strip()
+    to = (data.get('to') or '').strip()
+    if not frm or not to:
+        return jsonify({"success": False, "error": "Missing from/to"}), 400
+    entry = {
+        'from': frm,
+        'to': to,
+        'message': data.get('message'),
+        'fileName': data.get('fileName'),
+        'fileType': data.get('fileType'),
+        'fileData': data.get('fileData'),
+        'createdAt': int(__import__('time').time()),
+    }
+    all_dms = load_dms()
+    all_dms.append(entry)
+    save_dms(all_dms)
+    # Push live update to both parties if they are connected
+    try:
+        emit('receive_dm', entry, broadcast=True)
+    except Exception:
+        pass
+    return jsonify({"success": True})
+
+@socketio.on('send_dm')
+def handle_send_dm(data):
+    try:
+        frm = (data or {}).get('from')
+        to = (data or {}).get('to')
+        if not frm or not to:
+            return
+        entry = {
+            'from': frm,
+            'to': to,
+            'message': (data or {}).get('message'),
+            'fileName': (data or {}).get('fileName'),
+            'fileType': (data or {}).get('fileType'),
+            'fileData': (data or {}).get('fileData'),
+            'createdAt': int(__import__('time').time()),
+        }
+        all_dms = load_dms()
+        all_dms.append(entry)
+        save_dms(all_dms)
+        emit('receive_dm', entry, broadcast=True)
+    except Exception:
+        pass
+
 # ---------------- Groups APIs ---------------- #
 
 def _gen_group_id() -> str:
@@ -1171,20 +1254,6 @@ def leave_group_api():
             save_groups(all_groups)
             return jsonify({"success": True})
     return jsonify({"success": False, "error": "Group not found"}), 404
-
-
-@app.route('/api/groups/<group_id>/messages', methods=['GET'])
-def group_messages_get(group_id):
-    all_groups = load_groups()
-    for g in all_groups:
-        if g.get('id') == group_id:
-            return jsonify(g.get('messages') or [])
-    return jsonify([])
-
-# Run the app (IMPORTANT: Use socketio.run to enable Socket.IO support)
-if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)
-t found"}), 404
 
 
 @app.route('/api/groups/<group_id>/messages', methods=['GET'])
