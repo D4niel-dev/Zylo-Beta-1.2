@@ -609,6 +609,183 @@ body.dark .profile-card {
     border-top-right-radius: 1rem;
 }
 
+/* === Banner Effects === */
+.banner-effect-none {}
+
+/* Blur Overlay Effect */
+.banner-effect-blur-overlay::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(2px);
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    pointer-events: none;
+}
+
+/* Gradient Overlay Effect */
+.banner-effect-gradient-overlay::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 0, 150, 0.4) 0%,
+        rgba(0, 255, 255, 0.4) 50%,
+        rgba(255, 255, 0, 0.4) 100%
+    );
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    pointer-events: none;
+}
+
+/* Vignette Effect */
+.banner-effect-vignette::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center, 
+        transparent 30%, 
+        rgba(0, 0, 0, 0.6) 100%
+    );
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    pointer-events: none;
+}
+
+/* Neon Glow Effect */
+.banner-effect-neon-glow {
+    box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.5),
+        0 0 40px rgba(0, 255, 255, 0.3),
+        0 0 60px rgba(0, 255, 255, 0.1);
+    border: 2px solid #00ffff;
+}
+
+/* Cyber Grid Effect */
+.banner-effect-cyber-grid::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
+    background-size: 20px 20px;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Holographic Banner Effect */
+.banner-effect-holographic-banner {
+    background: linear-gradient(45deg, 
+        rgba(255, 0, 150, 0.2),
+        rgba(0, 255, 255, 0.2),
+        rgba(255, 255, 0, 0.2),
+        rgba(255, 0, 150, 0.2)
+    );
+    background-size: 400% 400%;
+    animation: holographicShift 4s ease-in-out infinite;
+    position: relative;
+}
+
+.banner-effect-holographic-banner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+        transparent 30%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 70%
+    );
+    animation: holographicSweep 3s ease-in-out infinite;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    pointer-events: none;
+}
+
+/* Matrix Banner Effect */
+.banner-effect-matrix-banner {
+    filter: hue-rotate(90deg) contrast(1.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.banner-effect-matrix-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 255, 0, 0.1) 3px,
+        rgba(0, 255, 0, 0.1) 6px
+    );
+    animation: matrixRain 3s linear infinite;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Retro Wave Effect */
+.banner-effect-retro-wave::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(45deg, 
+        #ff6b6b 0%,
+        #4ecdc4 25%,
+        #45b7d1 50%,
+        #96ceb4 75%,
+        #feca57 100%
+    );
+    opacity: 0.7;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    pointer-events: none;
+}
+
+/* Neon City Effect */
+.banner-effect-neon-city::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 0, 150, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 255, 0, 0.2) 0%, transparent 50%);
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    pointer-events: none;
+}
+
 .save-profile-btn {
     position: absolute;
     top: 0.5rem;
@@ -706,6 +883,113 @@ body.dark .avatar-img {
     opacity: 0.7;
     animation: sparkleFloat 8s linear infinite;
     pointer-events: none;
+}
+
+/* Vintage Filter Effect */
+.avatar-effect-vintage {
+    filter: sepia(0.8) contrast(1.2) brightness(1.1) saturate(1.3);
+    border: 3px solid #8B4513;
+    box-shadow: 0 0 20px rgba(139, 69, 19, 0.4);
+}
+
+/* Neon Border Effect */
+.avatar-effect-neon-border {
+    border: 3px solid #00FFFF;
+    box-shadow: 
+        0 0 10px #00FFFF,
+        0 0 20px #00FFFF,
+        0 0 30px #00FFFF,
+        inset 0 0 10px rgba(0, 255, 255, 0.2);
+}
+
+/* Gradient Border Effect */
+.avatar-effect-gradient-border {
+    border: 4px solid transparent;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3) border-box;
+    background-clip: padding-box;
+    position: relative;
+}
+
+.avatar-effect-gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+/* Frosted Glass Effect */
+.avatar-effect-frosted {
+    backdrop-filter: blur(10px) saturate(150%);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Holographic Effect */
+.avatar-effect-holographic {
+    background: linear-gradient(45deg, 
+        rgba(255, 0, 150, 0.3),
+        rgba(0, 255, 255, 0.3),
+        rgba(255, 255, 0, 0.3),
+        rgba(255, 0, 150, 0.3)
+    );
+    background-size: 400% 400%;
+    animation: holographicShift 3s ease-in-out infinite;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 30px rgba(255, 0, 150, 0.5);
+}
+
+/* Matrix Effect */
+.avatar-effect-matrix {
+    filter: hue-rotate(90deg) contrast(1.5) brightness(0.8);
+    border: 2px solid #00ff00;
+    box-shadow: 
+        0 0 15px #00ff00,
+        0 0 30px #00ff00,
+        inset 0 0 15px rgba(0, 255, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.avatar-effect-matrix::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 300%;
+    height: 300%;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 0, 0.1) 2px,
+        rgba(0, 255, 0, 0.1) 4px
+    );
+    animation: matrixRain 2s linear infinite;
+    pointer-events: none;
+}
+
+/* Cyberpunk Effect */
+.avatar-effect-cyberpunk {
+    filter: contrast(1.3) saturate(1.5) hue-rotate(10deg);
+    border: 3px solid #ff0080;
+    box-shadow: 
+        0 0 20px #ff0080,
+        0 0 40px #ff0080,
+        inset 0 0 20px rgba(255, 0, 128, 0.3);
+    position: relative;
+}
+
+.avatar-effect-cyberpunk::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    background: linear-gradient(45deg, #ff0080, #00ffff, #ff0080);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0.7;
 }
 
 /* Status Dot */
@@ -871,6 +1155,22 @@ body.dark .stat-label { color: #9ca3af; }
   0% { transform: translateY(0); opacity: 0.65; }
   50% { transform: translateY(-4px); opacity: 0.9; }
   100% { transform: translateY(0); opacity: 0.65; }
+}
+
+@keyframes holographicShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes holographicSweep {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(100%) skewX(-15deg); }
+}
+
+@keyframes matrixRain {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
 }
 
 @keyframes fadeIn {
