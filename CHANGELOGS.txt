@@ -1,35 +1,27 @@
-Zylo Changelogs
+# **Zylo Changelogs**
 
-Zylo-Beta-1.0
+> Zylo-Beta-1.0
 - Initial beta release.
 - Core auth pages (login, signup, forgot/reset).
 - Basic community chat with Socket.IO (text + files).
 - User profile card with avatar and banner.
 - Theme toggle (light/dark) and basic settings.
 
-Zylo v1.1
+> Zylo-Beta-1.1
 - Added Friends and Groups basics in UI.
 - Community room stats on Home (users, messages, rooms).
 - Initial settings structure and quick panel.
 
-Zylo v1.3
+> Zylo-Beta-v1.2 (Latest)
 - Profile editing: avatar/banner upload preview and persistence.
 - Explore section scaffold.
 - Stability fixes to chat send/file receive.
-
-Zylo v1.5.7
 - Build artifacts distributed; download cards with progress estimator.
 - Performance tweaks and minor bug fixes.
-
-Zylo v1.6.1
 - Smaller bundle and assets refactor.
 - Improved settings UX and language labels.
-
-Zylo v1.6.2
 - Additional UI polish, animations and audio effects.
 - Offline banner and queued send support groundwork.
-
-Zylo v1.7.0
 - Friends API: request, accept, decline, remove; UI wiring.
 - Groups API: create, join/leave, group chat and file share.
 - Direct Messages (DMs): API + sockets for 1:1 chats with history.
