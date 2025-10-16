@@ -89,10 +89,6 @@
         <i data-feather="users" class="w-5 h-5"></i>
         <span>Friends</span>
       </a>
-      <a href="#" data-tab="groups" onclick="switchTab('groups'); toggleSidebar();" class="sidebar-tab">
-        <i data-feather="hash" class="w-5 h-5"></i>
-        <span>Groups</span>
-      </a>
       <a href="#" data-tab="explore" onclick="switchTab('explore'); toggleSidebar();" class="sidebar-tab">
         <i data-feather="compass" class="w-5 h-5"></i>
         <span>Explore</span>
@@ -135,10 +131,6 @@
           <a href="#" data-tab="friends" onclick="switchTab('friends')" class="sidebar-tab">
             <i data-feather="users"></i>
             <span class="sidebar-text hidden">Friends</span>
-          </a>
-          <a href="#" data-tab="groups" onclick="switchTab('groups')" class="sidebar-tab">
-            <i data-feather="hash"></i>
-            <span class="sidebar-text hidden">Groups</span>
           </a>
           <a href="#" data-tab="profile" onclick="switchTab('profile')" class="sidebar-tab">
             <i data-feather="user"></i>
@@ -263,70 +255,93 @@
 
 
       <!-- Friends Area -->
-      <section id="tab-friends" class="tab-content hidden ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] flex flex-col space-y-4 animate-fadeIn">
-        <div class="flex items-center gap-2">
-          <input id="addFriendInput" type="text" placeholder="Enter username to add" class="zylo-input p-2 flex-1" />
-          <button id="addFriendBtn" class="px-3 py-2 bg-blue-600 text-white rounded" onclick="requestFriend()">Add</button>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
-            <h3 class="font-semibold mb-2">Friends</h3>
-            <ul id="friendsList" class="space-y-2 text-sm"></ul>
-          </div>
-          <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
-            <h3 class="font-semibold mb-2">Incoming</h3>
-            <ul id="incomingList" class="space-y-2 text-sm"></ul>
-          </div>
-          <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
-            <h3 class="font-semibold mb-2">Outgoing</h3>
-            <ul id="outgoingList" class="space-y-2 text-sm"></ul>
-          </div>
-        </div>
-        <!-- Direct Messages Panel -->
-        <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 flex flex-col gap-2 flex-1 overflow-hidden">
+      <section id="tab-friends" class="tab-content hidden ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] flex flex-col space-y-6 animate-fadeIn">
+        <div class="w-full space-y-8 px-4 sm:px-6 lg:px-8">
+          
+          <!-- Header -->
           <div class="flex items-center justify-between">
-            <h3 class="font-semibold">Direct Messages</h3>
-            <div id="dmHeader" class="text-xs opacity-70">Select a friend and click Message to start.</div>
+            <h1 class="text-3xl font-bold">👥 Friends & Groups</h1>
           </div>
-          <div id="dmMessages" class="chat-messages flex-1"></div>
-          <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
-            <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file">
-              <i data-feather="paperclip"></i>
-              <input type="file" id="dmFileInput" class="hidden" onchange="sendDMFile(event)">
-            </label>
-            <textarea id="dmInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message..." ></textarea>
-            <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendDMMessage()"><i data-feather="send"></i></button>
-          </div>
-        </div>
 
-        <!-- Groups inside Friends -->
-        <div class="flex gap-4 flex-1 overflow-hidden">
-          <div class="w-72 shrink-0 bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 overflow-y-auto">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="font-semibold">Your Groups</h3>
-              <div class="flex items-center gap-2">
-                <button class="text-xs px-2 py-1 bg-gray-700 text-white rounded" onclick="refreshGroups()">Refresh</button>
-                <button class="text-xs px-2 py-1 bg-green-600 text-white rounded" onclick="createGroup()">+ New</button>
+          <!-- Friends Navigation -->
+          <div class="flex border-b border-gray-300 dark:border-gray-700 mb-6">
+            <button id="tabBtnFriends" class="friends-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="friendsContent">
+              Friends
+            </button>
+            <button id="tabBtnGroups" class="friends-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="groupsContent">
+              Groups
+            </button>
+          </div>
+
+          <!-- Friends Content -->
+          <div id="friendsContent" class="friends-content w-full space-y-4">
+            <div class="flex items-center gap-2">
+              <input id="addFriendInput" type="text" placeholder="Enter username to add" class="zylo-input p-2 flex-1" />
+              <button id="addFriendBtn" class="px-3 py-2 bg-blue-600 text-white rounded" onclick="requestFriend()">Add</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
+                <h3 class="font-semibold mb-2">Friends</h3>
+                <ul id="friendsList" class="space-y-2 text-sm"></ul>
+              </div>
+              <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
+                <h3 class="font-semibold mb-2">Incoming</h3>
+                <ul id="incomingList" class="space-y-2 text-sm"></ul>
+              </div>
+              <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
+                <h3 class="font-semibold mb-2">Outgoing</h3>
+                <ul id="outgoingList" class="space-y-2 text-sm"></ul>
               </div>
             </div>
-            <div class="flex items-center gap-2 mb-2">
-              <input id="newGroupName" type="text" placeholder="Group name" class="zylo-input p-1 flex-1 text-xs" />
+            <!-- Direct Messages Panel -->
+            <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 flex flex-col gap-2 flex-1 overflow-hidden">
+              <div class="flex items-center justify-between">
+                <h3 class="font-semibold">Direct Messages</h3>
+                <div id="dmHeader" class="text-xs opacity-70">Select a friend and click Message to start.</div>
+              </div>
+              <div id="dmMessages" class="chat-messages flex-1"></div>
+              <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
+                <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file">
+                  <i data-feather="paperclip"></i>
+                  <input type="file" id="dmFileInput" class="hidden" onchange="sendDMFile(event)">
+                </label>
+                <textarea id="dmInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message..." ></textarea>
+                <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendDMMessage()"><i data-feather="send"></i></button>
+              </div>
             </div>
-            <ul id="groupsList" class="space-y-1 text-sm"></ul>
           </div>
-          <div class="flex flex-col flex-1 min-w-0 bg-white/70 dark:bg-gray-800/70 rounded-lg">
-            <div class="p-2 border-b border-gray-700 flex items-center justify-between">
-              <span id="activeGroupTitle" class="font-semibold">Select a group</span>
-              <div class="text-xs opacity-70" id="activeGroupMeta"></div>
-            </div>
-            <div id="groupMessages" class="chat-messages flex-1"></div>
-            <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
-              <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file to group">
-                <i data-feather="paperclip"></i>
-                <input type="file" id="groupFileInput" class="hidden" onchange="sendGroupFile(event)">
-              </label>
-              <textarea id="groupChatInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message group..."></textarea>
-              <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendGroupMessage()"><i data-feather="send"></i></button>
+
+          <!-- Groups Content -->
+          <div id="groupsContent" class="friends-content w-full hidden space-y-4">
+            <div class="flex gap-4 flex-1 overflow-hidden">
+              <div class="w-72 shrink-0 bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 overflow-y-auto">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-semibold">Your Groups</h3>
+                  <div class="flex items-center gap-2">
+                    <button class="text-xs px-2 py-1 bg-gray-700 text-white rounded" onclick="refreshGroups()">Refresh</button>
+                    <button class="text-xs px-2 py-1 bg-green-600 text-white rounded" onclick="createGroup()">+ New</button>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 mb-2">
+                  <input id="newGroupName" type="text" placeholder="Group name" class="zylo-input p-1 flex-1 text-xs" />
+                </div>
+                <ul id="groupsList" class="space-y-1 text-sm"></ul>
+              </div>
+              <div class="flex flex-col flex-1 min-w-0 bg-white/70 dark:bg-gray-800/70 rounded-lg">
+                <div class="p-2 border-b border-gray-700 flex items-center justify-between">
+                  <span id="activeGroupTitle" class="font-semibold">Select a group</span>
+                  <div class="text-xs opacity-70" id="activeGroupMeta"></div>
+                </div>
+                <div id="groupMessages" class="chat-messages flex-1"></div>
+                <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
+                  <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file to group">
+                    <i data-feather="paperclip"></i>
+                    <input type="file" id="groupFileInput" class="hidden" onchange="sendGroupFile(event)">
+                  </label>
+                  <textarea id="groupChatInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message group..."></textarea>
+                  <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendGroupMessage()"><i data-feather="send"></i></button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -561,7 +576,6 @@
                   <option value="profile">Profile</option>
                   <option value="chats">Messages</option>
                   <option value="friends">Friends</option>
-                  <option value="groups">Groups</option>
                   <option value="explore">Explore</option>
                   <option value="settings">Settings</option>
                 </select>
@@ -2923,6 +2937,20 @@
 
       document.querySelectorAll('.sidebar-tab').forEach(tab => {tab.classList.remove('active');});
       document.querySelectorAll(`[data-tab="${tabName}"]`).forEach(tab => tab.classList.add('active'));
+
+      // Handle friends tab - set default active sub-tab
+      if (tabName === 'friends') {
+        // Reset friends tabs to default state
+        document.querySelectorAll(".friends-tab").forEach(t => {
+          t.classList.remove("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
+          t.classList.add("border-transparent");
+        });
+        document.querySelectorAll(".friends-content").forEach(c => c.classList.add("hidden"));
+        
+        // Show friends content by default
+        document.getElementById("friendsContent").classList.remove("hidden");
+        document.querySelector("#tabBtnFriends").classList.add("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
+      }
     }
 
     // Default Functions
@@ -2968,6 +2996,29 @@
     });
 
     document.querySelector(".settings-tab").click();
+
+    // Friends tab navigation
+    document.querySelectorAll(".friends-tab").forEach(tab => {
+      tab.addEventListener("click", function () {
+        document.querySelectorAll(".friends-tab").forEach(t => {
+          t.classList.remove("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
+          t.classList.add("border-transparent");
+        });
+
+        // Hide all content
+        document.querySelectorAll(".friends-content").forEach(c => c.classList.add("hidden"));
+
+        // Show selected content
+        const targetId = this.getAttribute("data-target");
+        document.getElementById(targetId).classList.remove("hidden");
+
+        // Highlight active tab
+        this.classList.add("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
+      });
+    });
+
+    // Set default active tab for friends
+    document.querySelector(".friends-tab").click();
 
     function goToPage(href) { 
       document.body.classList.add("fade-out"); 
