@@ -1715,6 +1715,12 @@
                 document.getElementById("aboutMe").value = updated.aboutMe || "";
                 document.getElementById("avatarImage").src = updated.avatar || "/images/default_avatar.png";
                 document.getElementById("bannerImage").src = updated.banner || "/images/default_banner.png";
+                
+                // Update settings avatar and banner too
+                const settingsAvatar = document.getElementById("settingsAvatar");
+                const settingsBanner = document.getElementById("settingsBanner");
+                if (settingsAvatar) settingsAvatar.src = updated.avatar || "/images/default_avatar.png";
+                if (settingsBanner) settingsBanner.src = updated.banner || "/images/default_banner.png";
             } else {
                 console.error("User not found");
             }

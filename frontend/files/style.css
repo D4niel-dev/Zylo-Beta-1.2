@@ -691,6 +691,17 @@ body.dark .profile-card {
 
 /* Holographic Banner Effect */
 .banner-effect-holographic-banner {
+    position: relative;
+    overflow: hidden;
+}
+
+.banner-effect-holographic-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: linear-gradient(45deg, 
         rgba(255, 0, 150, 0.2),
         rgba(0, 255, 255, 0.2),
@@ -699,7 +710,10 @@ body.dark .profile-card {
     );
     background-size: 400% 400%;
     animation: holographicShift 4s ease-in-out infinite;
-    position: relative;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .banner-effect-holographic-banner::after {
@@ -718,13 +732,17 @@ body.dark .profile-card {
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
     pointer-events: none;
+    z-index: 2;
 }
 
 /* Matrix Banner Effect */
 .banner-effect-matrix-banner {
-    filter: hue-rotate(90deg) contrast(1.2);
     position: relative;
     overflow: hidden;
+}
+
+.banner-effect-matrix-banner .banner-img {
+    filter: hue-rotate(90deg) contrast(1.2);
 }
 
 .banner-effect-matrix-banner::before {
@@ -904,19 +922,16 @@ body.dark .avatar-img {
 
 /* Gradient Border Effect */
 .avatar-effect-gradient-border {
-    border: 4px solid transparent;
-    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3) border-box;
-    background-clip: padding-box;
     position: relative;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
+    padding: 4px;
+    border-radius: 50%;
 }
 
-.avatar-effect-gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
-    border-radius: 50%;
-    z-index: -1;
+.avatar-effect-gradient-border .avatar-img {
+    border: none;
+    position: relative;
+    z-index: 1;
 }
 
 /* Frosted Glass Effect */
@@ -929,6 +944,7 @@ body.dark .avatar-img {
 
 /* Holographic Effect */
 .avatar-effect-holographic {
+    position: relative;
     background: linear-gradient(45deg, 
         rgba(255, 0, 150, 0.3),
         rgba(0, 255, 255, 0.3),
@@ -939,6 +955,14 @@ body.dark .avatar-img {
     animation: holographicShift 3s ease-in-out infinite;
     border: 2px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 0 30px rgba(255, 0, 150, 0.5);
+    border-radius: 50%;
+    padding: 2px;
+}
+
+.avatar-effect-holographic .avatar-img {
+    border: none;
+    position: relative;
+    z-index: 1;
 }
 
 /* Matrix Effect */
@@ -973,23 +997,20 @@ body.dark .avatar-img {
 
 /* Cyberpunk Effect */
 .avatar-effect-cyberpunk {
-    filter: contrast(1.3) saturate(1.5) hue-rotate(10deg);
-    border: 3px solid #ff0080;
+    position: relative;
+    background: linear-gradient(45deg, #ff0080, #00ffff, #ff0080);
+    padding: 3px;
+    border-radius: 50%;
     box-shadow: 
         0 0 20px #ff0080,
-        0 0 40px #ff0080,
-        inset 0 0 20px rgba(255, 0, 128, 0.3);
-    position: relative;
+        0 0 40px #ff0080;
 }
 
-.avatar-effect-cyberpunk::after {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    background: linear-gradient(45deg, #ff0080, #00ffff, #ff0080);
-    border-radius: 50%;
-    z-index: -1;
-    opacity: 0.7;
+.avatar-effect-cyberpunk .avatar-img {
+    border: none;
+    filter: contrast(1.3) saturate(1.5) hue-rotate(10deg);
+    position: relative;
+    z-index: 1;
 }
 
 /* Status Dot */
