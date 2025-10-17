@@ -669,6 +669,7 @@
                   </label>
                   <div class="flex items-center gap-2">
                     <input type="file" id="bgImageInput" accept="image/*" class="block w-full text-sm text-gray-900 dark:text-gray-100 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-gray-700 dark:file:text-gray-100" />
+                    <button id="previewBgBtn" class="px-3 py-1 bg-green-200 hover:bg-green-300 rounded dark:bg-green-700 dark:hover:bg-green-600" title="Preview background">Preview</button>
                     <button id="clearBgImageBtn" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded dark:bg-gray-700 dark:hover:bg-gray-600">Clear Image</button>
                   </div>
                 </div>
@@ -786,6 +787,9 @@
                   <span class="edit-overlay" title="Change avatar"><i data-feather="edit-2"></i></span>
                 </label>
                 <input type="file" id="avatarUpload" accept="image/*" class="hidden">
+                <button onclick="setAsBackground('avatar')" class="absolute -bottom-2 -right-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 text-xs" title="Set as background">
+                  <i data-feather="image"></i>
+                </button>
               </div>
             </div>
 
@@ -1662,8 +1666,12 @@
       const message = (input?.value || '').trim();
       if (!message || !groupsState.activeId) return;
       const payload = { groupId: groupsState.activeId, username: localStorage.getItem('username'), message };
-      if (navigator.onLine) socket.emit('send_group_message', payload);
-      appendGroupMessage(payload);
+      if (navigator.onLine) {
+        socket.emit('send_group_message', payload);
+      } else {
+        // Only append locally if offline
+        appendGroupMessage(payload);
+      }
       input.value = '';
       input.style.height = 'auto';
     }
@@ -1711,6 +1719,12 @@
                 document.getElementById("aboutMe").value = updated.aboutMe || "";
                 document.getElementById("avatarImage").src = updated.avatar || "/images/default_avatar.png";
                 document.getElementById("bannerImage").src = updated.banner || "/images/default_banner.png";
+                
+                // Update settings avatar and banner too
+                const settingsAvatar = document.getElementById("settingsAvatar");
+                const settingsBanner = document.getElementById("settingsBanner");
+                if (settingsAvatar) settingsAvatar.src = updated.avatar || "/images/default_avatar.png";
+                if (settingsBanner) settingsBanner.src = updated.banner || "/images/default_banner.png";
             } else {
                 console.error("User not found");
             }
@@ -1938,9 +1952,25 @@
       if (currentTarget === 'avatar') {
         document.getElementById('avatarImage').src = imageUrl;
         localStorage.setItem('avatar', imageUrl);
+        // Update settings avatar too
+        const settingsAvatar = document.getElementById('settingsAvatar');
+        if (settingsAvatar) settingsAvatar.src = imageUrl;
       } else if (currentTarget === 'banner') {
         document.getElementById('bannerImage').src = imageUrl;
         localStorage.setItem('banner', imageUrl);
+        // Update settings banner too
+        const settingsBanner = document.getElementById('settingsBanner');
+        if (settingsBanner) settingsBanner.src = imageUrl;
+      }
+
+      // Ask user if they want to use this image as background
+      if (confirm(`Would you like to use this ${currentTarget} as your background image?`)) {
+        localStorage.setItem('bgImageDataUrl', imageUrl);
+        // Set theme mode to custom to show the background
+        localStorage.setItem('themeMode', 'custom');
+        applyBackground();
+        applyThemeMode('custom');
+        alert('Background updated! You can change this anytime in Settings > Appearance.');
       }
 
       closeCropper();
@@ -2947,6 +2977,7 @@
       const solidBgToggle = document.getElementById('solidBgToggle');
       const bgInput = document.getElementById('bgImageInput');
       const clearBgBtn = document.getElementById('clearBgImageBtn');
+      const previewBgBtn = document.getElementById('previewBgBtn');
 
       const savedTheme = localStorage.getItem('theme');
       let themeMode = localStorage.getItem('themeMode');
@@ -3066,6 +3097,12 @@
       bgInput?.addEventListener('change', (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        
+        // Show loading state
+        const originalValue = e.target.value;
+        e.target.disabled = true;
+        e.target.value = '';
+        
         const reader = new FileReader();
         reader.onload = () => {
           const img = new Image();
@@ -3084,20 +3121,75 @@
               ctx.drawImage(img, 0, 0, width, height);
               const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
               localStorage.setItem('bgImageDataUrl', dataUrl);
-              if ((localStorage.getItem('themeMode') || 'light') === 'custom') {
-                applyBackground();
-              }
-            } catch { /* ignore */ }
+              
+              // Automatically switch to custom theme mode to show the background
+              localStorage.setItem('themeMode', 'custom');
+              applyThemeMode('custom');
+              applyBackground();
+              
+              // Show success message
+              alert('Background image imported successfully! Your theme has been switched to Custom mode to show the image.');
+              
+            } catch (error) {
+              console.error('Error processing image:', error);
+              alert('Error processing the image. Please try again.');
+            } finally {
+              // Re-enable the input
+              e.target.disabled = false;
+            }
+          };
+          img.onerror = () => {
+            alert('Error loading the image. Please try a different file.');
+            e.target.disabled = false;
           };
           img.src = reader.result;
+        };
+        reader.onerror = () => {
+          alert('Error reading the file. Please try again.');
+          e.target.disabled = false;
         };
         reader.readAsDataURL(file);
       });
 
       clearBgBtn?.addEventListener('click', () => {
-        localStorage.removeItem('bgImageDataUrl');
-        if ((localStorage.getItem('themeMode') || 'light') === 'custom') {
-          applyBackground();
+        if (confirm('Are you sure you want to clear the background image?')) {
+          localStorage.removeItem('bgImageDataUrl');
+          if ((localStorage.getItem('themeMode') || 'light') === 'custom') {
+            applyBackground();
+          }
+          // Clear the file input
+          if (bgInput) bgInput.value = '';
+          alert('Background image cleared!');
+        }
+      });
+
+      previewBgBtn?.addEventListener('click', () => {
+        const bgImage = localStorage.getItem('bgImageDataUrl');
+        if (!bgImage) {
+          alert('No background image found. Please import an image first.');
+          return;
+        }
+        
+        // Temporarily switch to custom mode to show the background
+        const currentMode = localStorage.getItem('themeMode') || 'light';
+        localStorage.setItem('themeMode', 'custom');
+        applyThemeMode('custom');
+        applyBackground();
+        
+        // Show preview message
+        alert('Previewing background image! Click OK to keep it or go back to your previous theme.');
+        
+        // Ask if user wants to keep it
+        if (confirm('Do you want to keep this background image?')) {
+          // Keep the custom theme
+          alert('Background image applied! You can change this anytime in Settings > Appearance.');
+        } else {
+          // Revert to previous theme
+          localStorage.setItem('themeMode', currentMode);
+          applyThemeMode(currentMode);
+          if (currentMode !== 'custom') {
+            clearInlineBackground();
+          }
         }
       });
 

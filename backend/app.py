@@ -247,8 +247,8 @@ def signup():
     dob = data.get("dob", "")
     gender = data.get("gender", "")
     phone = data.get("phone", "")
-    avatar = data.get("avatar") or "/images/default_avatar.png"
-    banner = data.get("banner") or "/images/default_banner.png"
+    avatar_data = data.get("avatar")
+    banner_data = data.get("banner")
     
     raw_tag = (data.get("usertag") or "").strip()
     if raw_tag:
@@ -273,6 +273,26 @@ def signup():
         if user["email"] == email:
             return jsonify({"success": False, "error": "Email already registered."}), 409
 
+    # Process avatar and banner uploads
+    avatar_url = "/images/default_avatar.png"
+    banner_url = "/images/default_banner.png"
+    
+    if avatar_data and avatar_data.startswith("data:"):
+        # Save avatar to uploads directory
+        user_upload_dir = os.path.join(UPLOADS_DIR, username)
+        os.makedirs(user_upload_dir, exist_ok=True)
+        avatar_url = _save_data_url_for_user(username, avatar_data, "avatar.png")
+        if not avatar_url:
+            avatar_url = "/images/default_avatar.png"
+    
+    if banner_data and banner_data.startswith("data:"):
+        # Save banner to uploads directory
+        user_upload_dir = os.path.join(UPLOADS_DIR, username)
+        os.makedirs(user_upload_dir, exist_ok=True)
+        banner_url = _save_data_url_for_user(username, banner_data, "banner.png")
+        if not banner_url:
+            banner_url = "/images/default_banner.png"
+
     new_user = {
         "username": username,
         "email": email,
@@ -281,8 +301,8 @@ def signup():
         "dob": dob,
         "gender": gender,
         "phone": phone,
-        "avatar": avatar,
-        "banner": banner
+        "avatar": avatar_url,
+        "banner": banner_url
     }
 
     users.append(new_user)
