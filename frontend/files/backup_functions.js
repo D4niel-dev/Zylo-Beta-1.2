@@ -920,10 +920,26 @@ function initMainApp() {
             const avatarImage = document.getElementById('avatarImage');
             if (avatarImage) avatarImage.src = imageUrl;
             localStorage.setItem('avatar', imageUrl);
+            // Update settings avatar too
+            const settingsAvatar = document.getElementById('settingsAvatar');
+            if (settingsAvatar) settingsAvatar.src = imageUrl;
         } else if (currentTarget === 'banner') {
             const bannerImage = document.getElementById('bannerImage');
             if (bannerImage) bannerImage.src = imageUrl;
             localStorage.setItem('banner', imageUrl);
+            // Update settings banner too
+            const settingsBanner = document.getElementById('settingsBanner');
+            if (settingsBanner) settingsBanner.src = imageUrl;
+        }
+
+        // Ask user if they want to use this image as background
+        if (confirm(`Would you like to use this ${currentTarget} as your background image?`)) {
+            localStorage.setItem('bgImageDataUrl', imageUrl);
+            // Set theme mode to custom to show the background
+            localStorage.setItem('themeMode', 'custom');
+            if (typeof applyBackground === 'function') applyBackground();
+            if (typeof applyThemeMode === 'function') applyThemeMode('custom');
+            alert('Background updated! You can change this anytime in Settings > Appearance.');
         }
 
         closeCropper();
