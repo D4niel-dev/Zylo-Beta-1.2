@@ -45,4 +45,5 @@
 - Fixed signup eye icon toggle with Feather icons.
 - Theme: Solid BG works for all modes; improved avatar fallbacks in chats.
 - Backend cleanup: removed duplicates/unreachable code, added migrations.
+- Signup : fix the bug with the iocn not changing to the right version when toggle.
 - Performance tweaks and minor bug fixes.
