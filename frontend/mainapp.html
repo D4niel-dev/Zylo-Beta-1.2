@@ -1662,8 +1662,12 @@
       const message = (input?.value || '').trim();
       if (!message || !groupsState.activeId) return;
       const payload = { groupId: groupsState.activeId, username: localStorage.getItem('username'), message };
-      if (navigator.onLine) socket.emit('send_group_message', payload);
-      appendGroupMessage(payload);
+      if (navigator.onLine) {
+        socket.emit('send_group_message', payload);
+      } else {
+        // Only append locally if offline
+        appendGroupMessage(payload);
+      }
       input.value = '';
       input.style.height = 'auto';
     }
