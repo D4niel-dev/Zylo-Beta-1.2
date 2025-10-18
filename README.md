@@ -23,6 +23,6 @@ when the full release of the app is out!
 
 > *Please noted that on Pydroid 3, it runs kinda slow so it might take some time to load to the main page of the app.*
 
-**Note :** The app can be run without *Internet* but some features of the app maybe disable because most of them need Wi-Fi to process.
+**NOTES:** The app can be run without *Internet* but some features of the app maybe disable because most of them need Wi-Fi to process.
 
 > **[ 6:43 PM 10/13/2025 ]**
