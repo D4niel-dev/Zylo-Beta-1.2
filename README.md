@@ -15,11 +15,13 @@ when the full release of the app is out!
 - User uploads are now under `backend/uploads/` and are served at `/uploads/<username>/<filename>`.
 - On startup, the server will migrate any legacy `data/` and `uploads/` folders from repo root into `backend/` automatically.
 
-> **If run on Pydroid 3 :** (For testing only)
+> **If run on Pydroid 3 :**
 
 - Install all the libs in the `requirements.txt`.
 - Change the `local_ip` and `host_ip` in `main.py` and `app.py`.
 - Change them to your phone IP and/or/if you're using 4G/5G, use the IP that you are using 4G/5G.
+
+> *Please noted that on Pydroid 3, it runs kinda slow so it might take some time to load to the main page of the app.*
 
 **Note :** The app can be run without *Internet* but some features of the app maybe disable because most of them need Wi-Fi to process.
 
