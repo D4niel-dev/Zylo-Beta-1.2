@@ -528,14 +528,6 @@ def handle_send_group_file(data):
 def handle_typing(data):
     emit("typing", data, broadcast=True, include_self=False)
     
-@app.route('/<path:path>')
-def serve_static_file(path):
-    # Serve frontend files. Map service worker and manifest to root scope from /frontend/js
-    if path == 'service-worker.js':
-        return send_from_directory(os.path.join(FRONTEND_DIR, 'js'), 'service-worker.js')
-    if path == 'manifest.webmanifest':
-        return send_from_directory(os.path.join(FRONTEND_DIR, 'js'), 'manifest.webmanifest')
-    return send_from_directory(FRONTEND_DIR, path)
     
 @app.route("/api/stats", methods=["GET"])
 def get_stats():
@@ -1294,6 +1286,15 @@ def group_messages_get(group_id):
         if g.get('id') == group_id:
             return jsonify(g.get('messages') or [])
     return jsonify([])
+
+@app.route('/<path:path>')
+def serve_static_file(path):
+    # Serve frontend files. Map service worker and manifest to root scope from /frontend/js
+    if path == 'service-worker.js':
+        return send_from_directory(os.path.join(FRONTEND_DIR, 'js'), 'service-worker.js')
+    if path == 'manifest.webmanifest':
+        return send_from_directory(os.path.join(FRONTEND_DIR, 'js'), 'manifest.webmanifest')
+    return send_from_directory(FRONTEND_DIR, path)
 
 # Run the app (IMPORTANT: Use socketio.run to enable Socket.IO support)
 if __name__ == "__main__":
