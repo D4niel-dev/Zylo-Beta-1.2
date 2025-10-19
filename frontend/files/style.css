@@ -613,6 +613,10 @@ body.dark .profile-card {
 .banner-effect-none {}
 
 /* Blur Overlay Effect */
+.banner-effect-blur-overlay {
+    position: relative;
+}
+
 .banner-effect-blur-overlay::after {
     content: '';
     position: absolute;
@@ -625,9 +629,14 @@ body.dark .profile-card {
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
     pointer-events: none;
+    z-index: 1;
 }
 
 /* Gradient Overlay Effect */
+.banner-effect-gradient-overlay {
+    position: relative;
+}
+
 .banner-effect-gradient-overlay::after {
     content: '';
     position: absolute;
@@ -643,9 +652,14 @@ body.dark .profile-card {
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
     pointer-events: none;
+    z-index: 1;
 }
 
 /* Vignette Effect */
+.banner-effect-vignette {
+    position: relative;
+}
+
 .banner-effect-vignette::after {
     content: '';
     position: absolute;
@@ -660,6 +674,7 @@ body.dark .profile-card {
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
     pointer-events: none;
+    z-index: 1;
 }
 
 /* Neon Glow Effect */

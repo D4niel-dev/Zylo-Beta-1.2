@@ -3201,6 +3201,12 @@
       loadAiModels();
       switchChatRoom(currentChatRoom);
 
+      // Initialize profile effects
+      initializeProfileEffects();
+
+      // Initialize profile effects
+      initializeProfileEffects();
+
       // Explore: wiring share and feed
       const exploreFile = document.getElementById('exploreFile');
       const exploreCaption = document.getElementById('exploreCaption');
@@ -3514,6 +3520,70 @@
       window.addEventListener('online', flushQueue);
       setTimeout(flushQueue, 1000);
     })();
+
+    // Profile Effects Functions
+    function initializeProfileEffects() {
+      const bannerEffectSelect = document.getElementById('bannerEffectSelect');
+      const avatarEffectSelect = document.getElementById('profileEffectSelect');
+      
+      if (bannerEffectSelect) {
+        bannerEffectSelect.addEventListener('change', function() {
+          applyBannerEffect(this.value);
+        });
+      }
+      
+      if (avatarEffectSelect) {
+        avatarEffectSelect.addEventListener('change', function() {
+          applyAvatarEffect(this.value);
+        });
+      }
+    }
+
+    function applyBannerEffect(effect) {
+      const bannerImg = document.getElementById('bannerImage');
+      const settingsBanner = document.getElementById('settingsBanner');
+      
+      if (bannerImg) {
+        // Remove all existing banner effect classes
+        bannerImg.className = bannerImg.className.replace(/banner-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          bannerImg.classList.add(`banner-effect-${effect}`);
+        }
+      }
+      
+      if (settingsBanner) {
+        // Remove all existing banner effect classes
+        settingsBanner.className = settingsBanner.className.replace(/banner-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          settingsBanner.classList.add(`banner-effect-${effect}`);
+        }
+      }
+    }
+
+    function applyAvatarEffect(effect) {
+      const avatarImg = document.getElementById('avatarImage');
+      const settingsAvatar = document.getElementById('settingsAvatar');
+      
+      if (avatarImg) {
+        // Remove all existing avatar effect classes
+        avatarImg.className = avatarImg.className.replace(/avatar-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          avatarImg.classList.add(`avatar-effect-${effect}`);
+        }
+      }
+      
+      if (settingsAvatar) {
+        // Remove all existing avatar effect classes
+        settingsAvatar.className = settingsAvatar.className.replace(/avatar-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          settingsAvatar.classList.add(`avatar-effect-${effect}`);
+        }
+      }
+    }
   </script>
   <script src="/files/sw-register.js"></script>
   <script>

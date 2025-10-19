@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Profile Effects</title>
+    <style>
+        .banner-effect-blur-overlay {
+            position: relative;
+        }
+        .banner-effect-blur-overlay::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(2px);
+            border-radius: 1rem;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .avatar-effect-glow {
+            box-shadow: 0 0 6px rgba(99,102,241,0.45),
+                        0 0 14px rgba(59,130,246,0.35),
+                        0 0 22px rgba(236,72,153,0.25);
+        }
+        .test-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+        .test-item {
+            width: 200px;
+            height: 150px;
+            border: 2px solid #ccc;
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .test-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            margin: 20px auto;
+        }
+        .test-banner {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+    </style>
+</head>
+<body>
+    <h1>Profile Effects Test</h1>
+    <div class="test-container">
+        <div>
+            <h3>Banner Effects</h3>
+            <div class="test-item">
+                <div class="test-banner" id="testBanner"></div>
+            </div>
+            <select id="bannerEffectSelect" onchange="applyBannerEffect(this.value)">
+                <option value="none">None</option>
+                <option value="blur-overlay">Blur Overlay</option>
+            </select>
+        </div>
+        <div>
+            <h3>Avatar Effects</h3>
+            <div class="test-item">
+                <div class="test-avatar" id="testAvatar"></div>
+            </div>
+            <select id="avatarEffectSelect" onchange="applyAvatarEffect(this.value)">
+                <option value="none">None</option>
+                <option value="glow">Neon Glow</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        function applyBannerEffect(effect) {
+            const banner = document.getElementById('testBanner');
+            banner.className = 'test-banner';
+            if (effect && effect !== 'none') {
+                banner.classList.add(`banner-effect-${effect}`);
+            }
+        }
+
+        function applyAvatarEffect(effect) {
+            const avatar = document.getElementById('testAvatar');
+            avatar.className = 'test-avatar';
+            if (effect && effect !== 'none') {
+                avatar.classList.add(`avatar-effect-${effect}`);
+            }
+        }
+    </script>
+</body>
+</html>
