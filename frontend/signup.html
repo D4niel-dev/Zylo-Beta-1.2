@@ -226,14 +226,24 @@
   </div>
 
   <script>
-    document.querySelectorAll(.toggle-eye).forEach(icon => {
-      icon.addEventListener('click', () => {
-        const input = icon.previousElememtSibling;
-        const visible = input.type === 'text;
-        
-        input.type = visible ? 'password' : 'text';
-        icon.dataset.feather = visible ? 'eye' : 'eye-off';
-        if (feather) feather.replace();
+    // Password visibility toggle (fixes broken selector and icon update)
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.toggle-eye').forEach(icon => {
+        const clickTarget = icon.parentElement && icon.parentElement.tagName === 'SPAN'
+          ? icon.parentElement
+          : icon;
+
+        clickTarget.addEventListener('click', (e) => {
+          e.preventDefault();
+          const container = icon.closest('.relative') || icon.parentElement;
+          const input = container ? container.querySelector('input.password-field') : null;
+          if (!input) return;
+
+          const willShow = input.type !== 'text';
+          input.type = willShow ? 'text' : 'password';
+          icon.setAttribute('data-feather', willShow ? 'eye-off' : 'eye');
+          if (window.feather) window.feather.replace();
+        });
       });
     });
 
