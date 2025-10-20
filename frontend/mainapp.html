@@ -2844,14 +2844,16 @@
       if (window.innerWidth <= 768) {
         const mobileSidebar = document.getElementById("mobileSidebar");
         const overlay = document.getElementById("overlay");
-        document.body.classList.toggle("sidebar-open");
-        mobileSidebar.classList.toggle("show");
-        overlay.classList.toggle("hidden");
-        if (mobileSidebar.classList.contains("show")) {
-          document.body.style.overflow = "hidden";
-        } else {
-          document.body.style.overflow = "";
-        }
+        const isOpening = !mobileSidebar.classList.contains("show");
+
+        document.body.classList.toggle("sidebar-open", isOpening);
+        mobileSidebar.classList.toggle("show", isOpening);
+
+        // Use overlay .show class per CSS media rules; also manage Tailwind .hidden for safety
+        overlay.classList.toggle("show", isOpening);
+        overlay.classList.toggle("hidden", !isOpening);
+
+        document.body.style.overflow = isOpening ? "hidden" : "";
       } else {
         const sidebar = document.getElementById("sidebar");
         const sidebarTexts = document.querySelectorAll(".sidebar-text");
