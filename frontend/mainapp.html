@@ -529,16 +529,16 @@
 
           <!-- Settings Navigation -->
           <div class="flex border-b border-gray-300 dark:border-gray-700 mb-6">
-            <button id="tabBtnGeneral" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="generalSettings">
+            <button type="button" id="tabBtnGeneral" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="generalSettings">
               General
             </button>
-            <button id="tabBtnSounds" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="soundSettings">
+            <button type="button" id="tabBtnSounds" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="soundSettings">
               Sounds
             </button>
-            <button id="tabBtnAccount" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="accountSettings">
+            <button type="button" id="tabBtnAccount" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="accountSettings">
               Account
             </button>
-            <button id="tabBtnAbout" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="aboutSettings">
+            <button type="button" id="tabBtnAbout" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="aboutSettings">
               About Us
             </button>
           </div>
@@ -1036,6 +1036,14 @@
                 <li>Backend: Python (Flask)</li>
                 <li>Platform: Web/Desktop Hybrid</li>
               </ul>
+            </div>
+
+            <!-- System Status -->
+            <div>
+              <h3 class="text-lg font-semibold mb-2">System Status</h3>
+              <div id="aboutSystemStatus" class="text-gray-600 dark:text-gray-300 text-sm">
+                Checking backend status...
+              </div>
             </div>
 
             <!-- Quick Actions -->
@@ -2952,6 +2960,28 @@
     }
 
     /// About Settings
+    function populateAboutInfo() {
+      const statusEl = document.getElementById('aboutSystemStatus');
+      if (!statusEl) return;
+      statusEl.textContent = 'Checking backend status...';
+      try {
+        fetch('/api/stats', { cache: 'no-store' })
+          .then(r => r.json())
+          .then(data => {
+            if (data && typeof data.users !== 'undefined') {
+              statusEl.textContent = `Backend OK • Users: ${data.users} • Messages: ${data.messages} • Rooms: ${data.rooms}`;
+            } else {
+              statusEl.textContent = 'Backend reachable, unexpected response.';
+            }
+          })
+          .catch(() => {
+            statusEl.textContent = 'Backend unreachable. You may be offline.';
+          });
+      } catch {
+        statusEl.textContent = 'Backend unreachable. You may be offline.';
+      }
+    }
+
     function checkForUpdates() {
       alert("🔄 Checking for updates...\nNo updates available.");
     }
@@ -3543,7 +3573,8 @@
     });
 
     document.querySelectorAll(".settings-tab").forEach(tab => {
-      tab.addEventListener("click", function () {
+      tab.addEventListener("click", function (e) {
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
         document.querySelectorAll(".settings-tab").forEach(t => {
           t.classList.remove("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
           t.classList.add("border-transparent");
@@ -3554,7 +3585,9 @@
 
         // Show selected content
         const targetId = this.getAttribute("data-target");
-        document.getElementById(targetId).classList.remove("hidden");
+        const targetEl = targetId ? document.getElementById(targetId) : null;
+        if (targetEl) targetEl.classList.remove("hidden");
+        if (targetId === 'aboutSettings') { try { populateAboutInfo(); } catch (e_) {} }
 
         // Highlight active tab
         this.classList.add("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
