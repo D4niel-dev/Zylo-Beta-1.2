@@ -675,6 +675,133 @@
                 </div>
               </div>
 
+        <!-- Theme Editor Modal Trigger (Custom) will open this modal) -->
+        <div id="themeEditorOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden"></div>
+        <div id="themeEditorModal" class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[210] w-[95%] max-w-4xl max-h-[90vh] overflow-hidden rounded-xl shadow-2xl hidden">
+          <div class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-full flex flex-col">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+              <h3 class="text-lg font-semibold">Theme Editor</h3>
+              <div class="flex items-center gap-2">
+                <select id="savedThemesSelect" class="text-sm bg-transparent border rounded px-2 py-1 dark:border-gray-700">
+                  <option value="">Select saved theme…</option>
+                </select>
+                <button id="saveThemeBtn" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Save</button>
+                <button id="deleteThemeBtn" class="px-3 py-1 rounded bg-red-600 text-white text-sm">Delete</button>
+                <button id="closeThemeEditorBtn" class="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800">✖</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 p-4 overflow-auto">
+              <!-- Left: Controls -->
+              <div class="space-y-4 lg:col-span-2">
+                <div class="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
+                  <h4 class="font-semibold mb-2">UI Colors</h4>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Navbar BG</span>
+                      <input type="color" id="teNavbarBg" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Sidebar BG</span>
+                      <input type="color" id="teSidebarBg" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Panels BG</span>
+                      <input type="color" id="tePanelBg" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Text Color</span>
+                      <input type="color" id="teTextColor" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Accent Color</span>
+                      <input type="color" id="teAccentColor" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                  </div>
+                </div>
+
+                <div class="rounded-lg border border-gray-200 dark:border-gray-800 p-3 space-y-3">
+                  <h4 class="font-semibold">Background</h4>
+                  <div class="flex flex-wrap items-center gap-3">
+                    <label class="inline-flex items-center gap-2 text-sm">
+                      <input type="radio" name="teBgMode" value="gradient" checked>
+                      <span>Gradient</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm">
+                      <input type="radio" name="teBgMode" value="solid">
+                      <span>Solid</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm">
+                      <input type="radio" name="teBgMode" value="image">
+                      <span>Image</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm">
+                      <input type="radio" name="teBgMode" value="animated">
+                      <span>Animated</span>
+                    </label>
+                  </div>
+
+                  <!-- Solid and Gradient controls -->
+                  <div id="teSolidControls" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Solid Color</span>
+                      <input type="color" id="teSolidColor" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                      <label class="flex items-center justify-between gap-3 text-sm">
+                        <span>Grad From</span>
+                        <input type="color" id="teGradFrom" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                      </label>
+                      <label class="flex items-center justify-between gap-3 text-sm">
+                        <span>Grad To</span>
+                        <input type="color" id="teGradTo" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                      </label>
+                      <label class="flex items-center justify-between gap-3 text-sm col-span-2">
+                        <span>Angle</span>
+                        <input type="range" id="teGradAngle" min="0" max="360" step="1" class="w-full">
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Image controls -->
+                  <div id="teImageControls" class="flex items-center gap-2 hidden">
+                    <input type="file" id="teBgImageInput" accept="image/*" class="block w-full text-sm file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-gray-700 dark:file:text-gray-100" />
+                    <button id="teClearBgImageBtn" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 text-sm">Clear</button>
+                  </div>
+
+                  <!-- Animated presets -->
+                  <div id="teAnimatedControls" class="grid grid-cols-2 sm:grid-cols-3 gap-2 hidden">
+                    <button data-anim="gradientShift" class="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 text-sm">Soft Gradient</button>
+                    <button data-anim="holographic" class="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 text-sm">Holographic</button>
+                    <button data-anim="matrix" class="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 text-sm">Matrix</button>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <button id="teApplyBgBtn" class="px-3 py-2 rounded bg-green-600 text-white">Apply BG</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: Live Preview -->
+              <div class="rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <div id="tePreview" class="h-64 w-full relative flex items-center justify-center">
+                  <div class="absolute top-3 left-3 right-3 flex items-center justify-between px-3 py-2 rounded bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700">
+                    <span class="text-sm">Navbar</span>
+                    <button class="px-2 py-1 rounded text-xs" style="background: var(--accent-color); color: white">Action</button>
+                  </div>
+                  <div class="absolute left-3 top-14 bottom-3 w-40 rounded bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700"></div>
+                  <div class="absolute left-48 right-3 top-14 bottom-3 rounded bg-white/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700"></div>
+                  <span class="text-sm opacity-70">Live Preview</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-200 dark:border-gray-800">
+              <button id="teCancelBtn" class="px-3 py-2 rounded bg-gray-200 dark:bg-gray-800">Cancel</button>
+              <button id="teApplyThemeBtn" class="px-3 py-2 rounded bg-blue-600 text-white">Apply Theme</button>
+            </div>
+          </div>
+        </div>
               <!-- Save Settings Button -->
               <div id="saveSettingsBtn" class="pt-4 border-t border-gray-300 dark:border-gray-700" style="display: none;">
                 <button onclick="showSaveSettingsModal()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg mb-3">
@@ -3076,7 +3203,11 @@
 
       // Expose to buttons
       window.setTheme = function(mode) {
-        applyThemeMode(mode);
+        if (mode === 'custom' && typeof openThemeEditor === 'function') {
+          openThemeEditor();
+        } else {
+          applyThemeMode(mode);
+        }
       };
 
       // Wire controls
@@ -3198,6 +3329,45 @@
       // Initial hydrate
       setSwatch(getCustomColor());
       applyThemeMode(themeMode);
+      // If a full custom theme exists, apply its variables and background
+      try {
+        const customStr = localStorage.getItem('currentCustomTheme');
+        if (customStr && (localStorage.getItem('themeMode') || 'light') === 'custom') {
+          const t = JSON.parse(customStr);
+          document.body.classList.add('theme-custom');
+          const s = document.body.style;
+          if (t && t.ui) {
+            s.setProperty('--navbar-bg', t.ui.navbarBg || '');
+            s.setProperty('--sidebar-bg', t.ui.sidebarBg || '');
+            s.setProperty('--panel-bg', t.ui.panelBg || '');
+          }
+          if (t) {
+            s.setProperty('--text-color', t.textColor || '');
+            s.setProperty('--accent-color', t.accentColor || '');
+          }
+          // Apply background according to saved theme
+          s.background = '';
+          s.backgroundImage = '';
+          s.backgroundSize = '';
+          s.backgroundAttachment = '';
+          const bg = t?.background || {};
+          if (bg.mode === 'solid') {
+            s.background = bg.solid || '';
+          } else if (bg.mode === 'gradient') {
+            const a = (bg.gradient?.angle ?? 135);
+            s.background = `linear-gradient(${a}deg, ${bg.gradient?.from || '#1e293b'}, ${bg.gradient?.to || '#0f172a'})`;
+            s.backgroundAttachment = 'fixed';
+            s.backgroundSize = '400% 400%';
+          } else if (bg.mode === 'image' && bg.imageDataUrl) {
+            s.backgroundImage = `url(${bg.imageDataUrl})`;
+            s.backgroundSize = 'cover';
+            s.backgroundAttachment = 'fixed';
+          } else if (bg.mode === 'animated') {
+            s.background = 'linear-gradient(135deg, #1e293b, #0f172a)';
+            s.backgroundSize = '400% 400%';
+          }
+        }
+      } catch {}
 
       // Initialize chat room + models
       loadAiModels();
@@ -3441,6 +3611,272 @@
         });
       }
     });
+  </script>
+  <script>
+    // === Theme Editor Logic ===
+    (function(){
+      const overlay = document.getElementById('themeEditorOverlay');
+      const modal = document.getElementById('themeEditorModal');
+      const btnClose = document.getElementById('closeThemeEditorBtn');
+      const btnCancel = document.getElementById('teCancelBtn');
+      const btnApplyTheme = document.getElementById('teApplyThemeBtn');
+      const btnApplyBg = document.getElementById('teApplyBgBtn');
+      const btnSave = document.getElementById('saveThemeBtn');
+      const btnDelete = document.getElementById('deleteThemeBtn');
+      const savedSelect = document.getElementById('savedThemesSelect');
+
+      // UI color inputs
+      const iNavbar = document.getElementById('teNavbarBg');
+      const iSidebar = document.getElementById('teSidebarBg');
+      const iPanel = document.getElementById('tePanelBg');
+      const iText = document.getElementById('teTextColor');
+      const iAccent = document.getElementById('teAccentColor');
+
+      // BG controls
+      const solidControls = document.getElementById('teSolidControls');
+      const imageControls = document.getElementById('teImageControls');
+      const animatedControls = document.getElementById('teAnimatedControls');
+      const radios = Array.from(document.querySelectorAll('input[name="teBgMode"]'));
+      const iSolidColor = document.getElementById('teSolidColor');
+      const iGradFrom = document.getElementById('teGradFrom');
+      const iGradTo = document.getElementById('teGradTo');
+      const iGradAngle = document.getElementById('teGradAngle');
+      const iBgImage = document.getElementById('teBgImageInput');
+      const btnClearBgImage = document.getElementById('teClearBgImageBtn');
+      const preview = document.getElementById('tePreview');
+
+      function getSavedThemes(){
+        try { return JSON.parse(localStorage.getItem('customThemes') || '[]'); } catch { return []; }
+      }
+      function setSavedThemes(arr){ localStorage.setItem('customThemes', JSON.stringify(arr)); }
+
+      function themeFromInputs(){
+        const bgMode = radios.find(r => r.checked)?.value || 'gradient';
+        return {
+          name: '',
+          ui: {
+            navbarBg: iNavbar?.value || '#0b1020',
+            sidebarBg: iSidebar?.value || '#111827',
+            panelBg: iPanel?.value || 'rgba(255,255,255,0.7)'
+          },
+          textColor: iText?.value || '#ffffff',
+          accentColor: iAccent?.value || '#3b82f6',
+          background: {
+            mode: bgMode,
+            solid: iSolidColor?.value || '#0b1020',
+            gradient: { from: iGradFrom?.value || '#1e293b', to: iGradTo?.value || '#0f172a', angle: Number(iGradAngle?.value || 135) },
+            imageDataUrl: localStorage.getItem('bgImageDataUrl') || '',
+            animated: animatedControls?.querySelector('button.active')?.dataset.anim || 'gradientShift'
+          }
+        };
+      }
+
+      function applyThemeVars(t){
+        document.body.classList.add('theme-custom');
+        document.body.style.setProperty('--navbar-bg', t.ui.navbarBg);
+        document.body.style.setProperty('--sidebar-bg', t.ui.sidebarBg);
+        document.body.style.setProperty('--panel-bg', t.ui.panelBg);
+        document.body.style.setProperty('--text-color', t.textColor);
+        document.body.style.setProperty('--accent-color', t.accentColor);
+      }
+
+      function applyThemeBackground(bg){
+        const s = document.body.style;
+        s.background = '';
+        s.backgroundImage = '';
+        s.backgroundSize = '';
+        s.backgroundAttachment = '';
+        if (bg.mode === 'solid') {
+          s.background = bg.solid;
+        } else if (bg.mode === 'gradient') {
+          const angle = bg.gradient?.angle ?? 135;
+          s.background = `linear-gradient(${angle}deg, ${bg.gradient?.from}, ${bg.gradient?.to})`;
+          s.backgroundAttachment = 'fixed';
+          s.backgroundSize = '400% 400%';
+        } else if (bg.mode === 'image' && bg.imageDataUrl) {
+          s.backgroundImage = `url(${bg.imageDataUrl})`;
+          s.backgroundSize = 'cover';
+          s.backgroundAttachment = 'fixed';
+        } else if (bg.mode === 'animated') {
+          s.background = 'linear-gradient(135deg, #1e293b, #0f172a)';
+          s.backgroundSize = '400% 400%';
+        }
+      }
+
+      function renderPreview(){
+        if (!preview) return;
+        const t = themeFromInputs();
+        // Background
+        preview.style.background = '';
+        preview.style.backgroundImage = '';
+        if (t.background.mode === 'solid') {
+          preview.style.background = t.background.solid;
+        } else if (t.background.mode === 'gradient') {
+          preview.style.background = `linear-gradient(${t.background.gradient.angle}deg, ${t.background.gradient.from}, ${t.background.gradient.to})`;
+        } else if (t.background.mode === 'image' && t.background.imageDataUrl) {
+          preview.style.backgroundImage = `url(${t.background.imageDataUrl})`;
+          preview.style.backgroundSize = 'cover';
+        } else if (t.background.mode === 'animated') {
+          preview.style.background = 'linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9))';
+        }
+        // Panels and navbar sample
+        const bar = preview.querySelector('.absolute.top-3');
+        if (bar) bar.style.background = t.ui.navbarBg;
+        preview.querySelectorAll('.rounded').forEach(el => { el.style.background = t.ui.panelBg; });
+      }
+
+      function updateBgControls(){
+        const val = radios.find(r => r.checked)?.value || 'gradient';
+        imageControls?.classList.toggle('hidden', val !== 'image');
+        animatedControls?.classList.toggle('hidden', val !== 'animated');
+        renderPreview();
+      }
+
+      function open(){ overlay?.classList.remove('hidden'); modal?.classList.remove('hidden'); renderPreview(); populateSavedThemes(); }
+      function close(){ overlay?.classList.add('hidden'); modal?.classList.add('hidden'); }
+
+      window.openThemeEditor = function(){ open(); };
+
+      btnClose?.addEventListener('click', close);
+      btnCancel?.addEventListener('click', close);
+      overlay?.addEventListener('click', close);
+
+      radios.forEach(r => r.addEventListener('change', updateBgControls));
+      [iNavbar,iSidebar,iPanel,iText,iAccent,iSolidColor,iGradFrom,iGradTo,iGradAngle].forEach(el => el?.addEventListener('input', renderPreview));
+
+      // Animated preset selection
+      animatedControls?.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          animatedControls.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderPreview();
+        });
+      });
+
+      // Image import
+      iBgImage?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try { localStorage.setItem('bgImageDataUrl', reader.result); } catch {}
+          renderPreview();
+        };
+        reader.readAsDataURL(file);
+      });
+      btnClearBgImage?.addEventListener('click', () => {
+        localStorage.removeItem('bgImageDataUrl');
+        if (iBgImage) iBgImage.value = '';
+        renderPreview();
+      });
+
+      // Apply BG instantly
+      btnApplyBg?.addEventListener('click', () => {
+        const t = themeFromInputs();
+        localStorage.setItem('themeMode', 'custom');
+        localStorage.setItem('theme', 'custom');
+        document.body.classList.remove('dark');
+        applyThemeVars(t);
+        applyThemeBackground(t.background);
+        // Back-compat flags
+        localStorage.setItem('customThemeColor', t.accentColor);
+        localStorage.setItem('solidBg', String(t.background.mode === 'solid'));
+        if (t.background.imageDataUrl) localStorage.setItem('bgImageDataUrl', t.background.imageDataUrl);
+        close();
+      });
+
+      // Save/manage themes
+      function populateSavedThemes(){
+        if (!savedSelect) return;
+        const list = getSavedThemes();
+        savedSelect.innerHTML = '<option value="">Select saved theme…</option>' + list.map((t,i) => `<option value="${i}">${t.name || ('Untitled ' + (i+1))}</option>`).join('');
+      }
+      window.populateSavedThemes = populateSavedThemes;
+
+      btnSave?.addEventListener('click', () => {
+        const t = themeFromInputs();
+        const name = prompt('Theme name?', t.name || 'My Theme');
+        if (name === null) return;
+        t.name = (name || '').trim() || 'My Theme';
+        const list = getSavedThemes();
+        list.push(t);
+        setSavedThemes(list);
+        populateSavedThemes();
+        alert('Theme saved!');
+      });
+
+      btnDelete?.addEventListener('click', () => {
+        const idx = Number(savedSelect?.value ?? -1);
+        if (Number.isNaN(idx) || idx < 0) return;
+        const list = getSavedThemes();
+        if (!list[idx]) return;
+        if (!confirm(`Delete theme "${list[idx].name || 'Untitled'}"?`)) return;
+        list.splice(idx, 1);
+        setSavedThemes(list);
+        populateSavedThemes();
+      });
+
+      savedSelect?.addEventListener('change', () => {
+        const idx = Number(savedSelect.value);
+        const list = getSavedThemes();
+        const t = list[idx];
+        if (!t) return;
+        iNavbar.value = t.ui.navbarBg;
+        iSidebar.value = t.ui.sidebarBg;
+        iPanel.value = t.ui.panelBg;
+        iText.value = t.textColor;
+        iAccent.value = t.accentColor;
+        (radios.find(r => r.value === (t.background.mode || 'gradient')) || radios[0]).checked = true;
+        iSolidColor.value = t.background.solid || '#0b1020';
+        iGradFrom.value = t.background.gradient?.from || '#1e293b';
+        iGradTo.value = t.background.gradient?.to || '#0f172a';
+        iGradAngle.value = String(t.background.gradient?.angle ?? 135);
+        renderPreview();
+      });
+
+      // Apply full theme
+      btnApplyTheme?.addEventListener('click', () => {
+        const t = themeFromInputs();
+        localStorage.setItem('currentCustomTheme', JSON.stringify(t));
+        localStorage.setItem('themeMode', 'custom');
+        localStorage.setItem('theme', 'custom');
+        document.body.classList.remove('dark');
+        applyThemeVars(t);
+        applyThemeBackground(t.background);
+        close();
+      });
+
+      // Initialize defaults
+      try {
+        const last = JSON.parse(localStorage.getItem('currentCustomTheme') || 'null');
+        if (last) {
+          iNavbar.value = last.ui.navbarBg || '#0b1020';
+          iSidebar.value = last.ui.sidebarBg || '#111827';
+          iPanel.value = last.ui.panelBg || 'rgba(255,255,255,0.7)';
+          iText.value = last.textColor || '#ffffff';
+          iAccent.value = last.accentColor || '#3b82f6';
+          (radios.find(r => r.value === (last.background?.mode || 'gradient')) || radios[0]).checked = true;
+          iSolidColor.value = last.background?.solid || '#0b1020';
+          iGradFrom.value = last.background?.gradient?.from || '#1e293b';
+          iGradTo.value = last.background?.gradient?.to || '#0f172a';
+          iGradAngle.value = String(last.background?.gradient?.angle ?? 135);
+        } else {
+          iNavbar.value = '#0b1020';
+          iSidebar.value = '#111827';
+          iPanel.value = 'rgba(255,255,255,0.7)';
+          iText.value = '#ffffff';
+          iAccent.value = '#3b82f6';
+          iSolidColor.value = '#0b1020';
+          iGradFrom.value = '#1e293b';
+          iGradTo.value = '#0f172a';
+          iGradAngle.value = '135';
+        }
+      } catch {}
+
+      populateSavedThemes();
+      updateBgControls();
+      renderPreview();
+    })();
   </script>
   <script>
     // Offline banner + queued sends

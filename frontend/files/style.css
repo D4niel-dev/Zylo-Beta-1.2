@@ -1223,3 +1223,68 @@ body.dark .stat-label { color: #9ca3af; }
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
 }
+
+/* === Custom Theme Variables and Overrides === */
+/* These variables are applied when body has .theme-custom. */
+:root {
+  --navbar-bg: initial;
+  --sidebar-bg: initial;
+  --panel-bg: initial;
+  --text-color: initial;
+  --accent-color: #3b82f6;
+}
+
+/* Activate variable-driven look when a custom theme is applied */
+body.theme-custom {
+  color: var(--text-color, inherit);
+}
+
+/* Navbar (mobile header) and mobile sidebar */
+body.theme-custom header,
+body.theme-custom #mobileSidebar {
+  background: var(--navbar-bg, inherit) !important;
+}
+
+/* Desktop sidebar */
+body.theme-custom #sidebar {
+  background: var(--sidebar-bg, inherit) !important;
+}
+
+/* Panel-like surfaces that commonly use semi-transparent backgrounds */
+body.theme-custom .rounded-lg,
+body.theme-custom .profile-card,
+body.theme-custom .chat-messages,
+body.theme-custom .p-4.rounded-lg,
+body.theme-custom .w-72.shrink-0,
+body.theme-custom .space-y-4 .rounded-lg {
+  background: var(--panel-bg, initial) !important;
+}
+
+/* Accent primary actions */
+body.theme-custom .chat-send-btn,
+body.theme-custom #aiClearBtn,
+body.theme-custom #exploreShareBtn,
+body.theme-custom #addFriendBtn,
+body.theme-custom .save-profile-btn,
+body.theme-custom button.bg-blue-600,
+body.theme-custom .px-3.py-2.bg-blue-600,
+body.theme-custom .px-4.py-2.bg-blue-600 {
+  background: var(--accent-color, #2563eb) !important;
+  color: #fff !important;
+}
+
+/* Accent borders (where applicable) */
+body.theme-custom .ring-blue-500,
+body.theme-custom .border-blue-600,
+body.theme-custom .dark\\:border-blue-400 {
+  --tw-ring-color: var(--accent-color, #2563eb) !important;
+  border-color: var(--accent-color, #2563eb) !important;
+}
+
+/* Text overrides for common headings */
+body.theme-custom h1,
+body.theme-custom h2,
+body.theme-custom h3,
+body.theme-custom .zylo-heading {
+  color: var(--text-color, inherit) !important;
+}
