@@ -13,6 +13,7 @@ import random
 import urllib.request
 import urllib.error
 import ssl
+from typing import List, Dict
 
 # Initialize Flask app and SocketIO
 app = Flask(__name__, static_folder='frontend')
@@ -34,6 +35,56 @@ GROUPS_FILE = os.path.join(DATA_DIR, 'groups.json')
 EXPLORE_FILE = os.path.join(DATA_DIR, 'explore.json')
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(UPLOADS_DIR, exist_ok=True)
+
+# ---- AI modules (personas, memory, learner) ----
+try:
+    from ai.personas import list_personas as ai_list_personas, pick_persona
+    from ai.memory import (
+        get_user_memory,
+        append_conversation as memory_append_conversation,
+        upsert_fact as memory_upsert_fact,
+        set_preference as memory_set_preference,
+        clear_user_memory as memory_clear_user,
+    )
+    from ai.learner import PersonaLearner
+except Exception:
+    ai_list_personas = lambda: [
+        {"key": "helper", "name": "Helper AI", "style": "helpful, structured"},
+        {"key": "friend", "name": "Friend AI", "style": "friendly, empathetic"},
+        {"key": "supporter", "name": "Supporter AI", "style": "encouraging, motivational"},
+    ]
+    def pick_persona(key: str | None):
+        class _P:
+            def __init__(self, key: str):
+                self.key = key or 'helper'
+                self.name = 'Helper AI'
+                self.style = 'helpful, structured'
+                self.system_prompt = (
+                    "You are Helper AI. Provide step-by-step guidance with numbered lists,"
+                    " call out assumptions, and propose next actions."
+                )
+        return _P(key)
+    def get_user_memory(username: str):
+        return {"facts": [], "preferences": {}, "conversations": []}
+    def memory_append_conversation(username: str, messages: List[Dict[str, str]], max_keep: int = 50):
+        return None
+    def memory_upsert_fact(username: str, fact: str):
+        return None
+    def memory_set_preference(username: str, key: str, value):
+        return None
+    def memory_clear_user(username: str):
+        return None
+    class PersonaLearner:  # type: ignore
+        def __init__(self, base_dir: str):
+            self.base_dir = base_dir
+        def train_on_feedback(self, persona: str, user: str, prompt: str, target_phrase: str, epochs: int = 8):
+            return None
+        def suggest_phrase(self, persona: str, user: str, prompt: str):
+            return None
+
+# Instance to persist learned tiny models (if torch available)
+AI_LEARN_DIR = os.path.join(DATA_DIR, 'ai_learn')
+persona_learner = PersonaLearner(AI_LEARN_DIR)
 
 # One-time migration for older deployments that stored folders at repo root
 def _migrate_storage_dirs():
@@ -572,6 +623,12 @@ def ai_models():
     return jsonify({"success": True, "provider": "mock", "models": fallback_models})
 
 
+@app.route('/api/ai/personas', methods=['GET'])
+def ai_personas():
+    """Return available AI personas (helper, friend, supporter)."""
+    return jsonify({"success": True, "personas": ai_list_personas()})
+
+
 def mock_ai_response(messages: list) -> str:
     """Very simple fallback responder when no local model is available."""
     last_user = ""
@@ -599,11 +656,14 @@ def ai_chat():
     data = request.get_json(silent=True) or {}
     messages_in = data.get('messages') or []
     single_message = data.get('message')
+    persona_key = (data.get('persona') or '').strip().lower() or None
+    username = (data.get('username') or '').strip() or 'anonymous'
     if not messages_in and single_message:
         messages_in = [{"role": "user", "content": str(single_message)}]
 
     model = (data.get('model') or os.getenv('Zylo_AI_MODEL') or 'llama3.1:8b')
     provider = os.getenv('Zylo_AI_PROVIDER', 'auto').lower()
+    persona = pick_persona(persona_key)
 
     # Try Ollama first if configured/auto
     if provider in ('ollama', 'auto'):
@@ -611,7 +671,7 @@ def ai_chat():
             payload = {
                 "model": model,
                 "stream": False,
-                "messages": messages_in,
+                "messages": ([{"role": "system", "content": persona.system_prompt}] + messages_in),
             }
             resp = http_post_json('http://127.0.0.1:11434/api/chat', payload, timeout=30)
             # Expected schema: { message: { role, content }, ... }
@@ -620,14 +680,65 @@ def ai_chat():
                 or (resp.get('response') if isinstance(resp, dict) else None)
             )
             if reply:
-                return jsonify({"success": True, "provider": "ollama", "model": model, "reply": reply})
+                try:
+                    memory_append_conversation(username, messages_in[-10:])
+                except Exception:
+                    pass
+                return jsonify({"success": True, "provider": "ollama", "model": model, "reply": reply, "persona": persona.key})
         except Exception as e:
             # Fall through to mock
             pass
 
     # Mock fallback
     reply = mock_ai_response(messages_in)
-    return jsonify({"success": True, "provider": "mock", "model": "mock", "reply": reply})
+    try:
+        memory_append_conversation(username, messages_in[-10:])
+    except Exception:
+        pass
+    try:
+        suggestion = persona_learner.suggest_phrase(persona.key, username, messages_in[-1]['content'] if messages_in else '')
+        if suggestion and isinstance(suggestion, str):
+            reply = f"{reply}\n\n(phrase preference noted: {suggestion})"
+    except Exception:
+        pass
+    return jsonify({"success": True, "provider": "mock", "model": "mock", "reply": reply, "persona": persona.key})
+
+
+@app.route('/api/ai/feedback', methods=['POST'])
+def ai_feedback():
+    """Accept feedback to improve per-user, per-persona phrasing via tiny learner."""
+    data = request.get_json(silent=True) or {}
+    persona_key = (data.get('persona') or '').strip().lower() or 'helper'
+    username = (data.get('username') or '').strip() or 'anonymous'
+    prompt = (data.get('prompt') or '')
+    target = (data.get('targetPhrase') or data.get('target') or '')
+    if not target:
+        return jsonify({"success": False, "error": "Missing targetPhrase"}), 400
+    try:
+        persona_learner.train_on_feedback(persona_key, username, prompt or target, target, epochs=6)
+        memory_upsert_fact(username, f"prefers_phrase::{persona_key}::{target}")
+    except Exception:
+        pass
+    return jsonify({"success": True})
+
+
+@app.route('/api/ai/memory', methods=['GET', 'DELETE'])
+def ai_memory():
+    username = (request.args.get('username') or request.args.get('user') or '').strip()
+    if not username:
+        return jsonify({"success": False, "error": "Missing username"}), 400
+    if request.method == 'GET':
+        try:
+            mem = get_user_memory(username)
+        except Exception:
+            mem = {"facts": [], "preferences": {}, "conversations": []}
+        return jsonify({"success": True, "memory": mem})
+    else:  # DELETE
+        try:
+            memory_clear_user(username)
+        except Exception:
+            pass
+        return jsonify({"success": True})
 
 
 @app.route('/api/explore/posts', methods=['GET', 'POST'])

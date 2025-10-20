@@ -214,6 +214,8 @@
               <button id="btnRoomAI" class="px-3 py-1 rounded-md text-xs text-gray-300 hover:bg-gray-700" onclick="switchChatRoom('ai')">AI Chat</button>
             </div>
             <div id="aiControls" class="hidden items-center gap-2">
+              <label for="aiPersonaSelect" class="text-xs text-gray-400">Persona</label>
+              <select id="aiPersonaSelect" class="text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200"></select>
               <label for="aiModelSelect" class="text-xs text-gray-400">Model</label>
               <select id="aiModelSelect" class="text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200"></select>
               <button id="aiClearBtn" class="px-2 py-1 rounded bg-gray-700 text-white text-xs" onclick="clearAiConversation()">Clear</button>
@@ -1195,6 +1197,7 @@
     const chatMessagesAI = document.getElementById("chatMessagesAI");
     const aiControls = document.getElementById("aiControls");
     const aiModelSelect = document.getElementById("aiModelSelect");
+    const aiPersonaSelect = document.getElementById("aiPersonaSelect");
     let currentChatRoom = localStorage.getItem('chatRoom') || 'community';
     let aiConversation = [];
     const username = localStorage.getItem("savedUsername") || "N/A";
@@ -1346,6 +1349,39 @@
       const body = document.createElement('div');
       body.textContent = content;
 
+      // Feedback actions for assistant messages
+      if (!isOwn) {
+        const actions = document.createElement('div');
+        actions.className = 'mt-1 flex gap-2 opacity-70 text-xs';
+        const like = document.createElement('button');
+        like.textContent = '👍 Improve like this';
+        like.className = 'hover:underline';
+        like.onclick = async () => {
+          const persona = aiPersonaSelect?.value || localStorage.getItem('ai_persona') || 'helper';
+          const prompt = (aiConversation[aiConversation.length-1]?.content) || '';
+          const targetPhrase = prompt.split(' ').slice(0, 3).join(' ') || 'thanks';
+          try {
+            await fetch('/api/ai/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, persona, prompt, targetPhrase }) });
+            like.textContent = '✅ Noted';
+          } catch {}
+        };
+        const dislike = document.createElement('button');
+        dislike.textContent = '👎 Less like this';
+        dislike.className = 'hover:underline';
+        dislike.onclick = async () => {
+          const persona = aiPersonaSelect?.value || localStorage.getItem('ai_persona') || 'helper';
+          const prompt = (aiConversation[aiConversation.length-1]?.content) || '';
+          const targetPhrase = 'avoid';
+          try {
+            await fetch('/api/ai/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, persona, prompt, targetPhrase }) });
+            dislike.textContent = '✅ Noted';
+          } catch {}
+        };
+        actions.appendChild(like);
+        actions.appendChild(dislike);
+        bubble.appendChild(actions);
+      }
+
       bubble.appendChild(header);
       bubble.appendChild(body);
 
@@ -1374,8 +1410,11 @@
 
       // AI chat path
       const model = aiModelSelect?.value || '';
+      const persona = aiPersonaSelect?.value || localStorage.getItem('ai_persona') || 'helper';
       const payload = {
         model,
+        persona,
+        username,
         messages: [...aiConversation, { role: 'user', content: message }]
       };
 
@@ -1604,6 +1643,26 @@
         }
         aiModelSelect.addEventListener('change', () => {
           localStorage.setItem('ai_model', aiModelSelect.value);
+        });
+      } catch {}
+    }
+
+    async function loadAiPersonas() {
+      try {
+        const res = await fetch('/api/ai/personas');
+        const data = await res.json();
+        const personas = (data.personas || []).map(p => ({ key: p.key, name: p.name }));
+        aiPersonaSelect.innerHTML = '';
+        personas.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.key;
+          opt.textContent = p.name;
+          aiPersonaSelect.appendChild(opt);
+        });
+        const saved = localStorage.getItem('ai_persona');
+        if (saved) aiPersonaSelect.value = saved;
+        aiPersonaSelect.addEventListener('change', () => {
+          localStorage.setItem('ai_persona', aiPersonaSelect.value);
         });
       } catch {}
     }
@@ -3399,8 +3458,9 @@
         }
       } catch {}
 
-      // Initialize chat room + models
+      // Initialize chat room + models/personas
       loadAiModels();
+      loadAiPersonas();
       switchChatRoom(currentChatRoom);
 
       // Initialize profile effects
