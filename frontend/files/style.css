@@ -67,8 +67,8 @@ body.dark {
         height: 100%;
         width: 16rem;
         transform: translateX(-100%);
-        transition: transform 0.3s ease-in-out;
-        z-index: 40;
+        transition: transform 0.15s ease-out;
+        z-index: 70;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(12px);
         box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
@@ -86,7 +86,7 @@ body.dark {
         position: fixed;
         inset: 0;
         background: rgba(0,0,0,0.5);
-        z-index: 150;
+        z-index: 60;
         display: none;
     }
 
@@ -100,6 +100,14 @@ body.dark {
     
     header {
         height: 3.5rem;
+    }
+
+    /* Keep the mobile menu button fixed and above overlay */
+    #mobileMenuBtn {
+        position: fixed;
+        left: 0.5rem;
+        top: 0.5rem;
+        z-index: 80;
     }
     
     #mainContent {
