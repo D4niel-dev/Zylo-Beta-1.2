@@ -902,14 +902,14 @@
           <!-- Account Settings -->
           <div id="accountSettings" class="settings-content w-full hidden space-y-6">
             <!-- Profile quick view with edit overlays -->
-            <div class="relative rounded-xl overflow-hidden">
+            <div class="relative rounded-xl overflow-hidden shadow-sm">
               <label for="bannerUpload" class="banner-label block cursor-pointer">
                 <img id="settingsBanner" src="/images/default_banner.png" alt="Banner" class="w-full h-40 object-cover rounded-xl" />
                 <span class="edit-overlay" title="Change banner"><i data-feather="edit-2"></i></span>
               </label>
               <input type="file" id="bannerUpload" accept="image/*" class="hidden">
 
-              <div class="absolute -bottom-8 left-6">
+              <div class="absolute -bottom-8 left-6 drop-shadow">
                 <label for="avatarUpload" class="avatar-label cursor-pointer">
                   <img id="settingsAvatar" src="/images/default_avatar.png" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 object-cover avatar-img" />
                   <span class="edit-overlay" title="Change avatar"><i data-feather="edit-2"></i></span>
@@ -924,7 +924,7 @@
             <div class="pt-10" />
 
             <!-- Inline editable rows -->
-            <div class="space-y-3">
+            <div class="space-y-3" aria-label="Account details">
               <div class="editable-row">
                 <div>
                   <div class="editable-label">Username</div>
@@ -951,7 +951,7 @@
             </div>
 
             <!-- Security -->
-            <div class="mt-4 p-4 rounded-lg bg-white/70 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
+            <div class="mt-4 p-4 rounded-lg bg-white/70 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700" aria-label="Security settings">
               <div class="flex items-center justify-between">
                 <div>
                   <div class="font-semibold">Two-Factor Authentication (2FA)</div>
@@ -968,7 +968,7 @@
             </div>
 
             <!-- Preferences (replacing old stats with useful info) -->
-            <div class="grid sm:grid-cols-2 gap-3">
+            <div class="grid sm:grid-cols-2 gap-3" aria-label="Preferences">
               <div class="editable-row">
                 <div>
                   <div class="editable-label">Language</div>
@@ -2344,24 +2344,21 @@
       const current = localStorage.getItem('username') || '';
       const next = prompt('Enter new username', current || '');
       if (!next || next === current) return;
-      document.getElementById('changeUsername')?.setAttribute('value', next);
-      document.getElementById('currentUsername').textContent = next;
-      updateUsername();
+      const curEl = document.getElementById('currentUsername');
+      if (curEl) curEl.textContent = next;
+      updateUsername(next);
     }
     function promptUsertagEdit(){
       const current = (localStorage.getItem('usertag')||'').replace('@','');
       const next = prompt('Enter new 4-digit usertag', current || '');
       if (!next) return;
-      document.getElementById('changeUsertag')?.setAttribute('value', next);
-      updateUsertag();
+      updateUsertag(next);
     }
     function promptEmailEdit(){
       const current = localStorage.getItem('savedEmail') || '';
       const next = prompt('Enter new email', current || '');
       if (!next) return;
-      const emailInput = document.getElementById('changeEmail');
-      if (emailInput) emailInput.value = next;
-      updateEmail();
+      updateEmail(next);
     }
 
     // Populate account settings quick view fields
@@ -2881,8 +2878,11 @@
     })();
 
     /// Account Settings
-    async function updateUsername() {
-      const newUsername = document.getElementById("changeUsername").value.trim();
+    async function updateUsername(newUsername) {
+      if (!newUsername) {
+        const el = document.getElementById("changeUsername");
+        newUsername = (el ? el.value : '').trim();
+      }
       const current = localStorage.getItem('username');
       if (!newUsername) return alert("Please enter a username.");
       if (!current) return alert("You are not logged in.");
@@ -2904,8 +2904,11 @@
       }
     }
 
-    async function updateUsertag() {
-      const newTag = document.getElementById("changeUsertag").value.trim();
+    async function updateUsertag(newTag) {
+      if (!newTag) {
+        const el = document.getElementById("changeUsertag");
+        newTag = (el ? el.value : '').trim();
+      }
       const username = localStorage.getItem('username');
       if (!newTag) return alert("Please enter a usertag.");
       if (!/^\d{4}$/.test(newTag)) return alert("Usertag must be exactly 4 digits.");
@@ -2925,8 +2928,11 @@
       }
     }
 
-    async function updateEmail() {
-      const newEmail = document.getElementById("changeEmail").value.trim();
+    async function updateEmail(newEmail) {
+      if (!newEmail) {
+        const el = document.getElementById("changeEmail");
+        newEmail = (el ? el.value : '').trim();
+      }
       const username = localStorage.getItem('username');
       if (!newEmail) return alert("Please enter a new email.");
       try {

@@ -1296,3 +1296,133 @@ body.theme-custom h3,
 body.theme-custom .zylo-heading {
   color: var(--text-color, inherit) !important;
 }
+
+/* === Settings UI Polish === */
+/* Inline editable rows */
+.settings-content .editable-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(107, 114, 128, 0.25);
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Unify settings inputs look */
+.settings-content input[type="text"],
+.settings-content input[type="password"],
+.settings-content input[type="number"],
+.settings-content select,
+.settings-content textarea {
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #111827;
+    border-radius: 0.5rem;
+}
+body.dark .settings-content input[type="text"],
+body.dark .settings-content input[type="password"],
+body.dark .settings-content input[type="number"],
+body.dark .settings-content select,
+body.dark .settings-content textarea {
+    border-color: #4b5563;
+    background: #1f2937;
+    color: #f3f4f6;
+}
+
+.settings-content .editable-row:hover {
+    border-color: rgba(59, 130, 246, 0.45);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+body.dark .settings-content .editable-row {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(156, 163, 175, 0.25);
+}
+
+.editable-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+}
+body.dark .editable-label { color: #d1d5db; }
+
+.editable-value {
+    color: #111827;
+}
+body.dark .editable-value { color: #f3f4f6; }
+
+/* Compact, consistent icon button for edits */
+.edit-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    color: #3b82f6;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+.edit-icon:hover { background: rgba(59, 130, 246, 0.10); }
+body.dark .edit-icon:hover { background: rgba(59, 130, 246, 0.18); }
+.edit-icon:active { transform: scale(0.96); }
+.edit-icon svg { width: 1.125rem; height: 1.125rem; stroke-width: 2.2; }
+
+/* Image edit overlays (pencil over banner/avatar) */
+.banner-label, .avatar-label { position: relative; display: inline-block; }
+
+.edit-overlay {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.85);
+    color: #111827;
+    border: 1px solid rgba(17, 24, 39, 0.10);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+    pointer-events: none;
+}
+.banner-label:hover .edit-overlay,
+.avatar-label:hover .edit-overlay {
+    opacity: 1;
+    transform: scale(1);
+}
+body.dark .edit-overlay {
+    background: rgba(31, 41, 55, 0.9);
+    color: #f3f4f6;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+.edit-overlay svg { width: 1rem; height: 1rem; }
+
+/* Nudge avatar overlay to the bottom-right of the circle */
+.avatar-label .edit-overlay {
+    top: auto;
+    right: -0.25rem;
+    bottom: -0.25rem;
+}
+
+/* Sub-tab hover affordance */
+.settings-tab {
+    border-bottom: 2px solid transparent;
+}
+.settings-tab:hover {
+    background: rgba(59, 130, 246, 0.06);
+    border-color: rgba(59, 130, 246, 0.35);
+}
+body.dark .settings-tab:hover {
+    background: rgba(59, 130, 246, 0.08);
+}
