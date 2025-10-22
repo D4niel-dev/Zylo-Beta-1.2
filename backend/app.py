@@ -859,6 +859,14 @@ def update_profile():
     def save_image(base64_data, filename):
         if not base64_data:
             return None
+        # If the value is already a URL/path, just keep it (no-op update)
+        if isinstance(base64_data, str) and (
+            base64_data.startswith('/uploads/') or
+            base64_data.startswith('/images/') or
+            base64_data.startswith('http://') or
+            base64_data.startswith('https://')
+        ):
+            return base64_data
         try:
             header, encoded = base64_data.split(",", 1)
             file_data = base64.b64decode(encoded)
@@ -909,9 +917,29 @@ def update_profile():
 
 # -------- Settings and Account Management Endpoints -------- #
 
-def _find_user(users, username):
+def _find_user(users, identifier: str):
+    """Lookup a user by username, email, or usertag (with or without @).
+
+    Historically we only matched the exact username which caused 404s when
+    the client submitted a usertag like "@dan_1234" in friends endpoints.
+    To make the APIs more forgiving, accept any of: username, email, or
+    usertag (with or without the leading @), case-insensitive.
+    """
+    query = (identifier or "").strip().lower()
+    if not query:
+        return -1, None
+    # Normalize a potential tag to include @ variant for matching
+    query_tag = query if query.startswith('@') else f"@{query}"
     for idx, u in enumerate(users):
-        if u.get("username") == username:
+        uname = (u.get("username") or "").strip().lower()
+        email = (u.get("email") or "").strip().lower()
+        utag = (u.get("usertag") or "").strip().lower()
+        # Accept both @tag and tag without @
+        if (
+            uname == query
+            or email == query
+            or utag == query_tag
+        ):
             return idx, u
     return -1, None
 
@@ -1139,15 +1167,19 @@ def friends_request():
     su = _ensure_social_fields(su)
     tu = _ensure_social_fields(tu)
 
-    if target in su['friends']:
+    # Use canonical usernames in social lists
+    sender_name = su.get('username')
+    target_name = tu.get('username')
+
+    if target_name in su['friends']:
         return jsonify({"success": False, "error": "Already friends"}), 409
-    if target in su['friendRequests']['outgoing']:
+    if target_name in su['friendRequests']['outgoing']:
         return jsonify({"success": True, "message": "Already requested"})
-    if sender in tu['friendRequests']['incoming']:
+    if sender_name in tu['friendRequests']['incoming']:
         return jsonify({"success": True, "message": "Already requested"})
 
-    su['friendRequests']['outgoing'].append(target)
-    tu['friendRequests']['incoming'].append(sender)
+    su['friendRequests']['outgoing'].append(target_name)
+    tu['friendRequests']['incoming'].append(sender_name)
     users[si] = su
     users[ti] = tu
     save_users(users)
@@ -1169,15 +1201,17 @@ def friends_accept():
     u = _ensure_social_fields(u)
     r = _ensure_social_fields(r)
 
-    if requester in u['friendRequests']['incoming']:
-        u['friendRequests']['incoming'] = [x for x in u['friendRequests']['incoming'] if x != requester]
-    if username in r['friendRequests']['outgoing']:
-        r['friendRequests']['outgoing'] = [x for x in r['friendRequests']['outgoing'] if x != username]
+    uname = u.get('username')
+    rname = r.get('username')
 
-    if requester not in u['friends']:
-        u['friends'].append(requester)
-    if username not in r['friends']:
-        r['friends'].append(username)
+    # Remove pending requests, accepting both canonical and raw provided values
+    u['friendRequests']['incoming'] = [x for x in u['friendRequests']['incoming'] if x not in (requester, rname)]
+    r['friendRequests']['outgoing'] = [x for x in r['friendRequests']['outgoing'] if x not in (username, uname)]
+
+    if rname not in u['friends']:
+        u['friends'].append(rname)
+    if uname not in r['friends']:
+        r['friends'].append(uname)
 
     users[ui] = u
     users[ri] = r
@@ -1199,8 +1233,10 @@ def friends_decline():
         return jsonify({"success": False, "error": "User not found"}), 404
     u = _ensure_social_fields(u)
     r = _ensure_social_fields(r)
-    u['friendRequests']['incoming'] = [x for x in u['friendRequests']['incoming'] if x != requester]
-    r['friendRequests']['outgoing'] = [x for x in r['friendRequests']['outgoing'] if x != username]
+    uname = u.get('username')
+    rname = r.get('username')
+    u['friendRequests']['incoming'] = [x for x in u['friendRequests']['incoming'] if x not in (requester, rname)]
+    r['friendRequests']['outgoing'] = [x for x in r['friendRequests']['outgoing'] if x not in (username, uname)]
     users[ui] = u
     users[ri] = r
     save_users(users)
@@ -1221,8 +1257,11 @@ def friends_remove():
         return jsonify({"success": False, "error": "User not found"}), 404
     u = _ensure_social_fields(u)
     fuser = _ensure_social_fields(fuser)
-    u['friends'] = [x for x in u['friends'] if x != friend]
-    fuser['friends'] = [x for x in fuser['friends'] if x != username]
+    uname = u.get('username')
+    fname = fuser.get('username')
+    # Remove by either raw input or canonical names
+    u['friends'] = [x for x in u['friends'] if x not in (friend, fname)]
+    fuser['friends'] = [x for x in fuser['friends'] if x not in (username, uname)]
     users[ui] = u
     users[fi] = fuser
     save_users(users)
@@ -1242,8 +1281,10 @@ def friends_cancel():
         return jsonify({"success": False, "error": "User not found"}), 404
     u = _ensure_social_fields(u)
     t = _ensure_social_fields(t)
-    u['friendRequests']['outgoing'] = [x for x in u['friendRequests']['outgoing'] if x != target]
-    t['friendRequests']['incoming'] = [x for x in t['friendRequests']['incoming'] if x != username]
+    uname = u.get('username')
+    tname = t.get('username')
+    u['friendRequests']['outgoing'] = [x for x in u['friendRequests']['outgoing'] if x not in (target, tname)]
+    t['friendRequests']['incoming'] = [x for x in t['friendRequests']['incoming'] if x not in (username, uname)]
     users[ui] = u
     users[ti] = t
     save_users(users)
