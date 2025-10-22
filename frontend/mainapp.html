@@ -347,10 +347,7 @@
           </div>
         </div>
       </section>
-
       
-
-
       <!-- Profile Area -->
       <div id="tab-profile" class="tab-content">
         <h1 class="profile-title">👤 Your Profile</h1>
@@ -899,8 +896,97 @@
             </div>
           </div>
 
+          <!-- About Settings -->
+          <div id="aboutSettings" class="settings-content w-full hidden space-y-6">
+            
+            <!-- App Info -->
+            <div>
+              <p class="text-gray-600 dark:text-gray-300">
+                <strong>Zylo v1.5.7</strong> — Created by D4niel-dev
+              </p>
+              <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                © 2025 Zylo. All rights reserved.
+              </p>
+            </div>
+
+            <!-- Version Details -->
+            <div>
+              <h3 class="text-lg font-semibold mb-2">Version Details</h3>
+              <ul class="list-disc list-inside text-gray-600 dark:text-gray-300 text-sm space-y-1">
+                <li>Build: 1.5.7-stable</li>
+                <li>Release Date: August 2025</li>
+                <li>UI Framework: Tailwind CSS</li>
+                <li>Backend: Python (Flask)</li>
+                <li>Platform: Web/Desktop Hybrid</li>
+              </ul>
+            </div>
+
+            <!-- System Status -->
+            <div>
+              <h3 class="text-lg font-semibold mb-2">System Status</h3>
+              <div id="aboutSystemStatus" class="text-gray-600 dark:text-gray-300 text-sm">
+                Checking backend status...
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div>
+              <h3 class="text-lg font-semibold mb-2">Quick Actions</h3>
+              <div class="flex flex-col gap-2">
+                <button onclick="checkForUpdates()" 
+                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow">
+                  🔄 Check for Updates
+                </button>
+                <button onclick="openChangelog()" 
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow">
+                  📜 View Changelog
+                </button>
+                <button onclick="openPrivacyPolicy()" 
+                        class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg shadow">
+                  🔒 Privacy Policy
+                </button>
+              </div>
+            </div>
+
+            <!-- Credits -->
+            <div>
+              <h3 class="text-lg font-semibold mb-2">Credits</h3>
+              <p class="text-gray-600 dark:text-gray-300 text-sm">
+                Special thanks to testers, designers, and contributors who made Zylo possible.
+              </p>
+            </div>
+
+            <!-- Resources -->
+            <div>
+              <h3 class="text-lg font-semibold mb-2">Resources</h3>
+              <div class="flex flex-col gap-2">
+                <a href="https://github.com/D4niel-dev" target="_blank"
+                  class="text-blue-600 hover:underline dark:text-blue-400">
+                  🔗 My GitHub
+                </a>
+                <a href="https://www.youtube.com/@d4niel_1f" target="_blank"
+                  class="text-blue-600 hover:underline dark:text-blue-400">
+                  🔗 My YouTube
+                </a>
+                <a href="mailto:zylosupp0rt@gmail.com"
+                  class="text-blue-600 hover:underline dark:text-blue-400">
+                  📧 Contact Support
+                </a>
+              </div>
+            </div>
+
+            <!-- License -->
+            <div>
+              <h3 class="text-lg font-semibold mb-2">License</h3>
+              <p class="text-gray-600 dark:text-gray-300 text-sm">
+                This project is licensed under the MIT License.
+              </p>
+            </div>
+          </div>
+
           <!-- Account Settings -->
           <div id="accountSettings" class="settings-content w-full hidden space-y-6">
+            
             <!-- Profile quick view with edit overlays -->
             <div class="relative rounded-xl shadow-sm">
               <label for="bannerUpload" class="banner-label block cursor-pointer">
@@ -1011,94 +1097,6 @@
                 <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
                 Save Account Settings
               </button>
-            </div>
-          </div>
-
-          <!-- About Settings -->
-          <div id="aboutSettings" class="settings-content w-full hidden space-y-6">
-            
-            <!-- App Info -->
-            <div>
-              <p class="text-gray-600 dark:text-gray-300">
-                <strong>Zylo v1.5.7</strong> — Created by D4niel-dev
-              </p>
-              <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                © 2025 Zylo. All rights reserved.
-              </p>
-            </div>
-
-            <!-- Version Details -->
-            <div>
-              <h3 class="text-lg font-semibold mb-2">Version Details</h3>
-              <ul class="list-disc list-inside text-gray-600 dark:text-gray-300 text-sm space-y-1">
-                <li>Build: 1.5.7-stable</li>
-                <li>Release Date: August 2025</li>
-                <li>UI Framework: Tailwind CSS</li>
-                <li>Backend: Python (Flask)</li>
-                <li>Platform: Web/Desktop Hybrid</li>
-              </ul>
-            </div>
-
-            <!-- System Status -->
-            <div>
-              <h3 class="text-lg font-semibold mb-2">System Status</h3>
-              <div id="aboutSystemStatus" class="text-gray-600 dark:text-gray-300 text-sm">
-                Checking backend status...
-              </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div>
-              <h3 class="text-lg font-semibold mb-2">Quick Actions</h3>
-              <div class="flex flex-col gap-2">
-                <button onclick="checkForUpdates()" 
-                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow">
-                  🔄 Check for Updates
-                </button>
-                <button onclick="openChangelog()" 
-                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow">
-                  📜 View Changelog
-                </button>
-                <button onclick="openPrivacyPolicy()" 
-                        class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg shadow">
-                  🔒 Privacy Policy
-                </button>
-              </div>
-            </div>
-
-            <!-- Credits -->
-            <div>
-              <h3 class="text-lg font-semibold mb-2">Credits</h3>
-              <p class="text-gray-600 dark:text-gray-300 text-sm">
-                Special thanks to testers, designers, and contributors who made Zylo possible.
-              </p>
-            </div>
-
-            <!-- Resources -->
-            <div>
-              <h3 class="text-lg font-semibold mb-2">Resources</h3>
-              <div class="flex flex-col gap-2">
-                <a href="https://github.com/D4niel-dev" target="_blank"
-                  class="text-blue-600 hover:underline dark:text-blue-400">
-                  🔗 My GitHub
-                </a>
-                <a href="https://www.youtube.com/@d4niel_1f" target="_blank"
-                  class="text-blue-600 hover:underline dark:text-blue-400">
-                  🔗 My YouTube
-                </a>
-                <a href="mailto:zylosupp0rt@gmail.com"
-                  class="text-blue-600 hover:underline dark:text-blue-400">
-                  📧 Contact Support
-                </a>
-              </div>
-            </div>
-
-            <!-- License -->
-            <div>
-              <h3 class="text-lg font-semibold mb-2">License</h3>
-              <p class="text-gray-600 dark:text-gray-300 text-sm">
-                This project is licensed under the MIT License.
-              </p>
             </div>
           </div>
         </div>
