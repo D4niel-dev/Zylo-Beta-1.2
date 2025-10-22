@@ -607,6 +607,10 @@ body.dark .profile-card {
 /* Banner */
 .profile-banner {
     position: relative;
+    overflow: hidden; /* Contain banner effect overlays */
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    isolation: isolate; /* Create stacking context so overlays don't cover UI */
 }
 
 .banner-img {
@@ -615,6 +619,7 @@ body.dark .profile-card {
     object-fit: cover;
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
+    display: block; /* remove inline-gap */
 }
 
 /* === Banner Effects === */
@@ -837,6 +842,7 @@ body.dark .profile-card {
     color: #16a34a;
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     transition: 0.2s;
+    z-index: 5; /* Above banner overlays */
 }
 body.dark .save-profile-btn {
     background: #1f2937;
@@ -848,10 +854,11 @@ body.dark .save-profile-btn {
 
 /* Avatar */
 .avatar-wrapper {
-    position: absolute;
-    left: 1rem;
-    bottom: -2.5rem;
-    transform: none;
+    /* Anchor below the banner without relying on card bottom */
+    position: relative;
+    margin-top: -2.5rem;
+    margin-left: 1rem;
+    z-index: 4; /* Above banner overlays */
     display: flex;
     flex-direction: column;
     align-items: center;
