@@ -356,7 +356,7 @@
 
           <!-- Banner -->
           <div class="profile-banner">
-            <label for="bannerUpload" class="banner-label">
+            <label for="profileBannerUpload" class="banner-label">
               <img id="bannerImage" src="/images/default_banner.png" alt="Banner" 
                   class="banner-img">
             </label>
@@ -365,15 +365,15 @@
                     title="Save Profile">
               <i data-feather="check"></i>
             </button>
-            <input type="file" id="bannerUpload" accept="image/*" class="hidden">
+            <input type="file" id="profileBannerUpload" accept="image/*" class="hidden">
 
             <!-- Avatar -->
             <div class="avatar-wrapper">
-              <label for="avatarUpload" class="avatar-label">
+              <label for="profileAvatarUpload" class="avatar-label">
                 <img id="avatarImage" src="/images/default_avatar.png" alt="Avatar" 
                     class="avatar-img"/>
               </label>
-              <input type="file" id="avatarUpload" accept="image/*" class="hidden">
+              <input type="file" id="profileAvatarUpload" accept="image/*" class="hidden">
               <span class="status-dot online"></span>
             </div>
           </div>
@@ -989,18 +989,18 @@
             
             <!-- Profile quick view with edit overlays -->
             <div class="relative rounded-xl shadow-sm">
-              <label for="bannerUpload" class="banner-label block cursor-pointer">
+              <label for="settingsBannerUpload" class="banner-label block cursor-pointer">
                 <img id="settingsBanner" src="/images/default_banner.png" alt="Banner" class="w-full h-40 object-cover rounded-xl" />
                 <span class="edit-overlay" title="Change banner"><i data-feather="edit-2"></i></span>
               </label>
-              <input type="file" id="bannerUpload" accept="image/*" class="hidden">
+              <input type="file" id="settingsBannerUpload" accept="image/*" class="hidden">
 
               <div class="relative -mt-10 ml-6 drop-shadow z-10">
-                <label for="avatarUpload" class="avatar-label cursor-pointer">
+                <label for="settingsAvatarUpload" class="avatar-label cursor-pointer">
                   <img id="settingsAvatar" src="/images/default_avatar.png" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 object-cover avatar-img" />
                   <span class="edit-overlay" title="Change avatar"><i data-feather="edit-2"></i></span>
                 </label>
-                <input type="file" id="avatarUpload" accept="image/*" class="hidden">
+                <input type="file" id="settingsAvatarUpload" accept="image/*" class="hidden">
                 <button onclick="setAsBackground('avatar')" class="absolute -bottom-2 -right-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 text-xs" title="Set as background">
                   <i data-feather="image"></i>
                 </button>
@@ -2334,8 +2334,12 @@
 
     // Watch for changes
     document.getElementById("aboutMe").addEventListener("input", checkProfileChanges);
-    document.getElementById("bannerUpload").addEventListener("change", (e) => openCropper(e, "banner"));
-    document.getElementById("avatarUpload").addEventListener("change", (e) => openCropper(e, "avatar"));
+    // Profile tab uploads
+    document.getElementById("profileBannerUpload").addEventListener("change", (e) => openCropper(e, "banner"));
+    document.getElementById("profileAvatarUpload").addEventListener("change", (e) => openCropper(e, "avatar"));
+    // Settings uploads
+    document.getElementById("settingsBannerUpload").addEventListener("change", (e) => openCropper(e, "banner"));
+    document.getElementById("settingsAvatarUpload").addEventListener("change", (e) => openCropper(e, "avatar"));
 
     // Account settings inline edit helpers
     function promptUsernameEdit(){
