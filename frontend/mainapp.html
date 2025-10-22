@@ -356,7 +356,7 @@
 
           <!-- Banner -->
           <div class="profile-banner">
-            <label for="profileBannerUpload" class="banner-label">
+            <label for="profileBannerUpload" class="profile-banner-label">
               <img id="bannerImage" src="/images/default_banner.png" alt="Banner" 
                   class="banner-img">
             </label>
@@ -369,7 +369,7 @@
 
             <!-- Avatar -->
             <div class="avatar-wrapper">
-              <label for="profileAvatarUpload" class="avatar-label">
+              <label for="profileAvatarUpload" class="profile-avatar-label">
                 <img id="avatarImage" src="/images/default_avatar.png" alt="Avatar" 
                     class="avatar-img"/>
               </label>
@@ -989,14 +989,14 @@
             
             <!-- Profile quick view with edit overlays -->
             <div class="relative rounded-xl shadow-sm">
-              <label for="settingsBannerUpload" class="banner-label block cursor-pointer">
+              <label for="settingsBannerUpload" class="settings-banner-label block cursor-pointer">
                 <img id="settingsBanner" src="/images/default_banner.png" alt="Banner" class="w-full h-40 object-cover rounded-xl" />
                 <span class="edit-overlay" title="Change banner"><i data-feather="edit-2"></i></span>
               </label>
               <input type="file" id="settingsBannerUpload" accept="image/*" class="hidden">
 
               <div class="relative -mt-10 ml-6 drop-shadow z-10">
-                <label for="settingsAvatarUpload" class="avatar-label cursor-pointer">
+                <label for="settingsAvatarUpload" class="settings-avatar-label cursor-pointer">
                   <img id="settingsAvatar" src="/images/default_avatar.png" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 object-cover avatar-img" />
                   <span class="edit-overlay" title="Change avatar"><i data-feather="edit-2"></i></span>
                 </label>
@@ -4069,48 +4069,57 @@
     }
 
     function applyBannerEffect(effect) {
-      const bannerImg = document.getElementById('bannerImage');
-      const settingsBanner = document.getElementById('settingsBanner');
-      
-      if (bannerImg) {
-        // Remove all existing banner effect classes
-        bannerImg.className = bannerImg.className.replace(/banner-effect-\w+/g, '');
-        // Add new effect class
-        if (effect && effect !== 'none') {
-          bannerImg.classList.add(`banner-effect-${effect}`);
-        }
+      const bannerContainer = document.querySelector('.profile-banner');
+      const settingsBannerLabel = document.querySelector('.settings-banner-label');
+
+      const removeBannerEffects = (el) => {
+        if (!el) return;
+        Array.from(el.classList).forEach(cls => {
+          if (cls.startsWith('banner-effect-')) el.classList.remove(cls);
+        });
+      };
+
+      // Apply to profile banner container (supports overlay ::after styles)
+      if (bannerContainer) {
+        removeBannerEffects(bannerContainer);
+        if (effect && effect !== 'none') bannerContainer.classList.add(`banner-effect-${effect}`);
       }
-      
-      if (settingsBanner) {
-        // Remove all existing banner effect classes
-        settingsBanner.className = settingsBanner.className.replace(/banner-effect-\w+/g, '');
-        // Add new effect class
-        if (effect && effect !== 'none') {
-          settingsBanner.classList.add(`banner-effect-${effect}`);
-        }
+
+      // Apply to settings banner wrapper label so overlays clip correctly
+      if (settingsBannerLabel) {
+        removeBannerEffects(settingsBannerLabel);
+        if (effect && effect !== 'none') settingsBannerLabel.classList.add(`banner-effect-${effect}`);
       }
     }
 
     function applyAvatarEffect(effect) {
       const avatarImg = document.getElementById('avatarImage');
       const settingsAvatar = document.getElementById('settingsAvatar');
-      
+      const avatarWrapper = document.querySelector('.avatar-wrapper');
+
+      const removeAvatarEffects = (el) => {
+        if (!el) return;
+        Array.from(el.classList).forEach(cls => {
+          if (cls.startsWith('avatar-effect-')) el.classList.remove(cls);
+        });
+      };
+
+      // Apply to avatar image
       if (avatarImg) {
-        // Remove all existing avatar effect classes
-        avatarImg.className = avatarImg.className.replace(/avatar-effect-\w+/g, '');
-        // Add new effect class
-        if (effect && effect !== 'none') {
-          avatarImg.classList.add(`avatar-effect-${effect}`);
-        }
+        removeAvatarEffects(avatarImg);
+        if (effect && effect !== 'none') avatarImg.classList.add(`avatar-effect-${effect}`);
       }
-      
+
+      // Also apply ring/sparkle-like effects to wrapper when present
+      if (avatarWrapper) {
+        removeAvatarEffects(avatarWrapper);
+        if (effect === 'ring' || effect === 'sparkle') avatarWrapper.classList.add(`avatar-effect-${effect}`);
+      }
+
+      // Settings avatar
       if (settingsAvatar) {
-        // Remove all existing avatar effect classes
-        settingsAvatar.className = settingsAvatar.className.replace(/avatar-effect-\w+/g, '');
-        // Add new effect class
-        if (effect && effect !== 'none') {
-          settingsAvatar.classList.add(`avatar-effect-${effect}`);
-        }
+        removeAvatarEffects(settingsAvatar);
+        if (effect && effect !== 'none') settingsAvatar.classList.add(`avatar-effect-${effect}`);
       }
     }
   </script>

@@ -1383,6 +1383,9 @@ body.dark .edit-icon:hover { background: rgba(59, 130, 246, 0.18); }
 
 /* Image edit overlays (pencil over banner/avatar) */
 .banner-label, .avatar-label { position: relative; display: inline-block; }
+/* Make section-specific labels independent to avoid hover/click cross-talk */
+.profile-banner-label, .profile-avatar-label,
+.settings-banner-label, .settings-avatar-label { position: relative; display: inline-block; }
 
 .edit-overlay {
     position: absolute;
@@ -1404,7 +1407,11 @@ body.dark .edit-icon:hover { background: rgba(59, 130, 246, 0.18); }
     pointer-events: none;
 }
 .banner-label:hover .edit-overlay,
-.avatar-label:hover .edit-overlay {
+.avatar-label:hover .edit-overlay,
+.profile-banner-label:hover .edit-overlay,
+.profile-avatar-label:hover .edit-overlay,
+.settings-banner-label:hover .edit-overlay,
+.settings-avatar-label:hover .edit-overlay {
     opacity: 1;
     transform: scale(1);
 }
@@ -1416,7 +1423,9 @@ body.dark .edit-overlay {
 .edit-overlay svg { width: 1rem; height: 1rem; }
 
 /* Nudge avatar overlay to the bottom-right of the circle */
-.avatar-label .edit-overlay {
+.avatar-label .edit-overlay,
+.profile-avatar-label .edit-overlay,
+.settings-avatar-label .edit-overlay {
     top: auto;
     right: -0.25rem;
     bottom: -0.25rem;
