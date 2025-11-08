@@ -1,17 +1,30 @@
-This is still a test version of Zylo, it'll have some bugs here and there but will be fix
+**PLEASE NOTED THAT** this is still a *test* version of Zylo, it'll have some bugs here and there but will be fix
 when the full release of the app is out!
 
-This app use some Extensions of VS Code (ONLY) and some other libs of Python,
-so if you want to use it then please install all the ilbs and extentions!
+*The app use some of libs of Python and Javascript libs for HTML files. Some are pre-installed in the file folder, some aren't like the Python libs so you will need to install them manually by command prompt.*
 
-On how to install the Live Server of VS Code and libs of Python:
-+ Get VS Code install and Python (if you already have them install then skip this)
-+ Go Extensions > in the search bar type "Code Runner", "Python", "Live Server"
-+ Wait for them to install and reopen VS Code.
-+ After they are installed, take the 'requirements.txt' out of the app folder, in VS Code terminal : cd [copy of the path to requirements.txt],
-then run the command :  pip install -r requirements.txt (Remember to remove the [] lol or else it won't work)
-+ Then wait for the libs to installed and you can run the app by main.py in VS Code!
+> **On how to install the Python libs :**
+- Download the Official Python app, any version is fine if it's above 3.1x, *older version of Python may break or bug the app*.
+- Go into the app folder and click the `This PC > ... > Zylo-Beta-1.x`, type cmd and press *Enter*, this will open the *Command Prompt* linked to the app folder.
+- Run ```pip install -r requirements.txt```, it may take a few minutes to download all the libs for Python.
+- After the libs are installed, you can run the app either by *double clicking the main.py* or *clicking the Zylo.exe*.
 
-**PLEASE NOTE THAT THIS APP RUNS ON A LOCALLY SERVER (same wifi connections) and need Internet to runs all the style.css and Tailwind.css**
+> **Storage locations :**
 
-[6:17 PM 8/11/2025]
+- Data JSON now lives under `backend/data/`.
+- User uploads are now under `backend/uploads/` and are served at `/uploads/<username>/<filename>`.
+- On startup, the server will migrate any legacy `data/` and `uploads/` folders from repo root into `backend/` automatically.
+
+> **If run on Pydroid 3 :**
+
+- Install all the libs in the `requirements.txt`.
+- Change the `local_ip` and `host_ip` in `main.py` and `app.py`.
+- Change them to your phone IP and/or/if you're using 4G/5G, use the IP that you are using 4G/5G.
+
+**NOTES:**
+
+- The app can be run without *Internet* but some features of the app maybe disable because most of them need Wi-Fi to process.
+
+- Please also noted that on `Pydroid 3`, it runs kinda slow so it might take some time to load to the main page of the app.
+
+> **[ 6:12 PM 10/18/2025 ]**

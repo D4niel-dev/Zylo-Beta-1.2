@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <title>Zylo | Main Window</title>
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0b1020" />
+  <script src="/files/vendor/tailwindcss.js"></script>
   <link rel="stylesheet" href="/files/style.css">
-  <script src="https://unpkg.com/feather-icons"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-mart@latest/css/emoji-mart.css" />
-  <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+  <script src="/files/vendor/feather-icons.js"></script>
+  <link href="/files/vendor/cropper.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/files/vendor/emoji-mart.css" />
+  <script src="/files/vendor/emoji-mart.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -54,15 +56,15 @@
 
   <!-- Mobile Navbar -->
   <header class="fixed top-0 left-0 w-full flex items-center justify-between bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow z-50 md:hidden">
-    <button id="mobileMenuBtn" class="p-3 focus:outline-none" onclick="toggleSidebar()" onmouseenter="toggleMenuIcon(true)" onmouseleave="toggleMenuIcon(false)">
-      <i id="mobileMenuIcon" data-feather="grid" class="w-6 h-6"></i>
+    <button id="mobileMenuBtn" class="p-3 focus:outline-none" onclick="toggleSidebar()">
+      <i id="mobileMenuIcon" data-feather="menu" class="w-6 h-6"></i>
     </button>
     <h1 class="text-lg font-semibold text-gray-800 dark:text-white">Zylo (Beta)</h1>
     <div class="w-12"></div>
   </header>
 
   <!-- Mobile Sidebar -->
-  <div id="mobileSidebar" class="fixed top-0 left-0 h-full w-64 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-40 md:hidden">
+  <div id="mobileSidebar" class="fixed top-0 left-0 h-full w-64 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg transform -translate-x-full transition-transform duration-150 ease-out z-40 md:hidden">
     <div class="p-4 border-b border-gray-200 dark:border-gray-700">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Menu</h2>
@@ -83,9 +85,13 @@
         <i data-feather="user" class="w-5 h-5"></i>
         <span>Profile</span>
       </a>
-      <a href="#" data-tab="files" onclick="switchTab('files'); toggleSidebar();" class="sidebar-tab">
-        <i data-feather="folder" class="w-5 h-5"></i>
-        <span>Files</span>
+      <a href="#" data-tab="friends" onclick="switchTab('friends'); toggleSidebar();" class="sidebar-tab">
+        <i data-feather="users" class="w-5 h-5"></i>
+        <span>Friends</span>
+      </a>
+      <a href="#" data-tab="explore" onclick="switchTab('explore'); toggleSidebar();" class="sidebar-tab">
+        <i data-feather="compass" class="w-5 h-5"></i>
+        <span>Explore</span>
       </a>
       <a href="#" data-tab="settings" onclick="switchTab('settings'); toggleSidebar();" class="sidebar-tab ">
         <i data-feather="settings" class="w-5 h-5"></i>
@@ -106,9 +112,8 @@
     <aside id="sidebar" class="sidebar">
       <div>
         <div class="sidebar-header">
-          <button onclick="toggleSidebar()" class="menu-btn"
-            onmouseenter="toggleSidebarMenuIcon(true)" onmouseleave="toggleSidebarMenuIcon(false)">
-            <i id="sidebarMenuIcon" data-feather="grid" class="w-6 h-6"></i>
+          <button onclick="toggleSidebar()" class="menu-btn">
+            <i id="sidebarMenuIcon" data-feather="menu" class="w-6 h-6"></i>
             <span id="menuText" class="hidden ml-2">Menu</span>
           </button>
         </div>
@@ -122,13 +127,17 @@
             <i data-feather="message-circle"></i>
             <span class="sidebar-text hidden">Chats</span>
           </a>
+          <a href="#" data-tab="friends" onclick="switchTab('friends')" class="sidebar-tab">
+            <i data-feather="users"></i>
+            <span class="sidebar-text hidden">Friends</span>
+          </a>
           <a href="#" data-tab="profile" onclick="switchTab('profile')" class="sidebar-tab">
             <i data-feather="user"></i>
             <span class="sidebar-text hidden">Profile</span>
           </a>
-          <a href="#" data-tab="files" onclick="switchTab('files')" class="sidebar-tab">
-            <i data-feather="folder"></i>
-            <span class="sidebar-text hidden">Files</span>
+          <a href="#" data-tab="explore" onclick="switchTab('explore')" class="sidebar-tab">
+            <i data-feather="compass"></i>
+            <span class="sidebar-text hidden">Explore</span>
           </a>
           <a href="#" data-tab="settings" onclick="switchTab('settings')" class="sidebar-tab">
             <i data-feather="settings"></i>
@@ -182,9 +191,11 @@
         <div>
           <h2 class="text-xl font-bold mb-2 text-gray-800 dark:text-white">📢 Announcements</h2>
           <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-xl">
-            <p class="text-sm text-gray-700 dark:text-gray-300">
-              🚀 Zylo v1.0.0 is now live! Includes enhanced chat performance, responsive mobile fixes, and modern UI updates for login/signup. Check it out!
-            </p>
+            <div class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+              <p>🚀 v1.1 adds Friends and Groups with room chat.</p>
+              <p>✨ Home quick stats now update from backend.</p>
+              <p>🤖 Optional AI chat toggle in Chats tab.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -194,12 +205,26 @@
 
         <!-- Header -->
         <div class="p-3 border-b border-gray-700">
-          <h1 class="chat-title text-lg font-bold flex items-center gap-2">💬 Chat Room</h1>
-          <p class="chat-subtitle text-sm text-gray-400">Start chatting with other users or your friends!</p>
+          <h1 class="chat-title text-lg font-bold flex items-center gap-2">💬 Chat Rooms</h1>
+          <p class="chat-subtitle text-sm text-gray-400">Start chatting with the community or try the AI assistant.</p>
+          <div class="flex flex-wrap items-center gap-2 mt-2">
+            <div class="inline-flex rounded-md bg-gray-800/70 border border-gray-700 p-1">
+              <button id="btnRoomCommunity" class="px-3 py-1 rounded-md text-xs bg-blue-600 text-white" onclick="switchChatRoom('community')">Community</button>
+              <button id="btnRoomAI" class="px-3 py-1 rounded-md text-xs text-gray-300 hover:bg-gray-700" onclick="switchChatRoom('ai')">AI Chat</button>
+            </div>
+            <div id="aiControls" class="hidden items-center gap-2">
+              <label for="aiPersonaSelect" class="text-xs text-gray-400">Persona</label>
+              <select id="aiPersonaSelect" class="text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200"></select>
+              <label for="aiModelSelect" class="text-xs text-gray-400">Model</label>
+              <select id="aiModelSelect" class="text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200"></select>
+              <button id="aiClearBtn" class="px-2 py-1 rounded bg-gray-700 text-white text-xs" onclick="clearAiConversation()">Clear</button>
+            </div>
+          </div>
         </div>
 
-        <!-- Messages Area -->
-        <div id="chatMessages" class="chat-messages"></div>
+        <!-- Messages Areas -->
+        <div id="chatMessagesCommunity" class="chat-messages"></div>
+        <div id="chatMessagesAI" class="chat-messages hidden"></div>
 
         <!-- Typing indicator -->
         <div id="typingIndicator" class="typing-indicator"></div>
@@ -230,70 +255,182 @@
       </div>
 
 
-      <!-- Profile Area -->
-      <div id="tab-profile" class="tab-content">
-        <h1 class="profile-title">👤 Your Profile</h1>
+      <!-- Friends Area -->
+      <section id="tab-friends" class="tab-content hidden ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] flex flex-col space-y-6 animate-fadeIn">
+        <div class="w-full space-y-8 px-4 sm:px-6 lg:px-8">
+          
+          <!-- Header -->
+          <div class="flex items-center justify-between">
+            <h1 class="text-3xl font-bold">👥 Friends & Groups</h1>
+          </div>
 
-        <div class="profile-card">
-
-          <!-- Banner -->
-          <div class="profile-banner">
-            <label for="bannerUpload" class="banner-label">
-              <img id="bannerImage" src="/images/default_banner.png" alt="Banner" 
-                  class="banner-img" 
-                  onclick="document.getElementById('bannerUpload').click()">
-            </label>
-            <button id="saveProfileBtn" onclick="saveProfileChanges()" 
-                    class="save-profile-btn hidden absolute top-2 right-2 p-2 rounded-full shadow-lg bg-white dark:bg-gray-800 text-green-600 hover:text-green-700 transition" 
-                    title="Save Profile">
-              <i data-feather="check"></i>
+          <!-- Friends Navigation -->
+          <div class="flex border-b border-gray-300 dark:border-gray-700 mb-6">
+            <button id="tabBtnFriends" class="friends-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="friendsContent">
+              Friends
             </button>
-            <input type="file" id="bannerUpload" accept="image/*" class="hidden">
+            <button id="tabBtnGroups" class="friends-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="groupsContent">
+              Groups
+            </button>
+          </div>
 
-            <!-- Avatar -->
-            <div class="avatar-wrapper">
-              <label for="avatarUpload" class="avatar-label">
-                <img id="avatarImage" src="/images/default_avatar.png" alt="Avatar" 
-                    class="avatar-img"
-                    onclick="document.getElementById('avatarUpload').click()"/>
-              </label>
-              <input type="file" id="avatarUpload" accept="image/*" class="hidden">
-              <span class="status-dot online"></span>
+          <!-- Friends Content -->
+          <div id="friendsContent" class="friends-content w-full space-y-4">
+            <div class="flex items-center gap-2">
+              <input id="addFriendInput" type="text" placeholder="Enter username to add" class="zylo-input p-2 flex-1" />
+              <button id="addFriendBtn" class="px-3 py-2 bg-blue-600 text-white rounded" onclick="requestFriend()">Add</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
+                <h3 class="font-semibold mb-2">Friends</h3>
+                <ul id="friendsList" class="space-y-2 text-sm"></ul>
+              </div>
+              <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
+                <h3 class="font-semibold mb-2">Incoming</h3>
+                <ul id="incomingList" class="space-y-2 text-sm"></ul>
+              </div>
+              <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3">
+                <h3 class="font-semibold mb-2">Outgoing</h3>
+                <ul id="outgoingList" class="space-y-2 text-sm"></ul>
+              </div>
+            </div>
+            <!-- Direct Messages Panel -->
+            <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 flex flex-col gap-2 flex-1 overflow-hidden">
+              <div class="flex items-center justify-between">
+                <h3 class="font-semibold">Direct Messages</h3>
+                <div id="dmHeader" class="text-xs opacity-70">Select a friend and click Message to start.</div>
+              </div>
+              <div id="dmMessages" class="chat-messages flex-1"></div>
+              <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
+                <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file">
+                  <i data-feather="paperclip"></i>
+                  <input type="file" id="dmFileInput" class="hidden" onchange="sendDMFile(event)">
+                </label>
+                <textarea id="dmInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message..." ></textarea>
+                <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendDMMessage()"><i data-feather="send"></i></button>
+              </div>
             </div>
           </div>
 
-          <!-- Profile Content -->
-          <div class="profile-content">
-
-            <!-- Username + Tag -->
-            <div class="profile-nameblock">
-              <h2 id="profileUsername" class="username">ZyloUser</h2>
-              <p id="profileUsertag" class="usertag">@zylo1234</p>
-            </div>
-
-            <!-- About Me -->
-            <div class="about-section">
-              <label for="aboutMe">About Me</label>
-              <textarea id="aboutMe" rows="3" placeholder="Say something about yourself..."></textarea>
-            </div>
-
-            <!-- Stats -->
-            <div class="stats-grid">
-              <div class="stat-box">
-                <p class="stat-label">Level</p>
-                <p id="statLevel" class="stat-value">0</p>
+          <!-- Groups Content -->
+          <div id="groupsContent" class="friends-content w-full hidden space-y-4">
+            <div class="flex gap-4 flex-1 overflow-hidden">
+              <div class="w-72 shrink-0 bg-white/70 dark:bg-gray-800/70 rounded-lg p-3 overflow-y-auto">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-semibold">Your Groups</h3>
+                  <div class="flex items-center gap-2">
+                    <button class="text-xs px-2 py-1 bg-gray-700 text-white rounded" onclick="refreshGroups()">Refresh</button>
+                    <button class="text-xs px-2 py-1 bg-green-600 text-white rounded" onclick="createGroup()">+ New</button>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 mb-2">
+                  <input id="newGroupName" type="text" placeholder="Group name" class="zylo-input p-1 flex-1 text-xs" />
+                </div>
+                <ul id="groupsList" class="space-y-1 text-sm"></ul>
               </div>
-              <div class="stat-box">
-                <p class="stat-label">Gold</p>
-                <p id="statGold" class="stat-value gold">0</p>
-              </div>
-              <div class="stat-box">
-                <p class="stat-label">Rank</p>
-                <p id="statRank" class="stat-value rank">Unranked</p>
+              <div class="flex flex-col flex-1 min-w-0 bg-white/70 dark:bg-gray-800/70 rounded-lg">
+                <div class="p-2 border-b border-gray-700 flex items-center justify-between">
+                  <span id="activeGroupTitle" class="font-semibold">Select a group</span>
+                  <div class="text-xs opacity-70" id="activeGroupMeta"></div>
+                </div>
+                <div id="groupMessages" class="chat-messages flex-1"></div>
+                <div class="chat-input-container flex items-center gap-2 p-3 border-t border-gray-700">
+                  <label class="p-2 rounded hover:bg-gray-700 cursor-pointer" title="Attach a file to group">
+                    <i data-feather="paperclip"></i>
+                    <input type="file" id="groupFileInput" class="hidden" onchange="sendGroupFile(event)">
+                  </label>
+                  <textarea id="groupChatInput" rows="1" class="chat-input flex-1 resize-none rounded p-2" placeholder="Message group..."></textarea>
+                  <button class="chat-send-btn px-4 py-2 rounded bg-blue-600 text-white" onclick="sendGroupMessage()"><i data-feather="send"></i></button>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </section>
+      
+      <!-- Profile Area -->
+      <div id="tab-profile" class="tab-content">
+
+        <section id="profileView" class="w-full h-full overflow-y-auto">
+          <div class="profile-card max-w-5xl mx-auto bg-gray-800 rounded-2xl shadow-xl mt-6 overflow-hidden z-0">
+            
+            <!-- Banner -->
+            <div class="profile-banner flex flex-col items-start relative z-10">
+              <img id="bannerImage" src="/images/default_banner.png" alt="Banner" class="profile-banner-img">
+              <div class="-mt-16 ml-6">
+                <img id="avatarImage" src="/images/default_avatar.png" alt="Avatar" class="profile-avatar relative z-30"/>
+              </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="pt-20 px-6 pb-6">
+              <h2 id="profileUsername" class="text-2xl font-semibold">ZyloUser</h2>
+              <p id="profileUsertag" class="text-gray-400">@zylo1234</p>
+              <p class="mt-3 text-gray-300" id="profileBio">Hey there, I'm using Zylo — probably.</p>
+
+              <div class="mt-5 flex gap-3">
+                <button class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg">Message</button>
+                <button class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg">Add Friend</button>
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="border-t border-gray-700 px-6 py-3 flex gap-6 text-gray-400">
+              <button class="hover:text-white">About Me</button>
+              <button class="hover:text-white">Mutual Servers</button>
+              <button class="hover:text-white">Mutual Friends</button>
+              <button class="hover:text-white">Profile Effects</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="profileTabContent" class="p-6 text-gray-300">
+              <div class="tab-pane" data-tab="about">
+                <p>Nothing here yet — maybe something witty about yourself?</p>
+              </div>
+              <div class="tab-pane hidden" data-tab="servers">
+                <p>No mutual servers to show.</p>
+              </div>
+              <div class="tab-pane hidden" data-tab="friends">
+                <p>No mutual friends to show.</p>
+              </div>
+            </div>
+
+            <!-- INDEV/ Profile Effects -->
+            <!-- <div class="mt-4">
+              <label for="profileEffectSelect" class="block mb-2">Avatar Effect</label>
+              <select id="profileEffectSelect" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                <option value="none">None</option>
+                <option value="glow">Neon Glow</option>
+                <option value="pulse">Pulse</option>
+                <option value="ring">Animated Ring</option>
+                <option value="sparkle">Sparkle</option>
+                <option value="vintage">Vintage Filter</option>
+                <option value="neon-border">Neon Border</option>
+                <option value="gradient-border">Gradient Border</option>
+                <option value="frosted">Frosted Glass</option>
+                <option value="holographic">Holographic</option>
+                <option value="matrix">Matrix Effect</option>
+                <option value="cyberpunk">Cyberpunk</option>
+              </select>
+            </div>
+
+            <div class="mt-4">
+              <label for="bannerEffectSelect" class="block mb-2">Banner Effect</label>
+              <select id="bannerEffectSelect" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                <option value="none">None</option>
+                <option value="blur-overlay">Blur Overlay</option>
+                <option value="gradient-overlay">Gradient Overlay</option>
+                <option value="vignette">Vignette</option>
+                <option value="neon-glow">Neon Glow</option>
+                <option value="cyber-grid">Cyber Grid</option>
+                <option value="holographic-banner">Holographic</option>
+                <option value="matrix-banner">Matrix</option>
+                <option value="retro-wave">Retro Wave</option>
+                <option value="neon-city">Neon City</option>
+              </select>
+            </div> -->
+          </div>
+        </section>
       </div>
 
       <!-- Image Crop Modal -->
@@ -320,7 +457,7 @@
 
       <!-- Files Area -->
       <div id="tab-files" class="tab-content ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] flex flex-col overflow-y-auto animate-fadeIn">
-        <h1 class="text-xl font-bold mb-4 text-while">📦 Download Page</h1>
+        <h1 class="text-xl font-bold mb-4 text-white">📦 Download Page</h1>
 
         <div class="mb-6">
           <label for="speed" class="block text-sm font-semibold mb-1">Enter your internet speed (Mbps):</label>
@@ -333,27 +470,51 @@
         </div>
       </div>
 
+      <!-- Explore Area -->
+      <section id="tab-explore" class="tab-content ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] hidden animate-fadeIn">
+        <div class="max-w-3xl mx-auto w-full space-y-4">
+          <h1 class="text-2xl font-bold">🧭 Explore</h1>
+          <p class="text-gray-300">Share images, videos, audio, or files with the community.</p>
+
+          <!-- Share composer -->
+          <div class="p-4 rounded-lg bg-white/10 border border-white/10 space-y-3">
+            <div class="flex items-center gap-2">
+              <input id="exploreCaption" class="zylo-input flex-1 p-2" placeholder="Say something about your media..." />
+              <label class="px-3 py-2 rounded bg-blue-600 text-white cursor-pointer">
+                Attach
+                <input type="file" id="exploreFile" class="hidden" />
+              </label>
+              <button id="exploreShareBtn" class="px-3 py-2 rounded bg-green-600 text-white">Share</button>
+            </div>
+            <div id="explorePreview" class="rounded overflow-hidden"></div>
+          </div>
+
+          <!-- Feed -->
+          <div id="exploreFeed" class="space-y-3 overflow-y-auto" style="max-height: calc(100dvh - 240px)"></div>
+        </div>
+      </section>
+
       <!-- Settings Area -->
       <section id="tab-settings" class="tab-content ml-0 pt-[64px] sm:pt-4 px-2 sm:px-4 w-full h-[100dvh] flex flex-col space-y-6 hidden animate-fadeIn">
         <div class="w-full space-y-8 px-4 sm:px-6 lg:px-8">
           
           <!-- Header -->
           <div class="flex items-center justify-between">
-            <h1 class="text-3xl font-bold">⚙️ Settings (Beta)</h1>
+            <h1 id="settingsTitle" class="text-3xl font-bold">⚙️ Settings</h1>
           </div>
 
           <!-- Settings Navigation -->
           <div class="flex border-b border-gray-300 dark:border-gray-700 mb-6">
-            <button class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="generalSettings">
+            <button type="button" id="tabBtnGeneral" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="generalSettings">
               General
             </button>
-            <button class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="soundSettings">
+            <button type="button" id="tabBtnSounds" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="soundSettings">
               Sounds
             </button>
-            <button class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="accountSettings">
+            <button type="button" id="tabBtnAccount" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="accountSettings">
               Account
             </button>
-            <button class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="aboutSettings">
+            <button type="button" id="tabBtnAbout" class="settings-tab px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border-b-2 border-transparent" data-target="aboutSettings">
               About Us
             </button>
           </div>
@@ -363,7 +524,7 @@
 
               <!-- Enable Animations -->
               <div class="flex items-center justify-between">
-                <span>Enable Animations</span>
+                <span id="labelEnableAnimations">Enable Animations</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="animationsToggle" class="sr-only peer">
                   <div class="w-11 h-6 bg-gray-300 peer-checked:bg-blue-600 rounded-full peer dark:bg-gray-600 
@@ -375,7 +536,7 @@
 
               <!-- Compact Mode -->
               <div class="flex items-center justify-between">
-                <span>Compact Mode</span>
+                <span id="labelCompactMode">Compact Mode</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="compactToggle" class="sr-only peer">
                   <div class="w-11 h-6 bg-gray-300 peer-checked:bg-purple-600 rounded-full peer dark:bg-gray-600 
@@ -387,7 +548,7 @@
 
               <!-- Show Tooltips -->
               <div class="flex items-center justify-between">
-                <span>Show Tooltips</span>
+                <span id="labelShowTooltips">Show Tooltips</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="tooltipToggle" class="sr-only peer">
                   <div class="w-11 h-6 bg-gray-300 peer-checked:bg-green-600 rounded-full peer dark:bg-gray-600 
@@ -399,7 +560,7 @@
 
               <!-- Language Selector -->
               <div>
-                <label for="languageSelect" class="block mb-2">Language</label>
+                <label id="labelLanguage" for="languageSelect" class="block mb-2">Language</label>
                 <select id="languageSelect" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
                   <option value="en">English</option>
                   <option value="vi">Tiếng Việt</option>
@@ -409,18 +570,20 @@
 
               <!-- Startup Page -->
               <div>
-                <label for="startupPage" class="block mb-2">Startup Page</label>
+                <label id="labelStartupPage" for="startupPage" class="block mb-2">Startup Page</label>
                 <select id="startupPage" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
                   <option value="home">Home</option>
                   <option value="profile">Profile</option>
-                  <option value="messages">Messages</option>
+                  <option value="chats">Messages</option>
+                  <option value="friends">Friends</option>
+                  <option value="explore">Explore</option>
                   <option value="settings">Settings</option>
                 </select>
               </div>
 
               <!-- Auto Save Changes -->
               <div class="flex items-center justify-between">
-                <span>Auto Save Changes</span>
+                <span id="labelAutoSave">Auto Save Changes</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="autoSaveToggle" class="sr-only peer">
                   <div class="w-11 h-6 bg-gray-300 peer-checked:bg-yellow-500 rounded-full peer dark:bg-gray-600 
@@ -432,7 +595,7 @@
 
               <!-- Confirm Before Exit -->
               <div class="flex items-center justify-between">
-                <span>Confirm Before Exit</span>
+                <span id="labelConfirmExit">Confirm Before Exit</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="confirmExitToggle" class="sr-only peer">
                   <div class="w-11 h-6 bg-gray-300 peer-checked:bg-red-500 rounded-full peer dark:bg-gray-600 
@@ -444,23 +607,188 @@
 
               <!-- Themes -->
               <div>
-                <h2 class="text-xl font-semibold mb-3">Appearance</h2>
-                <div class="flex items-center gap-4">
-                  <span>Theme:</span>
-                  <button onclick="setTheme('light')" data-theme-btn="light"
-                    class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
-                    Light
-                  </button>
-                  <button onclick="setTheme('dark')" data-theme-btn="dark"
-                    class="px-3 py-1 bg-gray-800 hover:bg-gray-900 text-white rounded dark:bg-gray-600 dark:hover:bg-gray-500">
-                    Dark
-                  </button>
+                <h2 id="titleAppearance" class="text-xl font-semibold mb-3">Appearance</h2>
+                <div class="flex items-center gap-3 flex-wrap">
+                  <div class="flex items-center gap-2">
+                    <span>Theme</span>
+                    <span id="themeColorSwatch" class="inline-flex items-center gap-2 px-2 py-1 rounded border text-xs">
+                      <span id="themeColorDot" class="w-4 h-4 rounded-full border"></span>
+                      <span id="themeColorText">#ffffff</span>
+                    </span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <button onclick="setTheme('light')" data-theme-btn="light"
+                      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
+                      Light
+                    </button>
+                    <button onclick="setTheme('dark')" data-theme-btn="dark"
+                      class="px-3 py-1 bg-gray-800 hover:bg-gray-900 text-white rounded dark:bg-gray-600 dark:hover:bg-gray-500">
+                      Dark
+                    </button>
+                    <button onclick="setTheme('system')" data-theme-btn="system"
+                      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
+                      System
+                    </button>
+                    <button onclick="setTheme('custom')" data-theme-btn="custom"
+                      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
+                      Custom
+                    </button>
+                    <input type="color" id="customThemeColorPicker" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700 hidden" />
+                  </div>
                 </div>
+
+                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label class="inline-flex items-center gap-2">
+                    <input type="checkbox" id="solidBgToggle" class="accent-blue-500">
+                    <span id="labelSolidBg">Solid BG</span>
+                  </label>
+                  <div class="flex items-center gap-2">
+                    <input type="file" id="bgImageInput" accept="image/*" class="block w-full text-sm text-gray-900 dark:text-gray-100 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-gray-700 dark:file:text-gray-100" />
+                    <button id="previewBgBtn" class="px-3 py-1 bg-green-200 hover:bg-green-300 rounded dark:bg-green-700 dark:hover:bg-green-600" title="Preview background">Preview</button>
+                    <button id="clearBgImageBtn" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded dark:bg-gray-700 dark:hover:bg-gray-600">Clear Image</button>
+                  </div>
+                </div>
+              </div>
+
+        <!-- Theme Editor Modal Trigger (Custom) will open this modal) -->
+        <div id="themeEditorOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden"></div>
+        <div id="themeEditorModal" class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[210] w-[95%] max-w-4xl max-h-[90vh] overflow-hidden rounded-xl shadow-2xl hidden">
+          <div class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-full flex flex-col">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+              <h3 class="text-lg font-semibold">Theme Editor</h3>
+              <div class="flex items-center gap-2">
+                <select id="savedThemesSelect" class="text-sm bg-transparent border rounded px-2 py-1 dark:border-gray-700">
+                  <option value="">Select saved theme…</option>
+                </select>
+                <button id="saveThemeBtn" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Save</button>
+                <button id="deleteThemeBtn" class="px-3 py-1 rounded bg-red-600 text-white text-sm">Delete</button>
+                <button id="closeThemeEditorBtn" class="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800">✖</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 p-4 overflow-auto">
+              <!-- Left: Controls -->
+              <div class="space-y-4 lg:col-span-2">
+                <div class="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
+                  <h4 class="font-semibold mb-2">UI Colors</h4>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Navbar BG</span>
+                      <input type="color" id="teNavbarBg" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Sidebar BG</span>
+                      <input type="color" id="teSidebarBg" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Panels BG</span>
+                      <input type="color" id="tePanelBg" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Text Color</span>
+                      <input type="color" id="teTextColor" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Accent Color</span>
+                      <input type="color" id="teAccentColor" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                  </div>
+                </div>
+
+                <div class="rounded-lg border border-gray-200 dark:border-gray-800 p-3 space-y-3">
+                  <h4 class="font-semibold">Background</h4>
+                  <div class="flex flex-wrap items-center gap-3">
+                    <label class="inline-flex items-center gap-2 text-sm">
+                      <input type="radio" name="teBgMode" value="gradient" checked>
+                      <span>Gradient</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm">
+                      <input type="radio" name="teBgMode" value="solid">
+                      <span>Solid</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm">
+                      <input type="radio" name="teBgMode" value="image">
+                      <span>Image</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm">
+                      <input type="radio" name="teBgMode" value="animated">
+                      <span>Animated</span>
+                    </label>
+                  </div>
+
+                  <!-- Solid and Gradient controls -->
+                  <div id="teSolidControls" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="flex items-center justify-between gap-3 text-sm">
+                      <span>Solid Color</span>
+                      <input type="color" id="teSolidColor" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                      <label class="flex items-center justify-between gap-3 text-sm">
+                        <span>Grad From</span>
+                        <input type="color" id="teGradFrom" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                      </label>
+                      <label class="flex items-center justify-between gap-3 text-sm">
+                        <span>Grad To</span>
+                        <input type="color" id="teGradTo" class="h-9 w-12 p-1 rounded border dark:bg-gray-800 dark:border-gray-700">
+                      </label>
+                      <label class="flex items-center justify-between gap-3 text-sm col-span-2">
+                        <span>Angle</span>
+                        <input type="range" id="teGradAngle" min="0" max="360" step="1" class="w-full">
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Image controls -->
+                  <div id="teImageControls" class="flex items-center gap-2 hidden">
+                    <input type="file" id="teBgImageInput" accept="image/*" class="block w-full text-sm file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-gray-700 dark:file:text-gray-100" />
+                    <button id="teClearBgImageBtn" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 text-sm">Clear</button>
+                  </div>
+
+                  <!-- Animated presets -->
+                  <div id="teAnimatedControls" class="grid grid-cols-2 sm:grid-cols-3 gap-2 hidden">
+                    <button data-anim="gradientShift" class="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 text-sm">Soft Gradient</button>
+                    <button data-anim="holographic" class="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 text-sm">Holographic</button>
+                    <button data-anim="matrix" class="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 text-sm">Matrix</button>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <button id="teApplyBgBtn" class="px-3 py-2 rounded bg-green-600 text-white">Apply BG</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: Live Preview -->
+              <div class="rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <div id="tePreview" class="h-64 w-full relative flex items-center justify-center">
+                  <div class="absolute top-3 left-3 right-3 flex items-center justify-between px-3 py-2 rounded bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700">
+                    <span class="text-sm">Navbar</span>
+                    <button class="px-2 py-1 rounded text-xs" style="background: var(--accent-color); color: white">Action</button>
+                  </div>
+                  <div class="absolute left-3 top-14 bottom-3 w-40 rounded bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700"></div>
+                  <div class="absolute left-48 right-3 top-14 bottom-3 rounded bg-white/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700"></div>
+                  <span class="text-sm opacity-70">Live Preview</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-200 dark:border-gray-800">
+              <button id="teCancelBtn" class="px-3 py-2 rounded bg-gray-200 dark:bg-gray-800">Cancel</button>
+              <button id="teApplyThemeBtn" class="px-3 py-2 rounded bg-blue-600 text-white">Apply Theme</button>
+            </div>
+          </div>
+        </div>
+              <!-- Save Settings Button -->
+              <div id="saveSettingsBtn" class="pt-4 border-t border-gray-300 dark:border-gray-700" style="display: none;">
+                <button onclick="showSaveSettingsModal()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg mb-3">
+                  <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
+                  Save Changes
+                </button>
               </div>
 
               <!-- Reset All Settings -->
               <div class="pt-4 border-t border-gray-300 dark:border-gray-700">
-                <button onclick="resetAllSettings()" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Reset All Settings</button>
+                <button id="btnResetAll" onclick="resetAllSettings()" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Reset All Settings</button>
               </div>
           </div>
 
@@ -502,100 +830,46 @@
               <input type="checkbox" id="enableMusic" class="accent-blue-500">
               <label for="enableMusic">Enable Background Music</label>
             </div>
-          </div>
 
-          <!-- Account Settings -->
-          <div id="accountSettings" class="settings-content w-full hidden space-y-6">
-
-            <!-- Change Username -->
+            <!-- Sound Profile -->
             <div>
-              <label class="block mb-2">Change Username</label>
-              <input type="text" id="changeUsername" placeholder="Enter new username"
-                    class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <button onclick="updateUsername()" 
-                      class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-                Update Username
-              </button>
+              <label for="soundProfile" class="block mb-2">Sound Profile</label>
+              <select id="soundProfile" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                <option value="default">Default</option>
+                <option value="soft">Soft</option>
+                <option value="retro">Retro</option>
+                <option value="clicky">Clicky</option>
+              </select>
             </div>
 
-            <!-- Change Usertag -->
+            <!-- Per-event toggles -->
             <div>
-              <label class="block mb-2">Change Usertag</label>
-              <input type="text" id="changeUsertag" placeholder="Enter new usertag"
-                    class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <button onclick="updateUsertag()" 
-                      class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-                Update Usertag
-              </button>
-            </div>
-
-            <!-- Change Email -->
-            <div>
-              <label class="block mb-2">Change Email</label>
-              <input type="email" id="changeEmail" placeholder="Enter new email"
-                    class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <button onclick="updateEmail()" 
-                      class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-                Update Email
-              </button>
-            </div>
-
-            <!-- Change Password -->
-            <div>
-              <label class="block mb-2">Change Password</label>
-              <input type="password" id="oldPassword" placeholder="Current password"
-                    class="w-full p-2 mb-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <input type="password" id="newPassword" placeholder="New password"
-                    class="w-full p-2 mb-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <input type="password" id="confirmPassword" placeholder="Confirm new password"
-                    class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-              <button onclick="updatePassword()" 
-                      class="mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">
-                Change Password
-              </button>
-            </div>
-
-            <!-- Two-Factor Authentication -->
-            <div class="flex items-center justify-between">
-              <span>Two-Factor Authentication (2FA)</span>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="twoFactorToggle" class="sr-only peer">
-                <div class="w-11 h-6 bg-gray-300 peer-checked:bg-purple-600 rounded-full peer dark:bg-gray-600 
-                  peer-checked:after:translate-x-full peer-checked:after:border-white 
-                  after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 
-                  after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500"></div>
-              </label>
-            </div>
-
-            <!-- Linked Accounts -->
-            <div>
-              <h3 class="font-semibold mb-2">Linked Accounts</h3>
-              <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg w-full text-left">
-                Link Google Account
-              </button>
-              <button class="mt-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg w-full text-left">
-                Link GitHub Account
-              </button>
-            </div>
-
-            <!-- Privacy -->
-            <div>
-              <h3 class="font-semibold mb-2">Privacy</h3>
+              <h3 class="font-semibold mb-2">Play on events</h3>
               <div class="flex items-center gap-2 mb-2">
-                <input type="checkbox" id="showEmail" class="accent-blue-500">
-                <label for="showEmail">Show Email on Profile</label>
+                <input type="checkbox" id="playSend" class="accent-blue-500" checked>
+                <label for="playSend">Message sent</label>
               </div>
-              <div class="flex items-center gap-2">
-                <input type="checkbox" id="shareActivity" class="accent-blue-500">
-                <label for="shareActivity">Share My Activity Status</label>
+              <div class="flex items-center gap-2 mb-2">
+                <input type="checkbox" id="playReceive" class="accent-blue-500" checked>
+                <label for="playReceive">Message received</label>
+              </div>
+              <div class="flex items-center gap-2 mb-2">
+                <input type="checkbox" id="playUi" class="accent-blue-500" checked>
+                <label for="playUi">UI interactions</label>
               </div>
             </div>
 
-            <!-- Danger Zone -->
-            <div class="border-t border-gray-300 dark:border-gray-700 pt-4">
-              <button onclick="deleteAccount()" 
-                      class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white w-full">
-                Delete Account
+            <!-- Duck music on sound effects -->
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="duckMusic" class="accent-blue-500">
+              <label for="duckMusic">Duck music when playing effects</label>
+            </div>
+            
+            <!-- Save Sound Settings Button -->
+            <div id="saveSoundSettingsBtn" class="pt-4 border-t border-gray-300 dark:border-gray-700" style="display: none;">
+              <button onclick="showSaveSettingsModal()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
+                Save Sound Settings
               </button>
             </div>
           </div>
@@ -623,6 +897,14 @@
                 <li>Backend: Python (Flask)</li>
                 <li>Platform: Web/Desktop Hybrid</li>
               </ul>
+            </div>
+
+            <!-- System Status -->
+            <div>
+              <h3 class="text-lg font-semibold mb-2">System Status</h3>
+              <div id="aboutSystemStatus" class="text-gray-600 dark:text-gray-300 text-sm">
+                Checking backend status...
+              </div>
             </div>
 
             <!-- Quick Actions -->
@@ -679,8 +961,157 @@
               </p>
             </div>
           </div>
+
+          <!-- Account Settings -->
+          <div id="accountSettings" class="settings-content w-full hidden space-y-6">
+            
+            <!-- Profile quick view with edit overlays -->
+            <div class="relative rounded-xl shadow-sm">
+              <label for="settingsBannerUpload" class="banner-label block cursor-pointer">
+                <img id="settingsBanner" src="/images/default_banner.png" alt="Banner" class="w-full h-40 object-cover rounded-xl" />
+                <span class="edit-overlay" title="Change banner"><i data-feather="edit-2"></i></span>
+              </label>
+              <input type="file" id="settingsBannerUpload" accept="image/*" class="hidden">
+
+              <div class="relative -mt-10 ml-6 drop-shadow z-10">
+                <label for="settingsAvatarUpload" class="avatar-label cursor-pointer">
+                  <img id="settingsAvatar" src="/images/default_avatar.png" alt="Avatar" class="w-30 h-30 rounded-full border-4 border-white dark:border-gray-800 object-cover avatar-img" />
+                  <span class="edit-overlay" title="Change avatar"><i data-feather="edit-2"></i></span>
+                </label>
+                <input type="file" id="settingsAvatarUpload" accept="image/*" class="hidden">
+                <button onclick="setAsBackground('avatar')" class="absolute -bottom-2 -right-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 text-xs" title="Set as background">
+                  <i data-feather="image"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="pt-10" />
+
+            <!-- Inline editable rows -->
+            <div class="space-y-3" aria-label="Account details">
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Username</div>
+                  <div id="currentUsername" class="editable-value"></div>
+                </div>
+                <button class="edit-icon" onclick="promptUsernameEdit()" title="Edit username"><i data-feather="edit-2"></i></button>
+              </div>
+
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Usertag</div>
+                  <div id="currentUsertag" class="editable-value"></div>
+                </div>
+                <button class="edit-icon" onclick="promptUsertagEdit()" title="Edit usertag"><i data-feather="edit-2"></i></button>
+              </div>
+
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Email</div>
+                  <div id="currentEmail" class="editable-value">Hidden</div>
+                </div>
+                <button class="edit-icon" onclick="promptEmailEdit()" title="Edit email"><i data-feather="edit-2"></i></button>
+              </div>
+            </div>
+
+            <!-- Security -->
+            <div class="mt-4 p-4 rounded-lg bg-white/70 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700" aria-label="Security settings">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="font-semibold">Two-Factor Authentication (2FA)</div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of protection.</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="twoFactorToggle" class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-300 peer-checked:bg-purple-600 rounded-full peer dark:bg-gray-600 
+                    peer-checked:after:translate-x-full peer-checked:after:border-white 
+                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 
+                    after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500"></div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Preferences (replacing old stats with useful info) -->
+            <div class="grid sm:grid-cols-2 gap-3" aria-label="Preferences">
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Language</div>
+                  <div class="editable-value">
+                    <select id="settingsLanguage" class="p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                      <option value="en">English</option>
+                      <option value="es">Spanish</option>
+                      <option value="fr">French</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="editable-row">
+                <div>
+                  <div class="editable-label">Show Email on Profile</div>
+                  <div class="editable-value"><input type="checkbox" id="showEmail" class="accent-blue-500"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="p-4 rounded-lg bg-white/70 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
+              <div class="font-semibold mb-2">Change Password</div>
+              <div class="grid sm:grid-cols-3 gap-2">
+                <input type="password" id="oldPassword" placeholder="Current password" class="p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                <input type="password" id="newPassword" placeholder="New password" class="p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+                <input type="password" id="confirmPassword" placeholder="Confirm new password" class="p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+              </div>
+              <button onclick="updatePassword()" class="mt-3 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">Change Password</button>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="border-t border-gray-300 dark:border-gray-700 pt-4">
+              <button onclick="deleteAccount()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white w-full">Delete Account</button>
+            </div>
+            
+            <!-- Save Account Settings Button -->
+            <div id="saveAccountSettingsBtn" class="pt-4 border-t border-gray-300 dark:border-gray-700" style="display: none;">
+              <button onclick="showSaveSettingsModal()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
+                Save Account Settings
+              </button>
+            </div>
+          </div>
         </div>
       </section>
+    </div>
+
+    <!-- Save Settings Modal -->
+    <div id="saveSettingsModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden flex items-center justify-center px-4">
+      <div class="bg-white dark:bg-gray-800 max-w-md w-full p-6 rounded-lg shadow-xl animate-fadeIn">
+        <div class="flex items-center mb-4">
+          <div class="flex-shrink-0">
+            <i data-feather="save" class="w-6 h-6 text-blue-600"></i>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Save Settings</h3>
+          </div>
+        </div>
+        
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
+          You have unsaved changes. Do you want to save your settings before continuing?
+        </p>
+        
+        <div class="flex gap-3">
+          <button onclick="confirmSaveSettings()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
+            <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
+            Save Changes
+          </button>
+          <button onclick="discardSettingsChanges()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors">
+            <i data-feather="x" class="w-4 h-4 inline mr-2"></i>
+            Discard
+          </button>
+          <button onclick="cancelSaveSettings()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 dark:text-gray-300 py-2 px-4 rounded-lg transition-colors">
+            <i data-feather="arrow-left" class="w-4 h-4 inline mr-2"></i>
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Settings Panel -->
@@ -728,22 +1159,36 @@
     </div>
   </div>
 
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="/files/vendor/socket.io.min.js"></script>
+  <script src="/js/app-extras.js"></script>
   <script>
 
     // Chat Functions
-    const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
-    const socket = io(baseUrl);
+    const baseUrl = window.location.origin;
+    const socket = navigator.onLine ? io(baseUrl) : { emit: function(){}, on: function(){}, off: function(){}};
+    window.socket = socket;
     const chatInput = document.getElementById("chatInput");
-    const chatMessages = document.getElementById("chatMessages");
+    const chatMessagesCommunity = document.getElementById("chatMessagesCommunity");
+    const chatMessagesAI = document.getElementById("chatMessagesAI");
+    const aiControls = document.getElementById("aiControls");
+    const aiModelSelect = document.getElementById("aiModelSelect");
+    const aiPersonaSelect = document.getElementById("aiPersonaSelect");
+    let currentChatRoom = localStorage.getItem('chatRoom') || 'community';
+    let aiConversation = [];
     const username = localStorage.getItem("savedUsername") || "N/A";
     const email = localStorage.getItem("savedEmail") || "N/A";
     const typingIndicator = document.getElementById("typingIndicator");
     const activeTypers = new Set();
     let emojiPickerVisible = false;
 
+    // Friends & Groups state
+    let friendsState = { friends: [], incoming: [], outgoing: [] };
+    let groupsState = { list: [], activeId: null };
+
     chatInput.addEventListener("input", () => {
-      socket.emit("typing", { username });
+      if (navigator.onLine && currentChatRoom === 'community') {
+        socket.emit("typing", { username });
+      }
     });
 
     chatInput.addEventListener("keydown", function (event) {
@@ -766,8 +1211,13 @@
       this.style.height = "auto";
       this.style.height = this.scrollHeight + "px";
     });
+
+    // Register user for DM rooms
+    if (navigator.onLine && username && username !== 'N/A') {
+      try { socket.emit('register_user', { username }); } catch {}
+    }
     
-    function appendMessage(data) {
+    function appendCommunityMessage(data) {
       const isOwnMessage = data.username === username;
 
       // Create message wrapper
@@ -776,11 +1226,14 @@
       msgWrapper.classList.add(isOwnMessage ? "justify-end" : "justify-start");
       msgWrapper.classList.add("message", isOwnMessage ? "self" : "other");
 
-      // Add avatar
+      // Add avatar (fallback to default if missing)
       const avatar = document.createElement("img");
+      const fallbackAvatar = '/images/default_avatar.png';
+      // Prefer uploaded avatar if available; fall back to default
       avatar.src = `/uploads/${data.username}/avatar.png`;
       avatar.alt = `${data.username}'s avatar`;
       avatar.className = "w-8 h-8 rounded-full object-cover";
+      avatar.onerror = function(){ this.onerror=null; this.src = fallbackAvatar; };
       msgWrapper.appendChild(avatar);
 
       // Create message bubble
@@ -796,7 +1249,9 @@
       let body;
       if (data.fileData && data.fileName) {
         const ext = data.fileName.split(".").pop().toLowerCase();
-        const imageExts = ["png", "jpg", "jpeg", "gif", "webp"];
+        const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+        const videoExts = ["mp4", "webm", "ogg", "mov", "m4v"];
+        const audioExts = ["mp3", "wav", "ogg", "m4a", "aac", "flac"];
 
         if (imageExts.includes(ext)) {
           bubble.classList.add("image-bubble");
@@ -804,6 +1259,15 @@
           body.src = data.fileData;
           body.alt = data.fileName;
           body.className = "max-w-xs rounded shadow cursor-pointer";
+        } else if (videoExts.includes(ext)) {
+          body = document.createElement("video");
+          body.controls = true;
+          body.src = data.fileData;
+          body.className = "max-w-xs rounded";
+        } else if (audioExts.includes(ext)) {
+          body = document.createElement("audio");
+          body.controls = true;
+          body.src = data.fileData;
         } else {
           bubble.classList.add("message", isOwnMessage ? "self" : "other");
           body = document.createElement("a");
@@ -831,16 +1295,126 @@
       }
 
       // Append to chat
-      chatMessages.appendChild(msgWrapper);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      chatMessagesCommunity.appendChild(msgWrapper);
+      chatMessagesCommunity.scrollTop = chatMessagesCommunity.scrollHeight;
     }
 
-    function sendMessage() {
+    function appendAiBubble(role, content) {
+      const isOwn = role === 'user';
+
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('flex', 'items-start', 'gap-2', 'mb-2');
+      wrapper.classList.add(isOwn ? 'justify-end' : 'justify-start');
+
+      const avatar = document.createElement('img');
+      const myAvatar = localStorage.getItem('avatar') || `/uploads/${username}/avatar.png`;
+      avatar.src = isOwn ? myAvatar : '/images/Zylo_icon.ico';
+      avatar.onerror = function(){ 
+        this.onerror=null; 
+        this.src = '/images/default_avatar.png'; 
+      };
+      avatar.alt = isOwn ? `${username}'s avatar` : 'AI avatar';
+      avatar.className = 'w-8 h-8 rounded-full object-cover';
+
+      const bubble = document.createElement('div');
+      bubble.classList.add('message', isOwn ? 'self' : 'other');
+
+      const header = document.createElement('div');
+      header.className = 'text-xs opacity-75 mb-1';
+      header.textContent = `${isOwn ? username : 'AI'} | ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
+      const body = document.createElement('div');
+      body.textContent = content;
+
+      // Feedback actions for assistant messages
+      if (!isOwn) {
+        const actions = document.createElement('div');
+        actions.className = 'mt-1 flex gap-2 opacity-70 text-xs';
+        const like = document.createElement('button');
+        like.textContent = '👍 Improve like this';
+        like.className = 'hover:underline';
+        like.onclick = async () => {
+          const persona = aiPersonaSelect?.value || localStorage.getItem('ai_persona') || 'helper';
+          const prompt = (aiConversation[aiConversation.length-1]?.content) || '';
+          const targetPhrase = prompt.split(' ').slice(0, 3).join(' ') || 'thanks';
+          try {
+            await fetch('/api/ai/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, persona, prompt, targetPhrase }) });
+            like.textContent = '✅ Noted';
+          } catch {}
+        };
+        const dislike = document.createElement('button');
+        dislike.textContent = '👎 Less like this';
+        dislike.className = 'hover:underline';
+        dislike.onclick = async () => {
+          const persona = aiPersonaSelect?.value || localStorage.getItem('ai_persona') || 'helper';
+          const prompt = (aiConversation[aiConversation.length-1]?.content) || '';
+          const targetPhrase = 'avoid';
+          try {
+            await fetch('/api/ai/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, persona, prompt, targetPhrase }) });
+            dislike.textContent = '✅ Noted';
+          } catch {}
+        };
+        actions.appendChild(like);
+        actions.appendChild(dislike);
+        bubble.appendChild(actions);
+      }
+
+      bubble.appendChild(header);
+      bubble.appendChild(body);
+
+      if (isOwn) {
+        wrapper.appendChild(bubble);
+        wrapper.appendChild(avatar);
+      } else {
+        wrapper.appendChild(avatar);
+        wrapper.appendChild(bubble);
+      }
+
+      chatMessagesAI.appendChild(wrapper);
+      chatMessagesAI.scrollTop = chatMessagesAI.scrollHeight;
+    }
+
+    async function sendMessage() {
       const message = chatInput.value.trim();
-      if (message) {
+      if (!message) return;
+
+      if (currentChatRoom === 'community') {
         socket.emit("send_message", { username, message });
         chatInput.value = "";
         chatInput.style.height = "auto";
+        return;
+      }
+
+      // AI chat path
+      const model = aiModelSelect?.value || '';
+      const persona = aiPersonaSelect?.value || localStorage.getItem('ai_persona') || 'helper';
+      const payload = {
+        model,
+        persona,
+        username,
+        messages: [...aiConversation, { role: 'user', content: message }]
+      };
+
+      // Optimistically render user message
+      appendAiBubble('user', message);
+      aiConversation.push({ role: 'user', content: message });
+      localStorage.setItem('ai_conversation', JSON.stringify(aiConversation));
+      chatInput.value = "";
+      chatInput.style.height = "auto";
+
+      try {
+        const res = await fetch('/api/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const reply = data.reply || data.response || 'Sorry, no reply available.';
+        appendAiBubble('assistant', reply);
+        aiConversation.push({ role: 'assistant', content: reply });
+        localStorage.setItem('ai_conversation', JSON.stringify(aiConversation));
+      } catch (e) {
+        appendAiBubble('assistant', 'There was an error contacting the AI.');
       }
     }
 
@@ -893,7 +1467,7 @@
     });
 
     socket.on("receive_message", (data) => {
-      appendMessage(data);
+      appendCommunityMessage(data);
     });
 
     socket.on("receive_file", (data) => {
@@ -908,6 +1482,7 @@
       avatar.src = `/uploads/${data.username}/avatar.png`;
       avatar.alt = `${data.username}'s avatar`;
       avatar.className = "w-8 h-8 rounded-full object-cover";
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
 
       // File bubble
       const bubble = document.createElement("div");
@@ -919,19 +1494,33 @@
 
       let fileContent;
       const ext = data.fileName.split(".").pop().toLowerCase();
-      const imageExts = ["png", "jpg", "jpeg", "gif", "webp"];
+      const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+      const videoExts = ["mp4", "webm", "ogg", "mov", "m4v"];
+      const audioExts = ["mp3", "wav", "ogg", "m4a", "aac", "flac"];
 
       if (imageExts.includes(ext)) {
         fileContent = document.createElement("img");
         fileContent.src = data.fileData;
         fileContent.alt = data.fileName;
         fileContent.className = "max-w-xs rounded";
+      } else if (videoExts.includes(ext)) {
+        const video = document.createElement("video");
+        video.controls = true;
+        video.src = data.fileData;
+        video.className = "max-w-xs rounded";
+        fileContent = video;
+      } else if (audioExts.includes(ext)) {
+        const audio = document.createElement("audio");
+        audio.controls = true;
+        audio.src = data.fileData;
+        fileContent = audio;
       } else {
-        fileContent = document.createElement("a");
-        fileContent.href = data.fileData;
-        fileContent.download = data.fileName;
-        fileContent.textContent = `📎 ${data.fileName}`;
-        fileContent.className = "text-blue-400 underline";
+        const link = document.createElement("a");
+        link.href = data.fileData;
+        link.download = data.fileName;
+        link.textContent = `📎 ${data.fileName}`;
+        link.className = "text-blue-400 underline";
+        fileContent = link;
       }
 
       bubble.appendChild(header);
@@ -945,8 +1534,8 @@
         wrapper.appendChild(bubble);
       }
 
-      chatMessages.appendChild(wrapper);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      chatMessagesCommunity.appendChild(wrapper);
+      chatMessagesCommunity.scrollTop = chatMessagesCommunity.scrollHeight;
     });
 
     function updateTypingIndicator() {
@@ -966,11 +1555,324 @@
       }
     }
 
-    fetch("/api/messages")
-      .then((res) => res.json())
-      .then((msgs) => msgs.forEach(appendMessage));
+    if (navigator.onLine) {
+      fetch("/api/messages")
+        .then((res) => res.json())
+        .then((msgs) => msgs.forEach(appendCommunityMessage))
+        .catch(() => {});
+    } else {
+      // Render nothing; app still loads offline
+    }
+
+    function switchChatRoom(room) {
+      currentChatRoom = room;
+      localStorage.setItem('chatRoom', room);
+      const btnCommunity = document.getElementById('btnRoomCommunity');
+      const btnAI = document.getElementById('btnRoomAI');
+
+      if (room === 'community') {
+        chatMessagesCommunity.classList.remove('hidden');
+        chatMessagesAI.classList.add('hidden');
+        aiControls.classList.add('hidden');
+        btnCommunity.classList.add('bg-blue-600', 'text-white');
+        btnAI.classList.remove('bg-blue-600', 'text-white');
+      } else {
+        chatMessagesCommunity.classList.add('hidden');
+        chatMessagesAI.classList.remove('hidden');
+        aiControls.classList.remove('hidden');
+        btnAI.classList.add('bg-blue-600', 'text-white');
+        btnCommunity.classList.remove('bg-blue-600', 'text-white');
+        // Render saved AI conversation
+        restoreAiConversation();
+      }
+    }
+
+    function restoreAiConversation() {
+      try {
+        aiConversation = JSON.parse(localStorage.getItem('ai_conversation') || '[]');
+      } catch { aiConversation = []; }
+      chatMessagesAI.innerHTML = '';
+      aiConversation.forEach(msg => appendAiBubble(msg.role, msg.content));
+    }
+
+    function clearAiConversation() {
+      aiConversation = [];
+      localStorage.removeItem('ai_conversation');
+      chatMessagesAI.innerHTML = '';
+    }
+
+    async function loadAiModels() {
+      try {
+        const res = await fetch('/api/ai/models');
+        const data = await res.json();
+        const models = data.models || [];
+        aiModelSelect.innerHTML = '';
+        models.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m;
+          opt.textContent = m;
+          aiModelSelect.appendChild(opt);
+        });
+        const saved = localStorage.getItem('ai_model');
+        if (saved && models.includes(saved)) {
+          aiModelSelect.value = saved;
+        }
+        aiModelSelect.addEventListener('change', () => {
+          localStorage.setItem('ai_model', aiModelSelect.value);
+        });
+      } catch {}
+    }
+
+    async function loadAiPersonas() {
+      try {
+        const res = await fetch('/api/ai/personas');
+        const data = await res.json();
+        const personas = (data.personas || []).map(p => ({ key: p.key, name: p.name }));
+        aiPersonaSelect.innerHTML = '';
+        personas.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.key;
+          opt.textContent = p.name;
+          aiPersonaSelect.appendChild(opt);
+        });
+        const saved = localStorage.getItem('ai_persona');
+        if (saved) aiPersonaSelect.value = saved;
+        aiPersonaSelect.addEventListener('change', () => {
+          localStorage.setItem('ai_persona', aiPersonaSelect.value);
+        });
+      } catch {}
+    }
 
     // Profile Functions
+    // ---- Friends UI logic ----
+    async function loadFriends() {
+      const u = localStorage.getItem('username');
+      if (!u) return;
+      try {
+        const res = await fetch(`/api/friends?username=${encodeURIComponent(u)}`);
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        friendsState = { friends: data.friends || [], incoming: data.incoming || [], outgoing: data.outgoing || [] };
+        renderFriends();
+      } catch {}
+    }
+
+    function renderFriends() {
+      const friendsEl = document.getElementById('friendsList');
+      const incomingEl = document.getElementById('incomingList');
+      const outgoingEl = document.getElementById('outgoingList');
+      if (!friendsEl || !incomingEl || !outgoingEl) return;
+      friendsEl.innerHTML = '';
+      incomingEl.innerHTML = '';
+      outgoingEl.innerHTML = '';
+      friendsState.friends.forEach(name => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded px-2 py-1';
+        li.innerHTML = `<span>${name}</span><span class="space-x-1"><button class="text-xs text-blue-500" onclick="openDM('${name}')">Message</button><button class="text-xs text-red-400" onclick="removeFriend('${name}')">Remove</button></span>`;
+        friendsEl.appendChild(li);
+      });
+      friendsState.incoming.forEach(name => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded px-2 py-1';
+        li.innerHTML = `<span>${name}</span><span class="space-x-1"><button class="text-xs text-green-500" onclick="acceptFriend('${name}')">Accept</button><button class="text-xs text-gray-400" onclick="declineFriend('${name}')">Decline</button></span>`;
+        incomingEl.appendChild(li);
+      });
+      friendsState.outgoing.forEach(name => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded px-2 py-1';
+        li.innerHTML = `<span>${name}</span><span class="text-xs"><span class="opacity-70 mr-2">Pending</span><button class="text-blue-500" onclick="cancelFriendRequest('${name}')">Cancel</button></span>`;
+        outgoingEl.appendChild(li);
+      });
+    }
+
+    async function requestFriend() {
+      const input = document.getElementById('addFriendInput');
+      const to = (input?.value || '').trim();
+      const from = localStorage.getItem('username');
+      if (!to || !from) return;
+      try {
+        const res = await fetch('/api/friends/request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ from, to }) });
+        await res.json();
+        input.value = '';
+        loadFriends();
+      } catch {}
+    }
+    async function acceptFriend(from) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      await fetch('/api/friends/accept', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, from }) });
+      loadFriends();
+    }
+    async function declineFriend(from) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      await fetch('/api/friends/decline', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, from }) });
+      loadFriends();
+    }
+    async function cancelFriendRequest(target) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      await fetch('/api/friends/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, to: target }) });
+      loadFriends();
+    }
+    async function removeFriend(friend) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      await fetch('/api/friends/remove', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, friend }) });
+      loadFriends();
+    }
+
+    // ---- Groups UI logic ----
+    function setActiveGroup(group) {
+      groupsState.activeId = group?.id || null;
+      document.getElementById('activeGroupTitle').textContent = group ? `# ${group.name}` : 'Select a group';
+      const meta = document.getElementById('activeGroupMeta');
+      if (meta) meta.textContent = group ? `${(group.members||[]).length} members` : '';
+      document.getElementById('groupMessages').innerHTML = '';
+      if (!group) return;
+      if (navigator.onLine) socket.emit('join_group', { groupId: group.id, username: localStorage.getItem('username') });
+      fetch(`/api/groups/${group.id}/messages`).then(r => r.json()).then(msgs => {
+        msgs.forEach(m => appendGroupMessage(m));
+      }).catch(() => {});
+    }
+
+    function appendGroupMessage(data) {
+      const isOwnMessage = (data.username || '') === (localStorage.getItem('username') || '');
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('flex', 'items-start', 'gap-2', 'mb-2');
+      wrapper.classList.add(isOwnMessage ? 'justify-end' : 'justify-start');
+      const avatar = document.createElement('img');
+      avatar.src = `/uploads/${data.username}/avatar.png`;
+      avatar.alt = `${data.username}'s avatar`;
+      avatar.className = 'w-8 h-8 rounded-full object-cover';
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
+      const bubble = document.createElement('div');
+      bubble.classList.add('message', isOwnMessage ? 'self' : 'other');
+      const header = document.createElement('div');
+      header.className = 'text-xs opacity-75 mb-1';
+      header.textContent = `${data.username} | ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+      let body;
+      if (data.fileData && data.fileName) {
+        const ext = (data.fileName.split('.').pop() || '').toLowerCase();
+        const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+        const videoExts = ["mp4", "webm", "ogg", "mov", "m4v"];
+        const audioExts = ["mp3", "wav", "ogg", "m4a", "aac", "flac"];
+        if (imageExts.includes(ext)) {
+          body = document.createElement('img');
+          body.src = data.fileData;
+          body.alt = data.fileName;
+          body.className = 'max-w-xs rounded';
+        } else if (videoExts.includes(ext)) {
+          body = document.createElement('video');
+          body.controls = true; body.src = data.fileData; body.className = 'max-w-xs rounded';
+        } else if (audioExts.includes(ext)) {
+          body = document.createElement('audio');
+          body.controls = true; body.src = data.fileData;
+        } else {
+          body = document.createElement('a');
+          body.href = data.fileData; body.download = data.fileName; body.textContent = `📎 ${data.fileName}`; body.className = 'text-blue-400 underline';
+        }
+      } else {
+        body = document.createElement('div');
+        body.textContent = data.message;
+      }
+      bubble.appendChild(header);
+      bubble.appendChild(body);
+      if (isOwnMessage) { wrapper.appendChild(bubble); wrapper.appendChild(avatar); }
+      else { wrapper.appendChild(avatar); wrapper.appendChild(bubble); }
+      document.getElementById('groupMessages').appendChild(wrapper);
+      const gm = document.getElementById('groupMessages');
+      gm.scrollTop = gm.scrollHeight;
+    }
+
+    async function refreshGroups() {
+      const u = localStorage.getItem('username');
+      if (!u) return;
+      try {
+        const res = await fetch(`/api/groups?username=${encodeURIComponent(u)}`);
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        groupsState.list = data.groups || [];
+        const listEl = document.getElementById('groupsList');
+        listEl.innerHTML = '';
+        groupsState.list.forEach(g => {
+          const li = document.createElement('li');
+          li.className = 'flex items-center justify-between px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer';
+          li.innerHTML = `<div class="flex items-center gap-2"><span class="truncate"># ${g.name}</span><span class="text-[10px] opacity-60">${(g.members||[]).length} members</span></div><button class="text-xs text-blue-500" onclick="joinGroup('${g.id}')">Open</button>`;
+          li.addEventListener('click', () => setActiveGroup(g));
+          listEl.appendChild(li);
+        });
+      } catch {}
+    }
+
+    async function createGroup() {
+      const owner = localStorage.getItem('username');
+      const name = document.getElementById('newGroupName')?.value?.trim();
+      const description = document.getElementById('newGroupDesc')?.value?.trim();
+      if (!owner || !name) return;
+      try {
+        const res = await fetch('/api/groups/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ owner, name, description }) });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          document.getElementById('newGroupName').value = '';
+          document.getElementById('newGroupDesc').value = '';
+          refreshGroups();
+        }
+      } catch {}
+    }
+
+    async function joinGroup(groupId) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      try {
+        await fetch('/api/groups/join', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, groupId }) });
+        refreshGroups();
+        const g = (groupsState.list || []).find(x => x.id === groupId);
+        if (g) setActiveGroup(g);
+      } catch {}
+    }
+
+    function sendGroupMessage() {
+      const input = document.getElementById('groupChatInput');
+      const message = (input?.value || '').trim();
+      if (!message || !groupsState.activeId) return;
+      const payload = { groupId: groupsState.activeId, username: localStorage.getItem('username'), message };
+      if (navigator.onLine) {
+        socket.emit('send_group_message', payload);
+      } else {
+        // Only append locally if offline
+        appendGroupMessage(payload);
+      }
+      input.value = '';
+      input.style.height = 'auto';
+    }
+
+    function sendGroupFile(event) {
+      const file = event.target.files?.[0];
+      if (!file || !groupsState.activeId) return;
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const payload = { groupId: groupsState.activeId, username: localStorage.getItem('username'), fileName: file.name, fileType: file.type, fileData: e.target.result };
+        if (navigator.onLine) {
+          socket.emit('send_group_file', payload);
+          // Don't render optimistically when online - socket will handle it
+        } else {
+          // Only render optimistically when offline
+          appendGroupMessage(payload);
+        }
+        event.target.value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    if (typeof io !== 'undefined') {
+      socket.on('receive_group_message', (data) => {
+        if (data.groupId === groupsState.activeId) appendGroupMessage(data);
+      });
+      socket.on('receive_group_file', (data) => {
+        if (data.groupId === groupsState.activeId) appendGroupMessage(data);
+      });
+    }
     window.addEventListener("DOMContentLoaded", async () => {
         const username = localStorage.getItem("username");
         if (!username) {
@@ -980,6 +1882,7 @@
         }
 
         try {
+            if (!navigator.onLine) throw new Error('offline');
             const res = await fetch(`/api/get-user?identifier=${username}`);
             const data = await res.json();
 
@@ -988,19 +1891,145 @@
 
                 document.getElementById("profileUsername").textContent = updated.username;
                 document.getElementById("profileUsertag").textContent = updated.usertag;
-                document.getElementById("aboutMe").value = updated.aboutMe || "";
-                document.getElementById("avatarImage").src = updated.avatar || "/images/default-avatar.png";
-                document.getElementById("bannerImage").src = updated.banner || "/images/default-banner.png";
+                const el_aboutMe = document.getElementById("aboutMe"); if (el_aboutMe) el_aboutMe.value = updated.aboutMe || "";
+                document.getElementById("avatarImage").src = updated.avatar || "/images/default_avatar.png";
+                document.getElementById("bannerImage").src = updated.banner || "/images/default_banner.png";
+                
+                // Update settings avatar and banner too
+                const settingsAvatar = document.getElementById("settingsAvatar");
+                const settingsBanner = document.getElementById("settingsBanner");
+                if (settingsAvatar) settingsAvatar.src = updated.avatar || "/images/default_avatar.png";
+                if (settingsBanner) settingsBanner.src = updated.banner || "/images/default_banner.png";
             } else {
                 console.error("User not found");
             }
         } catch (err) {
-            console.error("Error fetching user data", err);
+            // Offline fallback: populate from localStorage if available
+            const cached = {
+              username: localStorage.getItem('username'),
+              usertag: localStorage.getItem('usertag'),
+              aboutMe: localStorage.getItem('aboutMe') || '',
+              avatar: localStorage.getItem('avatar') || '/images/default_avatar.png',
+              banner: localStorage.getItem('banner') || '/images/default_banner.png',
+              level: parseInt(localStorage.getItem('level') || '0', 10),
+              gold: parseInt(localStorage.getItem('gold') || '0', 10),
+              rank: localStorage.getItem('rank') || 'Unranked'
+            };
+            document.getElementById("profileUsername").textContent = cached.username || 'N/A';
+            document.getElementById("profileUsertag").textContent = cached.usertag || 'N/A';
+            const el_aboutMe = document.getElementById("aboutMe"); if (el_aboutMe) el_aboutMe.value = cached.aboutMe;
+            document.getElementById("avatarImage").src = cached.avatar;
+            document.getElementById("bannerImage").src = cached.banner;
+            document.getElementById("statLevel").textContent = cached.level;
+            document.getElementById("statGold").textContent = cached.gold;
+            document.getElementById("statRank").textContent = cached.rank;
         }
     });
 
+    // ---- DMs ----
+    let dmState = { active: null };
+    function setActiveDM(peer){
+      dmState.active = peer || null;
+      const header = document.getElementById('dmHeader');
+      const msgs = document.getElementById('dmMessages');
+      if (header) header.textContent = peer ? `DM with ${peer}` : 'Select a friend and click Message to start.';
+      if (!peer) { if (msgs) msgs.innerHTML=''; return; }
+      // Load history
+      const me = localStorage.getItem('username');
+      fetch(`/api/dm/history?userA=${encodeURIComponent(me)}&userB=${encodeURIComponent(peer)}`).then(r=>r.json()).then(list => {
+        msgs.innerHTML='';
+        list.forEach(m => appendDMMessage(m));
+        msgs.scrollTop = msgs.scrollHeight;
+      }).catch(()=>{});
+    }
+    function openDM(peer){ setActiveDM(peer); }
+    function appendDMMessage(data){
+      const me = localStorage.getItem('username') || '';
+      const isOwn = (data.from||'') === me;
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('flex','items-start','gap-2','mb-2');
+      wrapper.classList.add(isOwn ? 'justify-end':'justify-start');
+      const avatar = document.createElement('img');
+      const author = isOwn ? me : (data.from||'');
+      avatar.src = `/uploads/${author}/avatar.png`;
+      avatar.alt = `${author}'s avatar`;
+      avatar.className = 'w-8 h-8 rounded-full object-cover';
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
+      const bubble = document.createElement('div');
+      bubble.classList.add('message', isOwn ? 'self':'other');
+      const header = document.createElement('div');
+      header.className = 'text-xs opacity-75 mb-1';
+      header.textContent = `${author} | ${new Date((data.ts||Date.now())*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+      let body;
+      if (data.fileData && data.fileName){
+        const ext = (data.fileName.split('.').pop()||'').toLowerCase();
+        const imageExts = ["png","jpg","jpeg","gif","webp","svg"];
+        const videoExts = ["mp4","webm","ogg","mov","m4v"];
+        const audioExts = ["mp3","wav","ogg","m4a","aac","flac"];
+        if (imageExts.includes(ext)) { body = document.createElement('img'); body.src = data.fileData; body.alt = data.fileName; body.className='max-w-xs rounded'; }
+        else if (videoExts.includes(ext)) { const v=document.createElement('video'); v.controls=true; v.src=data.fileData; v.className='max-w-xs rounded'; body=v; }
+        else if (audioExts.includes(ext)) { const a=document.createElement('audio'); a.controls=true; a.src=data.fileData; body=a; }
+        else { const a=document.createElement('a'); a.href=data.fileData; a.download=data.fileName; a.textContent=`📎 ${data.fileName}`; a.className='text-blue-400 underline'; body=a; }
+      } else if (data.message){
+        body = document.createElement('div');
+        body.textContent = data.message;
+      }
+      bubble.appendChild(header); if (body) bubble.appendChild(body);
+      if (isOwn){ wrapper.appendChild(bubble); wrapper.appendChild(avatar); }
+      else { wrapper.appendChild(avatar); wrapper.appendChild(bubble); }
+      const msgs = document.getElementById('dmMessages');
+      msgs.appendChild(wrapper);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+    function sendDMMessage(){
+      const me = localStorage.getItem('username');
+      const peer = dmState.active;
+      if (!me || !peer) return;
+      const input = document.getElementById('dmInput');
+      const msg = (input?.value||'').trim();
+      if (!msg) return;
+      const payload = { from: me, to: peer, message: msg };
+      if (navigator.onLine) {
+        socket.emit('send_dm', payload);
+        // Don't render optimistically when online - socket will handle it
+      } else {
+        // Only render optimistically when offline
+        appendDMMessage(payload);
+      }
+      input.value=''; input.style.height='auto';
+      fetch('/api/dm/send', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).catch(()=>{});
+    }
+    function sendDMFile(event){
+      const file = event.target.files?.[0];
+      const me = localStorage.getItem('username');
+      const peer = dmState.active;
+      if (!file || !me || !peer) return;
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const payload = { from: me, to: peer, fileName: file.name, fileType: file.type, fileData: e.target.result };
+        if (navigator.onLine) {
+          socket.emit('send_dm', payload);
+          // Don't render optimistically when online - socket will handle it
+        } else {
+          // Only render optimistically when offline
+          appendDMMessage(payload);
+        }
+        fetch('/api/dm/send', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).catch(()=>{});
+        event.target.value='';
+      };
+      reader.readAsDataURL(file);
+    }
+    if (typeof io !== 'undefined') {
+      socket.on('receive_dm', (data) => {
+        const me = localStorage.getItem('username') || '';
+        if (!dmState.active) return; // ignore if no DM open
+        const { from, to } = data || {};
+        if ((from===me && to===dmState.active) || (to===me && from===dmState.active)) appendDMMessage(data);
+      });
+    }
+
     function saveAboutMe() {
-      const about = document.getElementById("aboutMe").value;
+      const about = document.getElementById("aboutMe")?.value;
       localStorage.setItem("aboutMe", about);
     }
 
@@ -1029,15 +2058,19 @@
     }
 
     async function loadStats() {
-      const baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+      const baseUrl = window.location.origin;
       try {
+        if (!navigator.onLine) throw new Error('offline');
         const res = await fetch(`${baseUrl}/api/stats`);
         const data = await res.json();
         document.getElementById("stat-users").textContent = data.users;
         document.getElementById("stat-messages").textContent = data.messages;
         document.getElementById("stat-rooms").textContent = data.rooms;
       } catch (err) {
-        console.error("Failed to load stats", err);
+        // Populate with cached or default values when offline
+        document.getElementById("stat-users").textContent = localStorage.getItem('stat-users') || '0';
+        document.getElementById("stat-messages").textContent = localStorage.getItem('stat-messages') || '0';
+        document.getElementById("stat-rooms").textContent = localStorage.getItem('stat-rooms') || '1';
       }
     }
 
@@ -1064,8 +2097,21 @@
           dragMode: 'move',
           responsive: true,
         });
+
+        const zoomSlider = document.getElementById('zoomSlider');
+        if (zoomSlider) {
+          zoomSlider.oninput = (ev) => {
+            try {
+              const level = parseFloat(ev.target.value || '1');
+              if (cropper) cropper.zoomTo(level);
+            } catch {}
+          };
+        }
       };
       reader.readAsDataURL(file);
+
+      // reset file input so selecting the same file twice still triggers change
+      event.target.value = "";
     }
 
     function rotateImage(deg) {
@@ -1076,6 +2122,9 @@
       cropper?.destroy();
       cropper = null;
       document.getElementById('cropperModal').classList.add('hidden');
+      // also clear zoom slider back to default
+      const z = document.getElementById('zoomSlider');
+      if (z) z.value = '1';
     }
 
     function applyCrop() {
@@ -1089,9 +2138,25 @@
       if (currentTarget === 'avatar') {
         document.getElementById('avatarImage').src = imageUrl;
         localStorage.setItem('avatar', imageUrl);
+        // Update settings avatar too
+        const settingsAvatar = document.getElementById('settingsAvatar');
+        if (settingsAvatar) settingsAvatar.src = imageUrl;
       } else if (currentTarget === 'banner') {
         document.getElementById('bannerImage').src = imageUrl;
         localStorage.setItem('banner', imageUrl);
+        // Update settings banner too
+        const settingsBanner = document.getElementById('settingsBanner');
+        if (settingsBanner) settingsBanner.src = imageUrl;
+      }
+
+      // Ask user if they want to use this image as background
+      if (confirm(`Would you like to use this ${currentTarget} as your background image?`)) {
+        localStorage.setItem('bgImageDataUrl', imageUrl);
+        // Set theme mode to custom to show the background
+        localStorage.setItem('themeMode', 'custom');
+        applyBackground();
+        applyThemeMode('custom');
+        alert('Background updated! You can change this anytime in Settings > Appearance.');
       }
 
       closeCropper();
@@ -1116,17 +2181,27 @@
 
           document.getElementById("profileUsername").textContent = user.username || "N/A";
           document.getElementById("profileUsertag").textContent = user.usertag || "N/A";
-          document.getElementById("avatarImage").src = user.avatar || "images/default_avatar.png";
-          document.getElementById("bannerImage").src = user.banner || "images/default_banner.png";
-          document.getElementById("aboutMe").value = user.aboutMe || "";
-          document.getElementById("statLevel").textContent = user.level || 0;
-          document.getElementById("statGold").textContent = user.gold || 0;
-          document.getElementById("statRank").textContent = user.rank || "Unranked";
+          document.getElementById("avatarImage").src = user.avatar || "/images/default_avatar.png";
+          document.getElementById("bannerImage").src = user.banner || "/images/default_banner.png";
+          const el_aboutMe = document.getElementById("aboutMe"); if (el_aboutMe) el_aboutMe.value = user.aboutMe || "";
+          const email = user.email || (localStorage.getItem('savedEmail') || 'Hidden');
+          const pe = document.getElementById('profileEmail'); if (pe) pe.textContent = email;
 
       } catch (err) {
           console.error("Error fetching user data", err);
       }
     }
+
+    document.querySelectorAll("#profileTabs .profile-tab").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#profileTabs .profile-tab").forEach(b => b.classList.remove("active","text-white"));
+        btn.classList.add("active","text-white");
+        const tab = btn.dataset.tab;
+        document.querySelectorAll("#profileTabContent .tab-pane").forEach(p => {
+          p.classList.toggle("hidden", p.dataset.tab !== tab);
+        });
+      });
+    });
 
     /// Optional Status Functions
     function toRoman(num) {
@@ -1161,43 +2236,19 @@
     }
 
     function getRankColor(rank) {
-      rank = rank.toLowerCase();
-      if (rank.startsWith("stone")) return "#808080"; // gray
-      if (rank.startsWith("metal")) return "#a8a9ad"; // silver
-      if (rank.startsWith("gold")) return "#FFD700"; // gold yellow
-      if (rank.startsWith("mithril") && !rank.startsWith("black")) return "#87CEFA"; // light blue
-      if (rank.startsWith("black mithril")) return "#4682B4"; // dark light blue
-      if (rank.startsWith("grand master")) return "#4B0082"; // dark purple
-      if (rank.startsWith("master")) return "#800080"; // purple
-      if (rank.startsWith("Master Slayer")) return "#FF4500"; // Bright orange-red
+      const lowered = String(rank || '').toLowerCase();
+      if (lowered.startsWith("stone")) return "#808080"; // gray
+      if (lowered.startsWith("metal")) return "#a8a9ad"; // silver
+      if (lowered.startsWith("gold")) return "#FFD700"; // gold yellow
+      if (lowered.startsWith("mithril") && !lowered.startsWith("black")) return "#87CEFA"; // light blue
+      if (lowered.startsWith("black mithril")) return "#4682B4"; // dark light blue
+      if (lowered.startsWith("grand master")) return "#4B0082"; // dark purple
+      if (lowered.startsWith("master slayer")) return "#FF4500"; // Bright orange-red
+      if (lowered.startsWith("master")) return "#800080"; // purple
       return "#ffffff"; // default white
     }
 
-    document.addEventListener("keydown", function (e) {
-      if (e.ctrlKey && e.key.toLowerCase() === "a") {
-        e.preventDefault();
-
-        const levelEl = document.querySelector("#tab-profile .grid div:nth-child(1) p.font-bold");
-        const goldEl = document.querySelector("#tab-profile .grid div:nth-child(2) p.font-bold");
-        const rankEl = document.getElementById("statRank");
-
-        let level = parseInt(levelEl.textContent) || 0;
-        let gold = parseInt(goldEl.textContent.replace(/,/g, "")) || 0;
-
-        // +1000 for testing
-        level += 10;
-        if (level > 450) level = 450; // cap at max level
-        gold += 1000;
-
-        levelEl.textContent = level;
-        goldEl.textContent = gold.toLocaleString();
-
-        // Update rank & color
-        const rank = getRank(level);
-        rankEl.textContent = rank;
-        rankEl.style.color = getRankColor(rank);
-      }
-    });
+    // Removed hidden stat hotkey handler
 
     const saveBtn = document.getElementById("saveProfileBtn");
     let initialProfileData = {};
@@ -1218,10 +2269,7 @@
           usertag: '@' + usertag,
           avatar: document.getElementById("avatarImage").src,
           banner: document.getElementById("bannerImage").src,
-          about: document.getElementById("aboutMe").value.trim(),
-          level: parseInt(document.getElementById("statLevel").textContent) || 0,
-          gold: parseInt(document.getElementById("statGold").textContent.replace(/,/g, "")) || 0,
-          rank: document.getElementById("statRank").textContent
+          about: document.getElementById("aboutMe")?.value.trim()
         };
 
         // Send update to backend
@@ -1241,10 +2289,9 @@
           document.getElementById("profileUsertag").textContent = updated.usertag || updatedProfile.usertag;
           document.getElementById("avatarImage").src = updated.avatar || updatedProfile.avatar;
           document.getElementById("bannerImage").src = updated.banner || updatedProfile.banner;
-          document.getElementById("aboutMe").value = updated.aboutMe || updatedProfile.aboutMe;
-          document.getElementById("statLevel").textContent = updated.level ?? updatedProfile.level;
-          document.getElementById("statGold").textContent = (updated.gold ?? updatedProfile.gold).toLocaleString();
-          document.getElementById("statRank").textContent = updated.rank || updatedProfile.rank;
+          const el_aboutMe = document.getElementById("aboutMe"); if (el_aboutMe) el_aboutMe.value = updated.aboutMe || updatedProfile.aboutMe;
+          const eVal = updated.email || localStorage.getItem('savedEmail') || 'Hidden';
+          const pe = document.getElementById('profileEmail'); if (pe) pe.textContent = eVal;
 
           // Reset initial data
           captureInitialProfileData();
@@ -1274,7 +2321,7 @@
 
     function captureInitialProfileData() {
       initialProfileData = {
-        aboutMe: document.getElementById("aboutMe").value.trim(),
+        aboutMe: document.getElementById("aboutMe")?.value.trim(),
         banner: document.getElementById("bannerImage").src,
         avatar: document.getElementById("avatarImage").src
       };
@@ -1283,7 +2330,7 @@
 
     function checkProfileChanges() {
       const currentData = {
-        aboutMe: document.getElementById("aboutMe").value.trim(),
+        aboutMe: document.getElementById("aboutMe")?.value.trim(),
         banner: document.getElementById("bannerImage").src,
         avatar: document.getElementById("avatarImage").src
       };
@@ -1292,9 +2339,61 @@
     }
 
     // Watch for changes
-    document.getElementById("aboutMe").addEventListener("input", checkProfileChanges);
-    document.getElementById("bannerUpload").addEventListener("change", (e) => openCropper(e, "banner"));
-    document.getElementById("avatarUpload").addEventListener("change", (e) => openCropper(e, "avatar"));
+    const elAbout = document.getElementById("aboutMe");
+    if (elAbout) elAbout.addEventListener("input", checkProfileChanges);
+
+    const elProfileBanner = document.getElementById("profileBannerUpload");
+    if (elProfileBanner) elProfileBanner.addEventListener("change", (e) => openCropper(e, "banner"));
+
+    const elProfileAvatar = document.getElementById("profileAvatarUpload");
+    if (elProfileAvatar) elProfileAvatar.addEventListener("change", (e) => openCropper(e, "avatar"));
+
+    const elSettingsBanner = document.getElementById("settingsBannerUpload");
+    if (elSettingsBanner) elSettingsBanner.addEventListener("change", (e) => openCropper(e, "banner"));
+
+    const elSettingsAvatar = document.getElementById("settingsAvatarUpload");
+    if (elSettingsAvatar) elSettingsAvatar.addEventListener("change", (e) => openCropper(e, "avatar"));
+
+    // Account settings inline edit helpers
+    function promptUsernameEdit(){
+      const current = localStorage.getItem('username') || '';
+      const next = prompt('Enter new username', current || '');
+      if (!next || next === current) return;
+      const curEl = document.getElementById('currentUsername');
+      if (curEl) curEl.textContent = next;
+      updateUsername(next);
+    }
+    function promptUsertagEdit(){
+      const current = (localStorage.getItem('usertag')||'').replace('@','');
+      const next = prompt('Enter new 4-digit usertag', current || '');
+      if (!next) return;
+      updateUsertag(next);
+    }
+    function promptEmailEdit(){
+      const current = localStorage.getItem('savedEmail') || '';
+      const next = prompt('Enter new email', current || '');
+      if (!next) return;
+      updateEmail(next);
+    }
+
+    // Populate account settings quick view fields
+    (function hydrateAccountSettings(){
+      const name = localStorage.getItem('username') || '';
+      const tag = localStorage.getItem('usertag') || '';
+      const email = localStorage.getItem('savedEmail') || 'Hidden';
+      const avatar = document.getElementById('avatarImage')?.src || '/images/default_avatar.png';
+      const banner = document.getElementById('bannerImage')?.src || '/images/default_banner.png';
+      const uEl = document.getElementById('currentUsername'); if (uEl) uEl.textContent = name;
+      const tEl = document.getElementById('currentUsertag'); if (tEl) tEl.textContent = tag;
+      const eEl = document.getElementById('currentEmail'); if (eEl) eEl.textContent = email;
+      const sa = document.getElementById('settingsAvatar'); if (sa) sa.src = avatar;
+      const sb = document.getElementById('settingsBanner'); if (sb) sb.src = banner;
+      const pe = document.getElementById('profileEmail'); if (pe) pe.textContent = email;
+      const lang = localStorage.getItem('language') || 'en';
+      const sl = document.getElementById('settingsLanguage'); if (sl) sl.value = lang;
+      const pl = document.getElementById('profileLanguage'); if (pl) pl.value = lang;
+      try { feather.replace(); } catch {}
+    })();
 
     // Files Functions
     const files = [
@@ -1387,7 +2486,210 @@
 
     // Settings Functions
 
+    // Settings change tracking
+    let settingsChanged = false;
+    let pendingSettingsChanges = {};
+    let originalSettings = {};
+
+    // Initialize original settings
+    function initializeOriginalSettings() {
+      // General settings
+      settingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key.replace('Toggle', '').replace('Select', ''));
+        if (el) {
+          originalSettings[key] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+      });
+
+      // Sound settings
+      soundSettingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key);
+        if (el) {
+          originalSettings[key] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+      });
+    }
+
+    // Check if settings have changed
+    function checkSettingsChanges() {
+      let hasChanges = false;
+      pendingSettingsChanges = {};
+
+      // Check general settings
+      settingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key.replace('Toggle', '').replace('Select', ''));
+        if (el) {
+          const currentValue = el.type === 'checkbox' ? el.checked : el.value;
+          const originalValue = originalSettings[key];
+          
+          if (currentValue !== originalValue) {
+            hasChanges = true;
+            pendingSettingsChanges[key] = currentValue;
+          }
+        }
+      });
+
+      // Check sound settings
+      soundSettingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key);
+        if (el) {
+          const currentValue = el.type === 'checkbox' ? el.checked : el.value;
+          const originalValue = originalSettings[key];
+          
+          if (currentValue !== originalValue) {
+            hasChanges = true;
+            pendingSettingsChanges[key] = currentValue;
+          }
+        }
+      });
+
+      settingsChanged = hasChanges;
+      updateSaveButtonVisibility();
+    }
+
+    // Update save button visibility
+    function updateSaveButtonVisibility() {
+      const generalSaveBtn = document.getElementById('saveSettingsBtn');
+      const soundSaveBtn = document.getElementById('saveSoundSettingsBtn');
+      const accountSaveBtn = document.getElementById('saveAccountSettingsBtn');
+      
+      if (generalSaveBtn) {
+        generalSaveBtn.style.display = settingsChanged ? 'block' : 'none';
+      }
+      if (soundSaveBtn) {
+        soundSaveBtn.style.display = settingsChanged ? 'block' : 'none';
+      }
+      if (accountSaveBtn) {
+        accountSaveBtn.style.display = settingsChanged ? 'block' : 'none';
+      }
+    }
+
+    // Show save confirmation modal
+    function showSaveSettingsModal() {
+      const modal = document.getElementById('saveSettingsModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      }
+    }
+
+    // Hide save confirmation modal
+    function hideSaveSettingsModal() {
+      const modal = document.getElementById('saveSettingsModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+
+    // Confirm save settings
+    window.confirmSaveSettings = function() {
+      saveAllSettings();
+      hideSaveSettingsModal();
+    };
+
+    // Discard settings changes
+    window.discardSettingsChanges = function() {
+      // Revert to original settings
+      settingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key.replace('Toggle', '').replace('Select', ''));
+        if (el) {
+          const originalValue = originalSettings[key];
+          if (el.type === 'checkbox') {
+            el.checked = originalValue;
+          } else {
+            el.value = originalValue;
+          }
+        }
+      });
+      
+      settingsChanged = false;
+      pendingSettingsChanges = {};
+      updateSaveButtonVisibility();
+      hideSaveSettingsModal();
+    };
+
+    // Cancel save settings
+    window.cancelSaveSettings = function() {
+      hideSaveSettingsModal();
+    };
+
+    // Save all settings
+    function saveAllSettings() {
+      // Save general settings
+      settingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key.replace('Toggle', '').replace('Select', ''));
+        if (el) {
+          const value = el.type === 'checkbox' ? el.checked : el.value;
+          localStorage.setItem(key, value);
+          originalSettings[key] = value;
+        }
+      });
+
+      // Save sound settings
+      soundSettingsMap.forEach(({ key }) => {
+        const el = document.getElementById(key);
+        if (el) {
+          const value = el.type === 'checkbox' ? el.checked : el.value;
+          localStorage.setItem(key, value);
+          originalSettings[key] = value;
+        }
+      });
+
+      // Persist to backend
+      persistSettings(pendingSettingsChanges);
+      
+      settingsChanged = false;
+      pendingSettingsChanges = {};
+      updateSaveButtonVisibility();
+      
+      // Show success message
+      showSettingsSaveSuccess();
+    }
+
+    // Show save success message
+    function showSettingsSaveSuccess() {
+      // Create temporary success message
+      const successMsg = document.createElement('div');
+      successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fadeIn';
+      successMsg.innerHTML = '<i data-feather="check-circle" class="w-4 h-4 inline mr-2"></i>Settings saved successfully!';
+      document.body.appendChild(successMsg);
+      
+      // Replace feather icons
+      feather.replace();
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        successMsg.remove();
+      }, 3000);
+    }
+
     /// General Settings
+    function persistSettings(partial) {
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      fetch('/api/update-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, settings: partial })
+      }).catch(() => {});
+    }
+    async function hydrateSettingsFromBackend(){
+      const username = localStorage.getItem('username');
+      if (!username) return;
+      try {
+        const resp = await fetch(`/api/get-user?identifier=${encodeURIComponent(username)}`);
+        const data = await resp.json();
+        if (!data?.success) return;
+        const settings = data.user?.settings || {};
+        // Merge backend settings into localStorage without overwriting user's local changes for this session
+        Object.entries(settings).forEach(([k, v]) => {
+          if (localStorage.getItem(k) == null) {
+            localStorage.setItem(k, typeof v === 'boolean' ? String(v) : String(v));
+          }
+        });
+      } catch {}
+    }
     const settingsMap = [
       { id: "animationsToggle", key: "enableAnimations" },
       { id: "compactToggle", key: "compactMode" },
@@ -1398,7 +2700,8 @@
       { id: "confirmExitToggle", key: "confirmBeforeExit" }
     ];
 
-    window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", async () => {
+      await hydrateSettingsFromBackend();
       settingsMap.forEach(({ id, key }) => {
         const el = document.getElementById(id);
         const savedValue = localStorage.getItem(key);
@@ -1408,6 +2711,10 @@
         }
       });
       applyGeneralSettings();
+      
+      // Initialize settings change tracking
+      initializeOriginalSettings();
+      checkSettingsChanges();
     });
 
     settingsMap.forEach(({ id, key }) => {
@@ -1417,16 +2724,77 @@
           const value = this.type === "checkbox" ? this.checked : this.value;
           localStorage.setItem(key, value);
           applyGeneralSettings();
+          
+          // Track changes for save confirmation
+          checkSettingsChanges();
+          
+          // Auto-save for some settings (optional)
+          if (['enableAnimations', 'compactMode', 'showTooltips'].includes(key)) {
+            persistSettings({ [key]: value });
+          }
         });
       }
     });
 
     function applyGeneralSettings() {
-      document.body.classList.toggle("no-animations", localStorage.getItem("enableAnimations") === "false");
+      // Animations and compact mode
+      const animationsEnabled = (localStorage.getItem("enableAnimations") ?? 'true') !== "false";
+      document.body.classList.toggle("no-animations", !animationsEnabled);
       document.body.classList.toggle("compact", localStorage.getItem("compactMode") === "true");
-      if (localStorage.getItem("showTooltips") === "false") {
+
+      // Tooltips
+      const showTips = (localStorage.getItem("showTooltips") ?? 'true') === "true";
+      if (!showTips) {
         document.querySelectorAll("[title]").forEach(el => el.removeAttribute("title"));
       }
+
+      // Confirm before exit
+      const wantConfirm = localStorage.getItem("confirmBeforeExit") === "true";
+      window.onbeforeunload = wantConfirm ? (e) => { e.preventDefault(); e.returnValue = ''; } : null;
+
+      // Language runtime micro i18n for settings labels only
+      applySettingsLocale();
+    }
+
+    function applySettingsLocale(){
+      const lang = localStorage.getItem('language') || 'en';
+      const dict = {
+        en: {
+          settingsTitle: '⚙️ Settings', general: 'General', sounds: 'Sounds', account: 'Account', about: 'About Us',
+          enableAnimations: 'Enable Animations', compactMode: 'Compact Mode', showTooltips: 'Show Tooltips', language: 'Language',
+          startupPage: 'Startup Page', autoSave: 'Auto Save Changes', confirmExit: 'Confirm Before Exit', appearance: 'Appearance',
+          solidBg: 'Solid BG', resetAll: 'Reset All Settings'
+        },
+        es: {
+          settingsTitle: '⚙️ Ajustes', general: 'General', sounds: 'Sonidos', account: 'Cuenta', about: 'Acerca de',
+          enableAnimations: 'Habilitar animaciones', compactMode: 'Modo compacto', showTooltips: 'Mostrar consejos', language: 'Idioma',
+          startupPage: 'Página de inicio', autoSave: 'Guardar automáticamente', confirmExit: 'Confirmar antes de salir', appearance: 'Apariencia',
+          solidBg: 'Fondo sólido', resetAll: 'Restablecer todos los ajustes'
+        },
+        vi: {
+          settingsTitle: '⚙️ Cài đặt', general: 'Chung', sounds: 'Âm thanh', account: 'Tài khoản', about: 'Giới thiệu',
+          enableAnimations: 'Bật hiệu ứng', compactMode: 'Chế độ gọn', showTooltips: 'Hiển thị gợi ý', language: 'Ngôn ngữ',
+          startupPage: 'Trang khởi động', autoSave: 'Tự động lưu', confirmExit: 'Xác nhận trước khi thoát', appearance: 'Giao diện',
+          solidBg: 'Nền đồng màu', resetAll: 'Đặt lại tất cả cài đặt'
+        }
+      }[lang] || {};
+
+      const byId = (id) => document.getElementById(id);
+      if (byId('settingsTitle') && dict.settingsTitle) byId('settingsTitle').textContent = dict.settingsTitle;
+      if (byId('tabBtnGeneral') && dict.general) byId('tabBtnGeneral').textContent = dict.general;
+      if (byId('tabBtnSounds') && dict.sounds) byId('tabBtnSounds').textContent = dict.sounds;
+      if (byId('tabBtnAccount') && dict.account) byId('tabBtnAccount').textContent = dict.account;
+      if (byId('tabBtnAbout') && dict.about) byId('tabBtnAbout').textContent = dict.about;
+      if (byId('labelEnableAnimations') && dict.enableAnimations) byId('labelEnableAnimations').textContent = dict.enableAnimations;
+      if (byId('labelCompactMode') && dict.compactMode) byId('labelCompactMode').textContent = dict.compactMode;
+      if (byId('labelShowTooltips') && dict.showTooltips) byId('labelShowTooltips').textContent = dict.showTooltips;
+      if (byId('labelLanguage') && dict.language) byId('labelLanguage').textContent = dict.language;
+      if (byId('labelStartupPage') && dict.startupPage) byId('labelStartupPage').textContent = dict.startupPage;
+      if (byId('labelAutoSave') && dict.autoSave) byId('labelAutoSave').textContent = dict.autoSave;
+      if (byId('labelConfirmExit') && dict.confirmExit) byId('labelConfirmExit').textContent = dict.confirmExit;
+      if (byId('titleAppearance') && dict.appearance) byId('titleAppearance').textContent = dict.appearance;
+      if (byId('labelSolidBg') && dict.solidBg) byId('labelSolidBg').textContent = dict.solidBg;
+      if (byId('btnResetAll') && dict.resetAll) byId('btnResetAll').textContent = dict.resetAll;
     }
 
     function resetAllSettings() {
@@ -1443,79 +2811,256 @@
       });
     }
 
+    // Sound settings change tracking
+    const soundSettingsMap = [
+      { id: "soundVolume", key: "soundVolume" },
+      { id: "musicVolume", key: "musicVolume" },
+      { id: "muteAll", key: "muteAll" },
+      { id: "enableSound", key: "enableSound" },
+      { id: "enableMusic", key: "enableMusic" },
+      { id: "soundProfile", key: "soundProfile" },
+      { id: "duckMusic", key: "duckMusic" },
+      { id: "playSend", key: "playSend" },
+      { id: "playReceive", key: "playReceive" },
+      { id: "playUi", key: "playUi" }
+    ];
+
+    // Add sound settings to change tracking
+    soundSettingsMap.forEach(({ id, key }) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("change", function() {
+          const value = this.type === "checkbox" ? this.checked : this.value;
+          localStorage.setItem(key, value);
+          checkSettingsChanges();
+        });
+      }
+    });
+
     // Event listeners for changes
     document.getElementById("animationsToggle").addEventListener("change", function() {
       localStorage.setItem("enableAnimations", this.checked);
       applyGeneralSettings();
+      persistSettings({ enableAnimations: this.checked });
     });
 
     document.getElementById("compactToggle").addEventListener("change", function() {
       localStorage.setItem("compactMode", this.checked);
       applyGeneralSettings();
+      persistSettings({ compactMode: this.checked });
     });
 
     document.getElementById("tooltipToggle").addEventListener("change", function() {
       localStorage.setItem("showTooltips", this.checked);
       applyGeneralSettings();
+      persistSettings({ showTooltips: this.checked });
     });
 
     document.getElementById("languageSelect").addEventListener("change", function() {
       localStorage.setItem("language", this.value);
-      alert("Language set to: " + this.value);
+      applySettingsLocale();
+      persistSettings({ language: this.value });
     });
 
+    // Sound settings
+    (function initSoundSettings(){
+      const soundControls = [
+        { id: 'soundVolume', key: 'soundVolume' },
+        { id: 'musicVolume', key: 'musicVolume' },
+        { id: 'muteAll', key: 'muteAll', checkbox: true },
+        { id: 'enableSound', key: 'enableSound', checkbox: true },
+        { id: 'enableMusic', key: 'enableMusic', checkbox: true },
+        { id: 'soundProfile', key: 'soundProfile' },
+        { id: 'duckMusic', key: 'duckMusic', checkbox: true },
+        { id: 'playSend', key: 'playSend', checkbox: true },
+        { id: 'playReceive', key: 'playReceive', checkbox: true },
+        { id: 'playUi', key: 'playUi', checkbox: true },
+      ];
+      soundControls.forEach(({ id, key, checkbox }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const saved = localStorage.getItem(key);
+        if (saved != null) {
+          if (checkbox) el.checked = saved === 'true';
+          else el.value = saved;
+        }
+        el.addEventListener('change', function(){
+          const value = checkbox ? this.checked : this.value;
+          localStorage.setItem(key, value);
+          persistSettings({ [key]: value });
+        });
+      });
+    })();
+
     /// Account Settings
-    function updateUsername() {
-      const newUsername = document.getElementById("changeUsername").value.trim();
+    async function updateUsername(newUsername) {
+      if (!newUsername) {
+        const el = document.getElementById("changeUsername");
+        newUsername = (el ? el.value : '').trim();
+      }
+      const current = localStorage.getItem('username');
       if (!newUsername) return alert("Please enter a username.");
-      alert(`Username changed to: ${newUsername}`); // TODO: Send to backend API
+      if (!current) return alert("You are not logged in.");
+      try {
+        const res = await fetch('/api/update-username', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: current, newUsername })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        localStorage.setItem('username', data.username);
+        const saved = localStorage.getItem('savedUsername');
+        if (saved === current) localStorage.setItem('savedUsername', data.username);
+        document.getElementById('profileUsername').textContent = data.username;
+        const curU = document.getElementById('currentUsername'); if (curU) curU.textContent = data.username;
+        alert('Username updated.');
+      } catch (e) {
+        alert('Failed to update username: ' + (e.message || 'Unknown error'));
+      }
     }
 
-    function updateUsertag() {
-      const newTag = document.getElementById("changeUsertag").value.trim();
+    async function updateUsertag(newTag) {
+      if (!newTag) {
+        const el = document.getElementById("changeUsertag");
+        newTag = (el ? el.value : '').trim();
+      }
+      const username = localStorage.getItem('username');
       if (!newTag) return alert("Please enter a usertag.");
       if (!/^\d{4}$/.test(newTag)) return alert("Usertag must be exactly 4 digits.");
-      alert(`Usertag changed to: #${newTag}`);  // TODO: Send to backend API
+      try {
+        const res = await fetch('/api/update-usertag', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, newUsertag: newTag })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        document.getElementById('profileUsertag').textContent = data.usertag;
+        const curT = document.getElementById('currentUsertag'); if (curT) curT.textContent = data.usertag;
+        localStorage.setItem('usertag', data.usertag);
+        alert('Usertag updated.');
+      } catch (e) {
+        alert('Failed to update usertag: ' + (e.message || 'Unknown error'));
+      }
     }
 
-    function updateEmail() {
-      const newEmail = document.getElementById("changeEmail").value.trim();
+    async function updateEmail(newEmail) {
+      if (!newEmail) {
+        const el = document.getElementById("changeEmail");
+        newEmail = (el ? el.value : '').trim();
+      }
+      const username = localStorage.getItem('username');
       if (!newEmail) return alert("Please enter a new email.");
-      alert(`Email updated to: ${newEmail}`); // TODO: Send to backend API
+      try {
+        const res = await fetch('/api/update-email', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, newEmail })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        localStorage.setItem('savedEmail', data.email);
+        const curE = document.getElementById('currentEmail'); if (curE) curE.textContent = data.email;
+        const pe = document.getElementById('profileEmail'); if (pe) pe.textContent = data.email;
+        alert('Email updated.');
+      } catch (e) {
+        alert('Failed to update email: ' + (e.message || 'Unknown error'));
+      }
     }
 
-    function updatePassword() {
+    async function updatePassword() {
       const oldPass = document.getElementById("oldPassword").value;
       const newPass = document.getElementById("newPassword").value;
       const confirmPass = document.getElementById("confirmPassword").value;
-
+      const username = localStorage.getItem('username');
       if (!oldPass || !newPass || !confirmPass) return alert("Fill out all password fields.");
       if (newPass !== confirmPass) return alert("New passwords do not match.");
-      
-      alert("Password updated successfully.");  // TODO: Send to backend API
+      try {
+        const res = await fetch('/api/update-password', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, oldPassword: oldPass, newPassword: newPass })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        alert('Password updated successfully.');
+        document.getElementById("oldPassword").value = '';
+        document.getElementById("newPassword").value = '';
+        document.getElementById("confirmPassword").value = '';
+      } catch (e) {
+        alert('Failed to update password: ' + (e.message || 'Unknown error'));
+      }
     }
 
     // Two-factor authentication toggle
     document.getElementById("twoFactorToggle").addEventListener("change", function() {
       localStorage.setItem("twoFactorEnabled", this.checked);
+      const username = localStorage.getItem('username');
+      if (username) {
+        fetch('/api/update-settings', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, settings: { twoFactorEnabled: this.checked } })
+        }).catch(() => {});
+      }
       alert(`Two-Factor Authentication ${this.checked ? 'enabled' : 'disabled'}.`);
     });
 
-    // Privacy toggles
-    document.getElementById("showEmail").addEventListener("change", function() {
-      localStorage.setItem("showEmail", this.checked);
-    });
-    document.getElementById("shareActivity").addEventListener("change", function() {
-      localStorage.setItem("shareActivity", this.checked);
-    });
+    // Privacy toggles (defensive binding)
+    const showEmailEl = document.getElementById("showEmail");
+    if (showEmailEl) {
+      showEmailEl.addEventListener("change", function() {
+        localStorage.setItem("showEmail", this.checked);
+        const username = localStorage.getItem('username');
+        if (username) fetch('/api/update-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, settings: { showEmail: this.checked } }) }).catch(() => {});
+      });
+    }
+    const shareActivityEl = document.getElementById("shareActivity");
+    if (shareActivityEl) {
+      shareActivityEl.addEventListener("change", function() {
+        localStorage.setItem("shareActivity", this.checked);
+        const username = localStorage.getItem('username');
+        if (username) fetch('/api/update-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, settings: { shareActivity: this.checked } }) }).catch(() => {});
+      });
+    }
 
-    function deleteAccount() {
-      if (confirm("Are you sure you want to delete your account?\nThis cannot be undone.")) {
-        alert("Account deleted.");  // TODO: Backend account deletion call
+    async function deleteAccount() {
+      if (!confirm("Are you sure you want to delete your account?\nThis cannot be undone.")) return;
+      const username = localStorage.getItem('username');
+      try {
+        const res = await fetch('/api/delete-account', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed');
+        // Clear local data and go to login
+        localStorage.clear();
+        window.location.href = '/login.html';
+      } catch (e) {
+        alert('Failed to delete account: ' + (e.message || 'Unknown error'));
       }
     }
 
     /// About Settings
+    function populateAboutInfo() {
+      const statusEl = document.getElementById('aboutSystemStatus');
+      if (!statusEl) return;
+      statusEl.textContent = 'Checking backend status...';
+      try {
+        fetch('/api/stats', { cache: 'no-store' })
+          .then(r => r.json())
+          .then(data => {
+            if (data && typeof data.users !== 'undefined') {
+              statusEl.textContent = `Backend OK • Users: ${data.users} • Messages: ${data.messages} • Rooms: ${data.rooms}`;
+            } else {
+              statusEl.textContent = 'Backend reachable, unexpected response.';
+            }
+          })
+          .catch(() => {
+            statusEl.textContent = 'Backend unreachable. You may be offline.';
+          });
+      } catch {
+        statusEl.textContent = 'Backend unreachable. You may be offline.';
+      }
+    }
+
     function checkForUpdates() {
       alert("🔄 Checking for updates...\nNo updates available.");
     }
@@ -1535,17 +3080,16 @@
       if (window.innerWidth <= 768) {
         const mobileSidebar = document.getElementById("mobileSidebar");
         const overlay = document.getElementById("overlay");
-        sidebar.classList.toggle("active");
-        document.body.classList.toggle("sidebar-open");
-    
-        mobileSidebar.classList.toggle("show");
-        overlay.classList.toggle("hidden");
-    
-        if (mobileSidebar.classList.contains("show")) {
-          document.body.style.overflow = "hidden";
-        } else {
-          document.body.style.overflow = "";
-        }
+        const isOpening = !mobileSidebar.classList.contains("show");
+
+        document.body.classList.toggle("sidebar-open", isOpening);
+        mobileSidebar.classList.toggle("show", isOpening);
+
+        // Use overlay .show class per CSS media rules; also manage Tailwind .hidden for safety
+        overlay.classList.toggle("show", isOpening);
+        overlay.classList.toggle("hidden", !isOpening);
+
+        document.body.style.overflow = isOpening ? "hidden" : "";
       } else {
         const sidebar = document.getElementById("sidebar");
         const sidebarTexts = document.querySelectorAll(".sidebar-text");
@@ -1565,17 +3109,8 @@
       }
     }
 
-    function toggleMenuIcon(isHamburger) {
-      const icon = document.getElementById("mobileMenuIcon");
-      icon.setAttribute("data-feather", isHamburger ? "menu" : "grid");
-      feather.replace();
-    }
-
-    function toggleSidebarMenuIcon(isHamburger) {
-      const icon = document.getElementById("sidebarMenuIcon");
-      icon.setAttribute("data-feather", isHamburger ? "menu" : "grid");
-      feather.replace();
-    }
+    // Ensure icons render correctly once
+    try { feather.replace(); } catch {}
 
     function closeSidebarOnMobile() {
       const sidebar = document.getElementById("sidebar");
@@ -1612,11 +3147,20 @@
       localStorage.setItem("theme", isDark ? "dark" : "light");
       localStorage.setItem("notifications", notifs);
 
-      // Apply theme immediately
       if (isDark) {
-        document.documentElement.classList.add("dark");
+        document.body.classList.add("dark");
       } else {
-        document.documentElement.classList.remove("dark");
+        document.body.classList.remove("dark");
+      }
+
+      // Persist to backend (best effort)
+      const username = localStorage.getItem('username');
+      if (username) {
+        fetch('/api/update-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, settings: { theme: isDark ? 'dark' : 'light', notifications: notifs } })
+        }).catch(() => {});
       }
 
       alert("✅ Settings saved!");
@@ -1633,43 +3177,423 @@
     function saveSettings() {
       const darkMode = document.getElementById('themeToggle').checked;
       const notifications = document.getElementById('notifToggle').checked;
-
       localStorage.setItem('theme', darkMode ? 'dark' : 'light');
       localStorage.setItem('notifications', notifications);
-
+      if (darkMode) document.body.classList.add('dark'); else document.body.classList.remove('dark');
+      const username = localStorage.getItem('username');
+      if (username) {
+        fetch('/api/update-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, settings: { theme: darkMode ? 'dark' : 'light', notifications } })
+        }).catch(() => {});
+      }
       closeSettings();
     }
 
+    function openSettingsPage() {
+      // Close quick settings panel and open full settings tab
+      closeSettings();
+      switchTab('settings');
+      // Highlight the first settings sub-tab
+      document.querySelector('.settings-tab')?.click();
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme === "dark") {
-        document.body.classList.add("dark");
-      } else if (savedTheme === "light") {
-        document.body.classList.remove("dark");
+      const themeColorDot = document.getElementById('themeColorDot');
+      const themeColorText = document.getElementById('themeColorText');
+      const colorPicker = document.getElementById('customThemeColorPicker');
+      const solidBgToggle = document.getElementById('solidBgToggle');
+      const bgInput = document.getElementById('bgImageInput');
+      const clearBgBtn = document.getElementById('clearBgImageBtn');
+      const previewBgBtn = document.getElementById('previewBgBtn');
+
+      const savedTheme = localStorage.getItem('theme');
+      let themeMode = localStorage.getItem('themeMode');
+      if (!themeMode) {
+        // Back-compat with existing 'theme' storage
+        themeMode = (savedTheme === 'dark' || savedTheme === 'light') ? savedTheme : 'light';
+        localStorage.setItem('themeMode', themeMode);
       }
 
-      window.setTheme = function(mode) {
-        if (mode === "dark") {
-          document.body.classList.add("dark");
-          localStorage.setItem("theme", "dark");
-        } else {
-          document.body.classList.remove("dark");
-          localStorage.setItem("theme", "light");
-        }
-        updateThemeButtons(mode);
-      };
+      const media = window.matchMedia('(prefers-color-scheme: dark)');
+      function systemPrefersDark() { return media.matches; }
 
       function updateThemeButtons(activeMode) {
-        document.querySelectorAll("[data-theme-btn]").forEach(btn => {
+        document.querySelectorAll('[data-theme-btn]').forEach(btn => {
           if (btn.dataset.themeBtn === activeMode) {
-            btn.classList.add("ring-2", "ring-blue-500");
+            btn.classList.add('ring-2', 'ring-blue-500');
           } else {
-            btn.classList.remove("ring-2", "ring-blue-500");
+            btn.classList.remove('ring-2', 'ring-blue-500');
           }
         });
       }
 
-      if (savedTheme) updateThemeButtons(savedTheme);
+      function getCustomColor() {
+        return localStorage.getItem('customThemeColor') || '#0b1020';
+      }
+
+      function setSwatch(hex) {
+        if (!themeColorDot || !themeColorText) return;
+        themeColorDot.style.backgroundColor = hex;
+        themeColorText.textContent = hex.toUpperCase();
+      }
+
+      function clearInlineBackground() {
+        const b = document.body.style;
+        b.background = '';
+        b.backgroundImage = '';
+        b.backgroundSize = '';
+        b.backgroundAttachment = '';
+      }
+
+      function applyBackground() {
+        const img = localStorage.getItem('bgImageDataUrl');
+        const solid = localStorage.getItem('solidBg') === 'true';
+        const color = getCustomColor();
+        clearInlineBackground();
+        if (img) {
+          document.body.style.backgroundImage = `url(${img})`;
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundAttachment = 'fixed';
+        } else if (solid) {
+          document.body.style.background = color;
+        }
+        if (solidBgToggle) solidBgToggle.checked = solid;
+        if (colorPicker) colorPicker.value = color;
+        setSwatch(color);
+      }
+
+      function applyThemeMode(mode) {
+        // Persist chosen mode
+        localStorage.setItem('themeMode', mode);
+        // Remove listener to avoid duplicates
+        media.removeEventListener?.('change', handleSystemChange);
+        if (mode === 'dark') {
+          document.body.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+          clearInlineBackground();
+        } else if (mode === 'light') {
+          document.body.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+          clearInlineBackground();
+        } else if (mode === 'system') {
+          document.body.classList.toggle('dark', systemPrefersDark());
+          localStorage.setItem('theme', systemPrefersDark() ? 'dark' : 'light');
+          media.addEventListener?.('change', handleSystemChange);
+          clearInlineBackground();
+        } else if (mode === 'custom') {
+          document.body.classList.remove('dark');
+          localStorage.setItem('theme', 'custom');
+          applyBackground();
+        }
+        updateThemeButtons(mode);
+        // Toggle color picker visibility for custom mode
+        if (colorPicker) {
+          colorPicker.classList.toggle('hidden', mode !== 'custom');
+        }
+      }
+
+      function handleSystemChange() {
+        if ((localStorage.getItem('themeMode') || 'light') === 'system') {
+          document.body.classList.toggle('dark', systemPrefersDark());
+          localStorage.setItem('theme', systemPrefersDark() ? 'dark' : 'light');
+        }
+      }
+
+      // Expose to buttons
+      window.setTheme = function(mode) {
+        if (mode === 'custom' && typeof openThemeEditor === 'function') {
+          openThemeEditor();
+        } else {
+          applyThemeMode(mode);
+        }
+      };
+
+      // Wire controls
+      colorPicker?.addEventListener('input', (e) => {
+        const hex = e.target.value;
+        localStorage.setItem('customThemeColor', hex);
+        setSwatch(hex);
+        if ((localStorage.getItem('themeMode') || 'light') === 'custom') {
+          applyBackground();
+        }
+      });
+
+      solidBgToggle?.addEventListener('change', (e) => {
+        localStorage.setItem('solidBg', e.target.checked);
+        if ((localStorage.getItem('themeMode') || 'light') === 'custom') {
+          applyBackground();
+        }
+      });
+
+      bgInput?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        // Show loading state
+        const originalValue = e.target.value;
+        e.target.disabled = true;
+        e.target.value = '';
+        
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const maxDim = 1920;
+              let { width, height } = img;
+              if (width > maxDim || height > maxDim) {
+                const scale = Math.min(maxDim / width, maxDim / height);
+                width = Math.round(width * scale);
+                height = Math.round(height * scale);
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = width; canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+              localStorage.setItem('bgImageDataUrl', dataUrl);
+              
+              // Automatically switch to custom theme mode to show the background
+              localStorage.setItem('themeMode', 'custom');
+              applyThemeMode('custom');
+              applyBackground();
+              
+              // Show success message
+              alert('Background image imported successfully! Your theme has been switched to Custom mode to show the image.');
+              
+            } catch (error) {
+              console.error('Error processing image:', error);
+              alert('Error processing the image. Please try again.');
+            } finally {
+              // Re-enable the input
+              e.target.disabled = false;
+            }
+          };
+          img.onerror = () => {
+            alert('Error loading the image. Please try a different file.');
+            e.target.disabled = false;
+          };
+          img.src = reader.result;
+        };
+        reader.onerror = () => {
+          alert('Error reading the file. Please try again.');
+          e.target.disabled = false;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      clearBgBtn?.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear the background image?')) {
+          localStorage.removeItem('bgImageDataUrl');
+          if ((localStorage.getItem('themeMode') || 'light') === 'custom') {
+            applyBackground();
+          }
+          // Clear the file input
+          if (bgInput) bgInput.value = '';
+          alert('Background image cleared!');
+        }
+      });
+
+      previewBgBtn?.addEventListener('click', () => {
+        const bgImage = localStorage.getItem('bgImageDataUrl');
+        if (!bgImage) {
+          alert('No background image found. Please import an image first.');
+          return;
+        }
+        
+        // Temporarily switch to custom mode to show the background
+        const currentMode = localStorage.getItem('themeMode') || 'light';
+        localStorage.setItem('themeMode', 'custom');
+        applyThemeMode('custom');
+        applyBackground();
+        
+        // Show preview message
+        alert('Previewing background image! Click OK to keep it or go back to your previous theme.');
+        
+        // Ask if user wants to keep it
+        if (confirm('Do you want to keep this background image?')) {
+          // Keep the custom theme
+          alert('Background image applied! You can change this anytime in Settings > Appearance.');
+        } else {
+          // Revert to previous theme
+          localStorage.setItem('themeMode', currentMode);
+          applyThemeMode(currentMode);
+          if (currentMode !== 'custom') {
+            clearInlineBackground();
+          }
+        }
+      });
+
+      // Initial hydrate
+      setSwatch(getCustomColor());
+      applyThemeMode(themeMode);
+      // If a full custom theme exists, apply its variables and background
+      try {
+        const customStr = localStorage.getItem('currentCustomTheme');
+        if (customStr && (localStorage.getItem('themeMode') || 'light') === 'custom') {
+          const t = JSON.parse(customStr);
+          document.body.classList.add('theme-custom');
+          const s = document.body.style;
+          if (t && t.ui) {
+            s.setProperty('--navbar-bg', t.ui.navbarBg || '');
+            s.setProperty('--sidebar-bg', t.ui.sidebarBg || '');
+            s.setProperty('--panel-bg', t.ui.panelBg || '');
+          }
+          if (t) {
+            s.setProperty('--text-color', t.textColor || '');
+            s.setProperty('--accent-color', t.accentColor || '');
+          }
+          // Apply background according to saved theme
+          s.background = '';
+          s.backgroundImage = '';
+          s.backgroundSize = '';
+          s.backgroundAttachment = '';
+          const bg = t?.background || {};
+          if (bg.mode === 'solid') {
+            s.background = bg.solid || '';
+          } else if (bg.mode === 'gradient') {
+            const a = (bg.gradient?.angle ?? 135);
+            s.background = `linear-gradient(${a}deg, ${bg.gradient?.from || '#1e293b'}, ${bg.gradient?.to || '#0f172a'})`;
+            s.backgroundAttachment = 'fixed';
+            s.backgroundSize = '400% 400%';
+          } else if (bg.mode === 'image' && bg.imageDataUrl) {
+            s.backgroundImage = `url(${bg.imageDataUrl})`;
+            s.backgroundSize = 'cover';
+            s.backgroundAttachment = 'fixed';
+          } else if (bg.mode === 'animated') {
+            s.background = 'linear-gradient(135deg, #1e293b, #0f172a)';
+            s.backgroundSize = '400% 400%';
+          }
+        }
+      } catch {}
+
+      // Initialize chat room + models/personas
+      loadAiModels();
+      loadAiPersonas();
+      switchChatRoom(currentChatRoom);
+
+      // Initialize profile effects
+      initializeProfileEffects();
+
+      // Initialize profile effects
+      initializeProfileEffects();
+
+      // Explore: wiring share and feed
+      const exploreFile = document.getElementById('exploreFile');
+      const exploreCaption = document.getElementById('exploreCaption');
+      const explorePreview = document.getElementById('explorePreview');
+      const exploreFeed = document.getElementById('exploreFeed');
+      const exploreShareBtn = document.getElementById('exploreShareBtn');
+
+      function renderPreview(file){
+        explorePreview.innerHTML = '';
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        const type = (file.type || '').toLowerCase();
+        if (type.startsWith('image/')) {
+          const img = document.createElement('img');
+          img.src = url; img.className = 'max-h-72 rounded';
+          explorePreview.appendChild(img);
+        } else if (type.startsWith('video/')) {
+          const video = document.createElement('video');
+          video.controls = true; video.src = url; video.className = 'w-full max-h-72 rounded';
+          explorePreview.appendChild(video);
+        } else if (type.startsWith('audio/')) {
+          const audio = document.createElement('audio');
+          audio.controls = true; audio.src = url; audio.className = 'w-full';
+          explorePreview.appendChild(audio);
+        } else {
+          const a = document.createElement('div');
+          a.textContent = `📎 ${file.name}`;
+          explorePreview.appendChild(a);
+        }
+      }
+
+      exploreFile?.addEventListener('change', (e) => {
+        const f = e.target.files?.[0];
+        renderPreview(f);
+      });
+
+      async function loadExploreFeed(){
+        try {
+          const res = await fetch('/api/explore/posts');
+          const data = await res.json();
+          const posts = data.posts || [];
+          exploreFeed.innerHTML = '';
+          posts.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'p-3 rounded-lg bg-white/10 border border-white/10';
+            const header = document.createElement('div');
+            header.className = 'text-xs opacity-75 mb-2';
+            const date = new Date((p.createdAt||0)*1000).toLocaleString();
+            header.textContent = `${p.username} • ${date}`;
+            const caption = document.createElement('div');
+            caption.className = 'mb-2';
+            caption.textContent = p.caption || '';
+            const ext = (p.fileName||'').split('.').pop().toLowerCase();
+            const mediaWrap = document.createElement('div');
+            if (['png','jpg','jpeg','gif','webp','svg'].includes(ext)) {
+              const img = document.createElement('img');
+              img.src = p.url; img.className = 'w-full rounded';
+              mediaWrap.appendChild(img);
+            } else if (['mp4','webm','ogg','mov','m4v'].includes(ext)) {
+              const video = document.createElement('video');
+              video.controls = true; video.src = p.url; video.className = 'w-full rounded';
+              mediaWrap.appendChild(video);
+            } else if (['mp3','wav','ogg','m4a','aac','flac'].includes(ext)) {
+              const audio = document.createElement('audio');
+              audio.controls = true; audio.src = p.url; audio.className = 'w-full';
+              mediaWrap.appendChild(audio);
+            } else {
+              const a = document.createElement('a');
+              a.href = p.url; a.download = p.fileName || 'download'; a.textContent = `📎 ${p.fileName || 'file'}`; a.className = 'underline';
+              mediaWrap.appendChild(a);
+            }
+            card.appendChild(header);
+            if (caption.textContent) card.appendChild(caption);
+            card.appendChild(mediaWrap);
+            exploreFeed.appendChild(card);
+          });
+        } catch {}
+      }
+
+      async function shareExplore(){
+        const f = exploreFile?.files?.[0];
+        if (!f) { alert('Attach a file first.'); return; }
+        const caption = exploreCaption?.value || '';
+        const username = localStorage.getItem('username') || localStorage.getItem('savedUsername') || 'Anonymous';
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const fileData = e.target.result;
+            const res = await fetch('/api/explore/posts', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, caption, fileName: f.name, fileData })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.error || 'Failed to share');
+            // Reset and reload
+            if (exploreCaption) exploreCaption.value = '';
+            if (exploreFile) exploreFile.value = '';
+            explorePreview.innerHTML = '';
+            await loadExploreFeed();
+          } catch (err) { alert('Failed to share.'); }
+        };
+        reader.readAsDataURL(f);
+      }
+
+      exploreShareBtn?.addEventListener('click', shareExplore);
+      loadExploreFeed();
+
+      // Apply startup page if set
+      const startup = (localStorage.getItem('startupPage') || 'home');
+      const page = startup === 'messages' ? 'chats' : startup;
+      switchTab(page);
+      // Load social data on entry
+      loadFriends();
+      refreshGroups();
     });
 
     function switchTab(tabName) {
@@ -1680,6 +3604,20 @@
 
       document.querySelectorAll('.sidebar-tab').forEach(tab => {tab.classList.remove('active');});
       document.querySelectorAll(`[data-tab="${tabName}"]`).forEach(tab => tab.classList.add('active'));
+
+      // Handle friends tab - set default active sub-tab
+      if (tabName === 'friends') {
+        // Reset friends tabs to default state
+        document.querySelectorAll(".friends-tab").forEach(t => {
+          t.classList.remove("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
+          t.classList.add("border-transparent");
+        });
+        document.querySelectorAll(".friends-content").forEach(c => c.classList.add("hidden"));
+        
+        // Show friends content by default
+        document.getElementById("friendsContent").classList.remove("hidden");
+        document.querySelector("#tabBtnFriends").classList.add("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
+      }
     }
 
     // Default Functions
@@ -1687,8 +3625,6 @@
       loadStats();
       loadUserData();
     }
-
-    switchTab('home');
     document.addEventListener("DOMContentLoaded", loadUserData);
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1708,7 +3644,8 @@
     });
 
     document.querySelectorAll(".settings-tab").forEach(tab => {
-      tab.addEventListener("click", function () {
+      tab.addEventListener("click", function (e) {
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
         document.querySelectorAll(".settings-tab").forEach(t => {
           t.classList.remove("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
           t.classList.add("border-transparent");
@@ -1719,7 +3656,9 @@
 
         // Show selected content
         const targetId = this.getAttribute("data-target");
-        document.getElementById(targetId).classList.remove("hidden");
+        const targetEl = targetId ? document.getElementById(targetId) : null;
+        if (targetEl) targetEl.classList.remove("hidden");
+        if (targetId === 'aboutSettings') { try { populateAboutInfo(); } catch (e_) {} }
 
         // Highlight active tab
         this.classList.add("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
@@ -1727,6 +3666,29 @@
     });
 
     document.querySelector(".settings-tab").click();
+
+    // Friends tab navigation
+    document.querySelectorAll(".friends-tab").forEach(tab => {
+      tab.addEventListener("click", function () {
+        document.querySelectorAll(".friends-tab").forEach(t => {
+          t.classList.remove("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
+          t.classList.add("border-transparent");
+        });
+
+        // Hide all content
+        document.querySelectorAll(".friends-content").forEach(c => c.classList.add("hidden"));
+
+        // Show selected content
+        const targetId = this.getAttribute("data-target");
+        document.getElementById(targetId).classList.remove("hidden");
+
+        // Highlight active tab
+        this.classList.add("border-blue-600", "dark:border-blue-400", "text-blue-600", "dark:text-blue-400");
+      });
+    });
+
+    // Set default active tab for friends
+    document.querySelector(".friends-tab").click();
 
     function goToPage(href) { 
       document.body.classList.add("fade-out"); 
@@ -1755,10 +3717,421 @@
     });
   </script>
   <script>
+    // === Theme Editor Logic ===
+    (function(){
+      const overlay = document.getElementById('themeEditorOverlay');
+      const modal = document.getElementById('themeEditorModal');
+      const btnClose = document.getElementById('closeThemeEditorBtn');
+      const btnCancel = document.getElementById('teCancelBtn');
+      const btnApplyTheme = document.getElementById('teApplyThemeBtn');
+      const btnApplyBg = document.getElementById('teApplyBgBtn');
+      const btnSave = document.getElementById('saveThemeBtn');
+      const btnDelete = document.getElementById('deleteThemeBtn');
+      const savedSelect = document.getElementById('savedThemesSelect');
+
+      // UI color inputs
+      const iNavbar = document.getElementById('teNavbarBg');
+      const iSidebar = document.getElementById('teSidebarBg');
+      const iPanel = document.getElementById('tePanelBg');
+      const iText = document.getElementById('teTextColor');
+      const iAccent = document.getElementById('teAccentColor');
+
+      // BG controls
+      const solidControls = document.getElementById('teSolidControls');
+      const imageControls = document.getElementById('teImageControls');
+      const animatedControls = document.getElementById('teAnimatedControls');
+      const radios = Array.from(document.querySelectorAll('input[name="teBgMode"]'));
+      const iSolidColor = document.getElementById('teSolidColor');
+      const iGradFrom = document.getElementById('teGradFrom');
+      const iGradTo = document.getElementById('teGradTo');
+      const iGradAngle = document.getElementById('teGradAngle');
+      const iBgImage = document.getElementById('teBgImageInput');
+      const btnClearBgImage = document.getElementById('teClearBgImageBtn');
+      const preview = document.getElementById('tePreview');
+
+      function getSavedThemes(){
+        try { return JSON.parse(localStorage.getItem('customThemes') || '[]'); } catch { return []; }
+      }
+      function setSavedThemes(arr){ localStorage.setItem('customThemes', JSON.stringify(arr)); }
+
+      function themeFromInputs(){
+        const bgMode = radios.find(r => r.checked)?.value || 'gradient';
+        return {
+          name: '',
+          ui: {
+            navbarBg: iNavbar?.value || '#0b1020',
+            sidebarBg: iSidebar?.value || '#111827',
+            panelBg: iPanel?.value || 'rgba(255,255,255,0.7)'
+          },
+          textColor: iText?.value || '#ffffff',
+          accentColor: iAccent?.value || '#3b82f6',
+          background: {
+            mode: bgMode,
+            solid: iSolidColor?.value || '#0b1020',
+            gradient: { from: iGradFrom?.value || '#1e293b', to: iGradTo?.value || '#0f172a', angle: Number(iGradAngle?.value || 135) },
+            imageDataUrl: localStorage.getItem('bgImageDataUrl') || '',
+            animated: animatedControls?.querySelector('button.active')?.dataset.anim || 'gradientShift'
+          }
+        };
+      }
+
+      function applyThemeVars(t){
+        document.body.classList.add('theme-custom');
+        document.body.style.setProperty('--navbar-bg', t.ui.navbarBg);
+        document.body.style.setProperty('--sidebar-bg', t.ui.sidebarBg);
+        document.body.style.setProperty('--panel-bg', t.ui.panelBg);
+        document.body.style.setProperty('--text-color', t.textColor);
+        document.body.style.setProperty('--accent-color', t.accentColor);
+      }
+
+      function applyThemeBackground(bg){
+        const s = document.body.style;
+        s.background = '';
+        s.backgroundImage = '';
+        s.backgroundSize = '';
+        s.backgroundAttachment = '';
+        if (bg.mode === 'solid') {
+          s.background = bg.solid;
+        } else if (bg.mode === 'gradient') {
+          const angle = bg.gradient?.angle ?? 135;
+          s.background = `linear-gradient(${angle}deg, ${bg.gradient?.from}, ${bg.gradient?.to})`;
+          s.backgroundAttachment = 'fixed';
+          s.backgroundSize = '400% 400%';
+        } else if (bg.mode === 'image' && bg.imageDataUrl) {
+          s.backgroundImage = `url(${bg.imageDataUrl})`;
+          s.backgroundSize = 'cover';
+          s.backgroundAttachment = 'fixed';
+        } else if (bg.mode === 'animated') {
+          s.background = 'linear-gradient(135deg, #1e293b, #0f172a)';
+          s.backgroundSize = '400% 400%';
+        }
+      }
+
+      function renderPreview(){
+        if (!preview) return;
+        const t = themeFromInputs();
+        // Background
+        preview.style.background = '';
+        preview.style.backgroundImage = '';
+        if (t.background.mode === 'solid') {
+          preview.style.background = t.background.solid;
+        } else if (t.background.mode === 'gradient') {
+          preview.style.background = `linear-gradient(${t.background.gradient.angle}deg, ${t.background.gradient.from}, ${t.background.gradient.to})`;
+        } else if (t.background.mode === 'image' && t.background.imageDataUrl) {
+          preview.style.backgroundImage = `url(${t.background.imageDataUrl})`;
+          preview.style.backgroundSize = 'cover';
+        } else if (t.background.mode === 'animated') {
+          preview.style.background = 'linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9))';
+        }
+        // Panels and navbar sample
+        const bar = preview.querySelector('.absolute.top-3');
+        if (bar) bar.style.background = t.ui.navbarBg;
+        preview.querySelectorAll('.rounded').forEach(el => { el.style.background = t.ui.panelBg; });
+      }
+
+      function updateBgControls(){
+        const val = radios.find(r => r.checked)?.value || 'gradient';
+        imageControls?.classList.toggle('hidden', val !== 'image');
+        animatedControls?.classList.toggle('hidden', val !== 'animated');
+        renderPreview();
+      }
+
+      function open(){ overlay?.classList.remove('hidden'); modal?.classList.remove('hidden'); renderPreview(); populateSavedThemes(); }
+      function close(){ overlay?.classList.add('hidden'); modal?.classList.add('hidden'); }
+
+      window.openThemeEditor = function(){ open(); };
+
+      btnClose?.addEventListener('click', close);
+      btnCancel?.addEventListener('click', close);
+      overlay?.addEventListener('click', close);
+
+      radios.forEach(r => r.addEventListener('change', updateBgControls));
+      [iNavbar,iSidebar,iPanel,iText,iAccent,iSolidColor,iGradFrom,iGradTo,iGradAngle].forEach(el => el?.addEventListener('input', renderPreview));
+
+      // Animated preset selection
+      animatedControls?.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          animatedControls.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderPreview();
+        });
+      });
+
+      // Image import
+      iBgImage?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try { localStorage.setItem('bgImageDataUrl', reader.result); } catch {}
+          renderPreview();
+        };
+        reader.readAsDataURL(file);
+      });
+      btnClearBgImage?.addEventListener('click', () => {
+        localStorage.removeItem('bgImageDataUrl');
+        if (iBgImage) iBgImage.value = '';
+        renderPreview();
+      });
+
+      // Apply BG instantly
+      btnApplyBg?.addEventListener('click', () => {
+        const t = themeFromInputs();
+        localStorage.setItem('themeMode', 'custom');
+        localStorage.setItem('theme', 'custom');
+        document.body.classList.remove('dark');
+        applyThemeVars(t);
+        applyThemeBackground(t.background);
+        // Back-compat flags
+        localStorage.setItem('customThemeColor', t.accentColor);
+        localStorage.setItem('solidBg', String(t.background.mode === 'solid'));
+        if (t.background.imageDataUrl) localStorage.setItem('bgImageDataUrl', t.background.imageDataUrl);
+        close();
+      });
+
+      // Save/manage themes
+      function populateSavedThemes(){
+        if (!savedSelect) return;
+        const list = getSavedThemes();
+        savedSelect.innerHTML = '<option value="">Select saved theme…</option>' + list.map((t,i) => `<option value="${i}">${t.name || ('Untitled ' + (i+1))}</option>`).join('');
+      }
+      window.populateSavedThemes = populateSavedThemes;
+
+      btnSave?.addEventListener('click', () => {
+        const t = themeFromInputs();
+        const name = prompt('Theme name?', t.name || 'My Theme');
+        if (name === null) return;
+        t.name = (name || '').trim() || 'My Theme';
+        const list = getSavedThemes();
+        list.push(t);
+        setSavedThemes(list);
+        populateSavedThemes();
+        alert('Theme saved!');
+      });
+
+      btnDelete?.addEventListener('click', () => {
+        const idx = Number(savedSelect?.value ?? -1);
+        if (Number.isNaN(idx) || idx < 0) return;
+        const list = getSavedThemes();
+        if (!list[idx]) return;
+        if (!confirm(`Delete theme "${list[idx].name || 'Untitled'}"?`)) return;
+        list.splice(idx, 1);
+        setSavedThemes(list);
+        populateSavedThemes();
+      });
+
+      savedSelect?.addEventListener('change', () => {
+        const idx = Number(savedSelect.value);
+        const list = getSavedThemes();
+        const t = list[idx];
+        if (!t) return;
+        iNavbar.value = t.ui.navbarBg;
+        iSidebar.value = t.ui.sidebarBg;
+        iPanel.value = t.ui.panelBg;
+        iText.value = t.textColor;
+        iAccent.value = t.accentColor;
+        (radios.find(r => r.value === (t.background.mode || 'gradient')) || radios[0]).checked = true;
+        iSolidColor.value = t.background.solid || '#0b1020';
+        iGradFrom.value = t.background.gradient?.from || '#1e293b';
+        iGradTo.value = t.background.gradient?.to || '#0f172a';
+        iGradAngle.value = String(t.background.gradient?.angle ?? 135);
+        renderPreview();
+      });
+
+      // Apply full theme
+      btnApplyTheme?.addEventListener('click', () => {
+        const t = themeFromInputs();
+        localStorage.setItem('currentCustomTheme', JSON.stringify(t));
+        localStorage.setItem('themeMode', 'custom');
+        localStorage.setItem('theme', 'custom');
+        document.body.classList.remove('dark');
+        applyThemeVars(t);
+        applyThemeBackground(t.background);
+        close();
+      });
+
+      // Initialize defaults
+      try {
+        const last = JSON.parse(localStorage.getItem('currentCustomTheme') || 'null');
+        if (last) {
+          iNavbar.value = last.ui.navbarBg || '#0b1020';
+          iSidebar.value = last.ui.sidebarBg || '#111827';
+          iPanel.value = last.ui.panelBg || 'rgba(255,255,255,0.7)';
+          iText.value = last.textColor || '#ffffff';
+          iAccent.value = last.accentColor || '#3b82f6';
+          (radios.find(r => r.value === (last.background?.mode || 'gradient')) || radios[0]).checked = true;
+          iSolidColor.value = last.background?.solid || '#0b1020';
+          iGradFrom.value = last.background?.gradient?.from || '#1e293b';
+          iGradTo.value = last.background?.gradient?.to || '#0f172a';
+          iGradAngle.value = String(last.background?.gradient?.angle ?? 135);
+        } else {
+          iNavbar.value = '#0b1020';
+          iSidebar.value = '#111827';
+          iPanel.value = 'rgba(255,255,255,0.7)';
+          iText.value = '#ffffff';
+          iAccent.value = '#3b82f6';
+          iSolidColor.value = '#0b1020';
+          iGradFrom.value = '#1e293b';
+          iGradTo.value = '#0f172a';
+          iGradAngle.value = '135';
+        }
+      } catch {}
+
+      populateSavedThemes();
+      updateBgControls();
+      renderPreview();
+    })();
+  </script>
+  <script>
+    // Offline banner + queued sends
+    (function(){
+      const banner = document.createElement('div');
+      banner.id = 'offlineBanner';
+      banner.textContent = 'You are offline. Messages will send when reconnected.';
+      banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#b91c1c;color:#fff;padding:8px 12px;text-align:center;z-index:40;display:none';
+      document.body.appendChild(banner);
+
+      function updateBanner(){
+        const show = !navigator.onLine;
+        banner.style.display = show ? 'block' : 'none';
+        document.body.style.paddingBottom = show ? (banner.offsetHeight + 8) + 'px' : '';
+      }
+      window.addEventListener('online', updateBanner);
+      window.addEventListener('offline', updateBanner);
+      updateBanner();
+
+      const pendingKey = 'pendingMessages';
+      function getQueue(){
+        try { return JSON.parse(localStorage.getItem(pendingKey) || '[]'); } catch { return []; }
+      }
+      function setQueue(arr){ localStorage.setItem(pendingKey, JSON.stringify(arr)); }
+
+      const originalSendMessage = sendMessage;
+      window.sendMessage = function(){
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message) return;
+        if (!navigator.onLine) {
+          // Only queue community messages. AI requires online access.
+          if (typeof currentChatRoom !== 'undefined' && currentChatRoom === 'community') {
+            const username = localStorage.getItem('savedUsername') || 'N/A';
+            const q = getQueue();
+            q.push({ username, message, ts: Date.now() });
+            setQueue(q);
+          } else {
+            // Offline AI: render locally and inform user
+            try {
+              if (typeof appendAiBubble === 'function') {
+                appendAiBubble('user', message);
+                if (Array.isArray(aiConversation)) {
+                  aiConversation.push({ role: 'user', content: message });
+                  localStorage.setItem('ai_conversation', JSON.stringify(aiConversation));
+                }
+                appendAiBubble('assistant', 'You are offline. AI chat requires internet.');
+                if (Array.isArray(aiConversation)) {
+                  aiConversation.push({ role: 'assistant', content: 'You are offline. AI chat requires internet.' });
+                  localStorage.setItem('ai_conversation', JSON.stringify(aiConversation));
+                }
+              }
+            } catch (e) {}
+          }
+          input.value = '';
+          input.style.height = 'auto';
+          return;
+        }
+        return originalSendMessage();
+      }
+
+      async function flushQueue(){
+        if (!navigator.onLine) return;
+        const q = getQueue();
+        if (!q.length) return;
+        try {
+          q.forEach(item => {
+            if (typeof io !== 'undefined') {
+              const s = window.socket || io(window.location.origin);
+              s.emit('send_message', { username: item.username, message: item.message });
+            }
+          });
+          setQueue([]);
+        } catch (e) {
+          // keep queue on error
+        }
+      }
+      window.addEventListener('online', flushQueue);
+      setTimeout(flushQueue, 1000);
+    })();
+
+    // Profile Effects Functions
+    function initializeProfileEffects() {
+      const bannerEffectSelect = document.getElementById('bannerEffectSelect');
+      const avatarEffectSelect = document.getElementById('profileEffectSelect');
+      
+      if (bannerEffectSelect) {
+        bannerEffectSelect.addEventListener('change', function() {
+          applyBannerEffect(this.value);
+        });
+      }
+      
+      if (avatarEffectSelect) {
+        avatarEffectSelect.addEventListener('change', function() {
+          applyAvatarEffect(this.value);
+        });
+      }
+    }
+
+    function applyBannerEffect(effect) {
+      const bannerImg = document.getElementById('bannerImage');
+      const settingsBanner = document.getElementById('settingsBanner');
+      
+      if (bannerImg) {
+        // Remove all existing banner effect classes
+        bannerImg.className = bannerImg.className.replace(/banner-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          bannerImg.classList.add(`banner-effect-${effect}`);
+        }
+      }
+      
+      if (settingsBanner) {
+        // Remove all existing banner effect classes
+        settingsBanner.className = settingsBanner.className.replace(/banner-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          settingsBanner.classList.add(`banner-effect-${effect}`);
+        }
+      }
+    }
+
+    function applyAvatarEffect(effect) {
+      const avatarImg = document.getElementById('avatarImage');
+      const settingsAvatar = document.getElementById('settingsAvatar');
+      
+      if (avatarImg) {
+        // Remove all existing avatar effect classes
+        avatarImg.className = avatarImg.className.replace(/avatar-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          avatarImg.classList.add(`avatar-effect-${effect}`);
+        }
+      }
+      
+      if (settingsAvatar) {
+        // Remove all existing avatar effect classes
+        settingsAvatar.className = settingsAvatar.className.replace(/avatar-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          settingsAvatar.classList.add(`avatar-effect-${effect}`);
+        }
+      }
+    }
+  </script>
+  <script src="/files/sw-register.js"></script>
+  <script>
     document.addEventListener("DOMContentLoaded", () => {
       feather.replace();
     });
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  <script src="/files/vendor/cropper.min.js"></script>
 </body>
 </html>

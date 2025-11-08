@@ -8,8 +8,11 @@ import os
 # If the DB is unreachable, it falls back to a JSON file.
 # Future plans include switching to a more robust DB system.
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'users.db')
-JSON_PATH = os.path.join(os.path.dirname(__file__), '../files/users.json')
+# Centralize database and JSON storage under backend/data
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+DB_PATH = os.path.join(DATA_DIR, 'users.db')
+JSON_PATH = os.path.join(DATA_DIR, 'users.json')
+os.makedirs(DATA_DIR, exist_ok=True)
 
 def get_connection():
     try:
@@ -59,6 +62,8 @@ def save_user(user):
 
 def save_user_json(user):
     users = []
+    # Ensure data directory exists before writing
+    os.makedirs(os.path.dirname(JSON_PATH), exist_ok=True)
     if os.path.exists(JSON_PATH):
         with open(JSON_PATH, 'r') as f:
             try:

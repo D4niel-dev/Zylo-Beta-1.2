@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
-
 <head>
   <meta charset="UTF-8" />
   <title>Zylo | Sign Up</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <link rel="icon" href="/images/Zylo_icon.ico" type="image/x-icon"/>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/feather-icons"></script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0b1020" />
+  <script src="/files/vendor/tailwindcss.js"></script>
+  <script src="/files/vendor/feather-icons.js"></script>
   <link rel="stylesheet" href="/files/style.css">
   <script>
     tailwind.config = {
@@ -86,8 +87,11 @@
       <div class="pt-12 space-y-3">
 
         <div class="flex gap-3">
-          <input id="newUsername" type="text" placeholder="Username"
-            class="zylo-input w-1/2 px-4 py-2 rounded-lg">
+          <div class="w-1/2">
+            <input id="newUsername" type="text" placeholder="Username"
+              class="zylo-input w-full px-4 py-2 rounded-lg">
+            <p id="usernameAvail" class="text-xs mt-1 hidden"></p>
+          </div>
           <input id="usertag" type="text" placeholder="Usertag (optional)"
             class="zylo-input w-1/2 px-4 py-2 rounded-lg">
         </div>
@@ -113,19 +117,18 @@
 
         <div class="relative">
           <input id="newPassword" type="password" placeholder="Password"
-            class="zylo-input w-full px-4 py-2 pr-10 rounded-lg"/>
-          <span onclick="togglePassword('newPassword', this)"
-            class="absolute top-2.5 right-3 text-green-600 dark:text-green-400 cursor-pointer text-sm select-none">
-            <i data-feather="eye" class="w-5 h-5"></i>
+            class="zylo-input password-field w-full px-4 py-2 pr-10 rounded-lg"/>
+          <span class="absolute top-2.5 right-3 text-green-600 dark:text-green-400 cursor-pointer text-sm select-none">
+            <i data-feather="eye" class="toggle-eye w-5 h-5"></i>
           </span>
+          <div class="mt-1 text-xs" id="pwStrength"></div>
         </div>
 
         <div class="relative">
           <input id="confirmPassword" type="password" placeholder="Confirm Password"
-            class="zylo-input w-full px-4 py-2 pr-10 rounded-lg" />
-          <span onclick="togglePassword('confirmPassword', this)"
-            class="absolute top-2.5 right-3 text-green-600 dark:text-green-400 cursor-pointer text-sm select-none">
-            <i data-feather="eye" class="w-5 h-5"></i>
+            class="zylo-input password-field w-full px-4 py-2 pr-10 rounded-lg" />
+          <span class="absolute top-2.5 right-3 text-green-600 dark:text-green-400 cursor-pointer text-sm select-none">
+            <i data-feather="eye" class="toggle-eye w-5 h-5"></i>
           </span>
         </div>
       </div>
@@ -141,9 +144,10 @@
       </div>
 
       <!-- Button -->
-      <button onclick="register()"
-        class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition duration-200">
-        Sign Up
+      <button id="signupBtn" onclick="register()"
+        class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+        <svg id="signupSpinner" class="w-4 h-4 animate-spin hidden" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="4" class="opacity-75"/></svg>
+        <span id="signupBtnText">Sign Up</span>
       </button>
 
       <!-- Error Message -->
@@ -160,26 +164,26 @@
       <div class="grid grid-cols-2 gap-3 mt-2 mb-2">
         <button onclick="showComingSoon('Google')"
           class="flex items-center justify-center gap-2 px-4 py-2 border rounded-lg border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200 text-sm font-medium">
-          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" class="w-5 h-5">
+          <img src="/images/devicons/google-original.svg" class="w-5 h-5">
           <span>Google</span>
         </button>
 
         <button onclick="showComingSoon('GitHub')"
           class="flex items-center justify-center gap-2 px-4 py-2 border rounded-lg border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200 text-sm font-medium">
-          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" class="w-5 h-5">
+          <img src="/images/devicons/github-original.svg" class="w-5 h-5">
           <span>GitHub</span>
         </button>
 
         <button onclick="showComingSoon('Discord')"
           class="flex items-center justify-center gap-2 px-4 py-2 border rounded-lg border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200 text-sm font-medium">
-          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/discordjs/discordjs-original.svg"
+          <img src="/images/devicons/discordjs-original.svg"
             class="w-5 h-5">
           <span>Discord</span>
         </button>
 
         <button onclick="showComingSoon('Microsoft')"
           class="flex items-center justify-center gap-2 px-4 py-2 border rounded-lg border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200 text-sm font-medium">
-          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" class="w-5 h-5">
+          <img src="/images/devicons/windows8-original.svg" class="w-5 h-5">
           <span>Microsoft</span>
         </button>
       </div>
@@ -211,7 +215,7 @@
     <div class="bg-white dark:bg-gray-800 max-w-sm w-full p-6 rounded-lg shadow-xl animate-fadeIn">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">🚧 Coming Soon</h3>
       <p id="comingSoonText" class="text-gray-700 dark:text-gray-300 text-sm">
-        This feature will be added in the next update.
+        This feature will be added in the full-release of the app!
       </p>
       <div class="mt-4 flex justify-end">
         <button onclick="closeComingSoon()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
@@ -222,19 +226,26 @@
   </div>
 
   <script>
-    function togglePassword(id, toggleElement) {
-      const input = document.getElementById(id);
-      const icon = toggleElement.querySelector('i[data-feather]');
+    // Password visibility toggle (fixes broken selector and icon update)
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.toggle-eye').forEach(icon => {
+        const clickTarget = icon.parentElement && icon.parentElement.tagName === 'SPAN'
+          ? icon.parentElement
+          : icon;
 
-      if (input.type === "password") {
-        input.type = "text";
-        icon.setAttribute("data-feather", "eye-off");
-      } else {
-        input.type = "password";
-        icon.setAttribute("data-feather", "eye");
-      }
-      feather.replace();
-    }
+        clickTarget.addEventListener('click', (e) => {
+          e.preventDefault();
+          const container = icon.closest('.relative') || icon.parentElement;
+          const input = container ? container.querySelector('input.password-field') : null;
+          if (!input) return;
+
+          const willShow = input.type !== 'text';
+          input.type = willShow ? 'text' : 'password';
+          icon.setAttribute('data-feather', willShow ? 'eye-off' : 'eye');
+          if (window.feather) window.feather.replace();
+        });
+      });
+    });
 
     function previewImage(event, targetId) {
       const reader = new FileReader();
@@ -254,12 +265,15 @@
       const email = document.getElementById("newEmail").value.trim();
       const password = document.getElementById("newPassword").value.trim();
       const confirm = document.getElementById("confirmPassword").value.trim();
-      const usertag = document.getElementById("usertag").value.trim();
+      let usertag = document.getElementById("usertag").value.trim();
       const dob = document.getElementById("dob").value;
       const gender = document.getElementById("gender").value;
       const phone = document.getElementById("phone").value;
       const agree = document.getElementById("agreeTerms").checked;
       const error = document.getElementById("signup-error");
+      const signupBtn = document.getElementById('signupBtn');
+      const signupSpinner = document.getElementById('signupSpinner');
+      const signupBtnText = document.getElementById('signupBtnText');
 
       if (password !== confirm) {
         error.textContent = "Passwords do not match.";
@@ -277,10 +291,15 @@
         usertag = `${username.toLowerCase()}${Math.floor(1000 + Math.random() * 9000)}`;
       }
 
+      // Disable UI while registering
+      signupBtn.disabled = true;
+      signupSpinner.classList.remove('hidden');
+      signupBtnText.textContent = 'Creating account…';
+
       const avatar = await encodeImageToBase64("avatarUpload");
       const banner = await encodeImageToBase64("bannerUpload");
 
-      const response = await fetch("http://localhost:5000/api/signup", {
+      const response = await fetch(`${window.location.origin}/api/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -293,10 +312,15 @@
         alert("Account created successfully!");
         localStorage.setItem("username", username);
         localStorage.setItem("usertag", usertag);
+        try { new Audio('/files/audio/login.mp3').play().catch(()=>{}); } catch {}
         goToPage("login.html");
       } else {
         error.textContent = result.error || "Signup failed.";
         error.classList.remove("hidden");
+        try { new Audio('/files/audio/error.mp3').play().catch(()=>{}); } catch {}
+        signupBtn.disabled = false;
+        signupSpinner.classList.add('hidden');
+        signupBtnText.textContent = 'Sign Up';
       }
     }
 
@@ -475,5 +499,52 @@ If you have any questions about these Terms, contact us at zylosupp0rt@gmail.com
   <script>
     feather.replace();
   </script>
+  <script>
+    // Username availability + password strength
+    const newUsername = document.getElementById('newUsername');
+    const usernameAvail = document.getElementById('usernameAvail');
+    const newPassword = document.getElementById('newPassword');
+    const pwStrength = document.getElementById('pwStrength');
+
+    let checkTimer;
+    newUsername?.addEventListener('input', () => {
+      usernameAvail.classList.add('hidden');
+      clearTimeout(checkTimer);
+      const value = (newUsername.value || '').trim();
+      if (!value) return;
+      checkTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/check-user?identifier=${encodeURIComponent(value)}`);
+          const data = await res.json();
+          if (data.exists) {
+            usernameAvail.textContent = 'Username already taken';
+            usernameAvail.className = 'text-xs mt-1 text-red-600';
+          } else {
+            usernameAvail.textContent = 'Username available';
+            usernameAvail.className = 'text-xs mt-1 text-green-600';
+          }
+          usernameAvail.classList.remove('hidden');
+        } catch {}
+      }, 350);
+    });
+
+    function calcStrength(pw){
+      let score = 0;
+      if (pw.length >= 8) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/[a-z]/.test(pw)) score++;
+      if (/\d/.test(pw)) score++;
+      if (/[^\w\s]/.test(pw)) score++;
+      return score;
+    }
+    newPassword?.addEventListener('input', () => {
+      const pw = newPassword.value || '';
+      const s = calcStrength(pw);
+      const labels = ['Very weak','Weak','Okay','Good','Strong'];
+      pwStrength.textContent = pw ? `Strength: ${labels[Math.max(0, s-1)]}` : '';
+      pwStrength.className = 'mt-1 text-xs ' + (s >= 4 ? 'text-green-600' : s >=2 ? 'text-yellow-600' : 'text-red-600');
+    });
+  </script>
+  <script src="/files/sw-register.js"></script>
 </body>
 </html>

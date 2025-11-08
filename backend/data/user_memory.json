@@ -1,0 +1,219 @@
+{
+  "Dan": {
+    "facts": [
+      "prefers_phrase::helper::Here's a quick",
+      "prefers_phrase::helper::avoid"
+    ],
+    "preferences": {},
+    "conversations": [
+      [
+        {
+          "role": "user",
+          "content": "hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi?"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's a quick thought: hi?\n\n- If you want step-by-step help, tell me your goal and constraints.\n- For code, paste the snippet and error.\n\nI can also draft examples or explain trade-offs."
+        },
+        {
+          "role": "user",
+          "content": "can you code something ?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi?"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's a quick thought: hi?\n\n- If you want step-by-step help, tell me your goal and constraints.\n- For code, paste the snippet and error.\n\nI can also draft examples or explain trade-offs."
+        },
+        {
+          "role": "user",
+          "content": "can you code something ?"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's a quick thought: can you code something ?\n\n- If you want step-by-step help, tell me your goal and constraints.\n- For code, paste the snippet and error.\n\nI can also draft examples or explain trade-offs."
+        },
+        {
+          "role": "user",
+          "content": "test"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's a quick thought: hi\n\n- If you want step-by-step help, tell me your goal and constraints.\n- For code, paste the snippet and error.\n\nI can also draft examples or explain trade-offs.\n\n(phrase preference noted: here's)"
+        },
+        {
+          "role": "user",
+          "content": "here's"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Can you help me code something simple like a print \"Hello World!\" ?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi ?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "HI?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's a quick thought: hi\n\n- If you want step-by-step help, tell me your goal and constraints.\n- For code, paste the snippet and error.\n\nI can also draft examples or explain trade-offs.\n\n(phrase preference noted: here's)"
+        },
+        {
+          "role": "user",
+          "content": "test"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "hi"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's a quick thought: hi\n\n- If you want step-by-step help, tell me your goal and constraints.\n- For code, paste the snippet and error.\n\nI can also draft examples or explain trade-offs.\n\n(phrase preference noted: here's)"
+        },
+        {
+          "role": "user",
+          "content": "test"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's a quick thought: test\n\n- If you want step-by-step help, tell me your goal and constraints.\n- For code, paste the snippet and error.\n\nI can also draft examples or explain trade-offs.\n\n(phrase preference noted: here's)"
+        },
+        {
+          "role": "user",
+          "content": "test"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Hi?"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's a quick thought: Hi?\n\n- If you want step-by-step help, tell me your goal and constraints.\n- For code, paste the snippet and error.\n\nI can also draft examples or explain trade-offs.\n\n(phrase preference noted: here's)"
+        },
+        {
+          "role": "user",
+          "content": "test"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Hi?"
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "test"
+        }
+      ]
+    ]
+  }
+}
