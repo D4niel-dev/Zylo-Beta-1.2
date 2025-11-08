@@ -350,74 +350,53 @@
       
       <!-- Profile Area -->
       <div id="tab-profile" class="tab-content">
-        <h1 class="profile-title">👤 Your Profile</h1>
 
-        <div class="profile-card">
-
-          <!-- Banner -->
-          <div class="profile-banner">
-            <label for="profileBannerUpload" class="profile-banner-label">
-              <img id="bannerImage" src="/images/default_banner.png" alt="Banner" 
-                  class="banner-img">
-            </label>
-            <button id="saveProfileBtn" onclick="saveProfileChanges()" 
-                    class="save-profile-btn hidden absolute top-2 right-2 p-2 rounded-full shadow-lg bg-white dark:bg-gray-800 text-green-600 hover:text-green-700 transition" 
-                    title="Save Profile">
-              <i data-feather="check"></i>
-            </button>
-            <input type="file" id="profileBannerUpload" accept="image/*" class="hidden">
-
-            <!-- Avatar -->
-            <div class="avatar-wrapper">
-              <label for="profileAvatarUpload" class="profile-avatar-label">
-                <img id="avatarImage" src="/images/default_avatar.png" alt="Avatar" 
-                    class="avatar-img"/>
-              </label>
-              <input type="file" id="profileAvatarUpload" accept="image/*" class="hidden">
-              <span class="status-dot online"></span>
-            </div>
-          </div>
-
-          <!-- Profile Content -->
-          <div class="profile-content">
-
-            <!-- Username + Tag -->
-            <div class="profile-nameblock">
-              <h2 id="profileUsername" class="username">ZyloUser</h2>
-              <p id="profileUsertag" class="usertag">@zylo1234</p>
-            </div>
-
-            <!-- About Me -->
-            <div class="about-section">
-              <label for="aboutMe">About Me</label>
-              <textarea id="aboutMe" rows="3" placeholder="Say something about yourself..."></textarea>
-            </div>
-
-            <!-- Quick Profile Info (replaces stats) -->
-            <div class="grid sm:grid-cols-2 gap-3 mt-4">
-              <div class="editable-row">
-                <div>
-                  <div class="editable-label">Email</div>
-                  <div id="profileEmail" class="editable-value">Hidden</div>
-                </div>
-                <button class="edit-icon" onclick="promptEmailEdit()" title="Edit email"><i data-feather="edit-2"></i></button>
-              </div>
-              <div class="editable-row">
-                <div>
-                  <div class="editable-label">Language</div>
-                  <div class="editable-value">
-                    <select id="profileLanguage" class="p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-                      <option value="en">English</option>
-                      <option value="es">Spanish</option>
-                      <option value="fr">French</option>
-                    </select>
-                  </div>
-                </div>
+        <section id="profileView" class="w-full h-full overflow-y-auto">
+          <div class="profile-card max-w-5xl mx-auto bg-gray-800 rounded-2xl shadow-xl mt-6 overflow-hidden z-0">
+            
+            <!-- Banner -->
+            <div class="profile-banner flex flex-col items-start relative z-10">
+              <img id="bannerImage" src="/images/default_banner.png" alt="Banner" class="profile-banner-img">
+              <div class="-mt-16 ml-6">
+                <img id="avatarImage" src="/images/default_avatar.png" alt="Avatar" class="profile-avatar relative z-30"/>
               </div>
             </div>
 
-            <!-- Profile Effects -->
-            <div class="mt-4">
+            <!-- User Info -->
+            <div class="pt-20 px-6 pb-6">
+              <h2 id="profileUsername" class="text-2xl font-semibold">ZyloUser</h2>
+              <p id="profileUsertag" class="text-gray-400">@zylo1234</p>
+              <p class="mt-3 text-gray-300" id="profileBio">Hey there, I'm using Zylo — probably.</p>
+
+              <div class="mt-5 flex gap-3">
+                <button class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg">Message</button>
+                <button class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg">Add Friend</button>
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="border-t border-gray-700 px-6 py-3 flex gap-6 text-gray-400">
+              <button class="hover:text-white">About Me</button>
+              <button class="hover:text-white">Mutual Servers</button>
+              <button class="hover:text-white">Mutual Friends</button>
+              <button class="hover:text-white">Profile Effects</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="profileTabContent" class="p-6 text-gray-300">
+              <div class="tab-pane" data-tab="about">
+                <p>Nothing here yet — maybe something witty about yourself?</p>
+              </div>
+              <div class="tab-pane hidden" data-tab="servers">
+                <p>No mutual servers to show.</p>
+              </div>
+              <div class="tab-pane hidden" data-tab="friends">
+                <p>No mutual friends to show.</p>
+              </div>
+            </div>
+
+            <!-- INDEV/ Profile Effects -->
+            <!-- <div class="mt-4">
               <label for="profileEffectSelect" class="block mb-2">Avatar Effect</label>
               <select id="profileEffectSelect" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
                 <option value="none">None</option>
@@ -435,7 +414,6 @@
               </select>
             </div>
 
-            <!-- Banner Effects -->
             <div class="mt-4">
               <label for="bannerEffectSelect" class="block mb-2">Banner Effect</label>
               <select id="bannerEffectSelect" class="w-full p-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
@@ -450,9 +428,9 @@
                 <option value="retro-wave">Retro Wave</option>
                 <option value="neon-city">Neon City</option>
               </select>
-            </div>
+            </div> -->
           </div>
-        </div>
+        </section>
       </div>
 
       <!-- Image Crop Modal -->
@@ -989,15 +967,15 @@
             
             <!-- Profile quick view with edit overlays -->
             <div class="relative rounded-xl shadow-sm">
-              <label for="settingsBannerUpload" class="settings-banner-label block cursor-pointer">
+              <label for="settingsBannerUpload" class="banner-label block cursor-pointer">
                 <img id="settingsBanner" src="/images/default_banner.png" alt="Banner" class="w-full h-40 object-cover rounded-xl" />
                 <span class="edit-overlay" title="Change banner"><i data-feather="edit-2"></i></span>
               </label>
               <input type="file" id="settingsBannerUpload" accept="image/*" class="hidden">
 
               <div class="relative -mt-10 ml-6 drop-shadow z-10">
-                <label for="settingsAvatarUpload" class="settings-avatar-label cursor-pointer">
-                  <img id="settingsAvatar" src="/images/default_avatar.png" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 object-cover avatar-img" />
+                <label for="settingsAvatarUpload" class="avatar-label cursor-pointer">
+                  <img id="settingsAvatar" src="/images/default_avatar.png" alt="Avatar" class="w-30 h-30 rounded-full border-4 border-white dark:border-gray-800 object-cover avatar-img" />
                   <span class="edit-overlay" title="Change avatar"><i data-feather="edit-2"></i></span>
                 </label>
                 <input type="file" id="settingsAvatarUpload" accept="image/*" class="hidden">
@@ -1907,7 +1885,7 @@
 
                 document.getElementById("profileUsername").textContent = updated.username;
                 document.getElementById("profileUsertag").textContent = updated.usertag;
-                document.getElementById("aboutMe").value = updated.aboutMe || "";
+                const el_aboutMe = document.getElementById("aboutMe"); if (el_aboutMe) el_aboutMe.value = updated.aboutMe || "";
                 document.getElementById("avatarImage").src = updated.avatar || "/images/default_avatar.png";
                 document.getElementById("bannerImage").src = updated.banner || "/images/default_banner.png";
                 
@@ -1933,7 +1911,7 @@
             };
             document.getElementById("profileUsername").textContent = cached.username || 'N/A';
             document.getElementById("profileUsertag").textContent = cached.usertag || 'N/A';
-            document.getElementById("aboutMe").value = cached.aboutMe;
+            const el_aboutMe = document.getElementById("aboutMe"); if (el_aboutMe) el_aboutMe.value = cached.aboutMe;
             document.getElementById("avatarImage").src = cached.avatar;
             document.getElementById("bannerImage").src = cached.banner;
             document.getElementById("statLevel").textContent = cached.level;
@@ -2034,7 +2012,7 @@
     }
 
     function saveAboutMe() {
-      const about = document.getElementById("aboutMe").value;
+      const about = document.getElementById("aboutMe")?.value;
       localStorage.setItem("aboutMe", about);
     }
 
@@ -2188,7 +2166,7 @@
           document.getElementById("profileUsertag").textContent = user.usertag || "N/A";
           document.getElementById("avatarImage").src = user.avatar || "/images/default_avatar.png";
           document.getElementById("bannerImage").src = user.banner || "/images/default_banner.png";
-          document.getElementById("aboutMe").value = user.aboutMe || "";
+          const el_aboutMe = document.getElementById("aboutMe"); if (el_aboutMe) el_aboutMe.value = user.aboutMe || "";
           const email = user.email || (localStorage.getItem('savedEmail') || 'Hidden');
           const pe = document.getElementById('profileEmail'); if (pe) pe.textContent = email;
 
@@ -2196,6 +2174,17 @@
           console.error("Error fetching user data", err);
       }
     }
+
+    document.querySelectorAll("#profileTabs .profile-tab").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#profileTabs .profile-tab").forEach(b => b.classList.remove("active","text-white"));
+        btn.classList.add("active","text-white");
+        const tab = btn.dataset.tab;
+        document.querySelectorAll("#profileTabContent .tab-pane").forEach(p => {
+          p.classList.toggle("hidden", p.dataset.tab !== tab);
+        });
+      });
+    });
 
     /// Optional Status Functions
     function toRoman(num) {
@@ -2263,7 +2252,7 @@
           usertag: '@' + usertag,
           avatar: document.getElementById("avatarImage").src,
           banner: document.getElementById("bannerImage").src,
-          about: document.getElementById("aboutMe").value.trim()
+          about: document.getElementById("aboutMe")?.value.trim()
         };
 
         // Send update to backend
@@ -2283,7 +2272,7 @@
           document.getElementById("profileUsertag").textContent = updated.usertag || updatedProfile.usertag;
           document.getElementById("avatarImage").src = updated.avatar || updatedProfile.avatar;
           document.getElementById("bannerImage").src = updated.banner || updatedProfile.banner;
-          document.getElementById("aboutMe").value = updated.aboutMe || updatedProfile.aboutMe;
+          const el_aboutMe = document.getElementById("aboutMe"); if (el_aboutMe) el_aboutMe.value = updated.aboutMe || updatedProfile.aboutMe;
           const eVal = updated.email || localStorage.getItem('savedEmail') || 'Hidden';
           const pe = document.getElementById('profileEmail'); if (pe) pe.textContent = eVal;
 
@@ -2315,7 +2304,7 @@
 
     function captureInitialProfileData() {
       initialProfileData = {
-        aboutMe: document.getElementById("aboutMe").value.trim(),
+        aboutMe: document.getElementById("aboutMe")?.value.trim(),
         banner: document.getElementById("bannerImage").src,
         avatar: document.getElementById("avatarImage").src
       };
@@ -2324,7 +2313,7 @@
 
     function checkProfileChanges() {
       const currentData = {
-        aboutMe: document.getElementById("aboutMe").value.trim(),
+        aboutMe: document.getElementById("aboutMe")?.value.trim(),
         banner: document.getElementById("bannerImage").src,
         avatar: document.getElementById("avatarImage").src
       };
@@ -2333,13 +2322,20 @@
     }
 
     // Watch for changes
-    document.getElementById("aboutMe").addEventListener("input", checkProfileChanges);
-    // Profile tab uploads
-    document.getElementById("profileBannerUpload").addEventListener("change", (e) => openCropper(e, "banner"));
-    document.getElementById("profileAvatarUpload").addEventListener("change", (e) => openCropper(e, "avatar"));
-    // Settings uploads
-    document.getElementById("settingsBannerUpload").addEventListener("change", (e) => openCropper(e, "banner"));
-    document.getElementById("settingsAvatarUpload").addEventListener("change", (e) => openCropper(e, "avatar"));
+    const elAbout = document.getElementById("aboutMe");
+    if (elAbout) elAbout.addEventListener("input", checkProfileChanges);
+
+    const elProfileBanner = document.getElementById("profileBannerUpload");
+    if (elProfileBanner) elProfileBanner.addEventListener("change", (e) => openCropper(e, "banner"));
+
+    const elProfileAvatar = document.getElementById("profileAvatarUpload");
+    if (elProfileAvatar) elProfileAvatar.addEventListener("change", (e) => openCropper(e, "avatar"));
+
+    const elSettingsBanner = document.getElementById("settingsBannerUpload");
+    if (elSettingsBanner) elSettingsBanner.addEventListener("change", (e) => openCropper(e, "banner"));
+
+    const elSettingsAvatar = document.getElementById("settingsAvatarUpload");
+    if (elSettingsAvatar) elSettingsAvatar.addEventListener("change", (e) => openCropper(e, "avatar"));
 
     // Account settings inline edit helpers
     function promptUsernameEdit(){
@@ -3981,7 +3977,6 @@
       function updateBanner(){
         const show = !navigator.onLine;
         banner.style.display = show ? 'block' : 'none';
-        // Reserve space in layout so bottom sidebar/logout remains visible
         document.body.style.paddingBottom = show ? (banner.offsetHeight + 8) + 'px' : '';
       }
       window.addEventListener('online', updateBanner);
@@ -4069,57 +4064,48 @@
     }
 
     function applyBannerEffect(effect) {
-      const bannerContainer = document.querySelector('.profile-banner');
-      const settingsBannerLabel = document.querySelector('.settings-banner-label');
-
-      const removeBannerEffects = (el) => {
-        if (!el) return;
-        Array.from(el.classList).forEach(cls => {
-          if (cls.startsWith('banner-effect-')) el.classList.remove(cls);
-        });
-      };
-
-      // Apply to profile banner container (supports overlay ::after styles)
-      if (bannerContainer) {
-        removeBannerEffects(bannerContainer);
-        if (effect && effect !== 'none') bannerContainer.classList.add(`banner-effect-${effect}`);
+      const bannerImg = document.getElementById('bannerImage');
+      const settingsBanner = document.getElementById('settingsBanner');
+      
+      if (bannerImg) {
+        // Remove all existing banner effect classes
+        bannerImg.className = bannerImg.className.replace(/banner-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          bannerImg.classList.add(`banner-effect-${effect}`);
+        }
       }
-
-      // Apply to settings banner wrapper label so overlays clip correctly
-      if (settingsBannerLabel) {
-        removeBannerEffects(settingsBannerLabel);
-        if (effect && effect !== 'none') settingsBannerLabel.classList.add(`banner-effect-${effect}`);
+      
+      if (settingsBanner) {
+        // Remove all existing banner effect classes
+        settingsBanner.className = settingsBanner.className.replace(/banner-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          settingsBanner.classList.add(`banner-effect-${effect}`);
+        }
       }
     }
 
     function applyAvatarEffect(effect) {
       const avatarImg = document.getElementById('avatarImage');
       const settingsAvatar = document.getElementById('settingsAvatar');
-      const avatarWrapper = document.querySelector('.avatar-wrapper');
-
-      const removeAvatarEffects = (el) => {
-        if (!el) return;
-        Array.from(el.classList).forEach(cls => {
-          if (cls.startsWith('avatar-effect-')) el.classList.remove(cls);
-        });
-      };
-
-      // Apply to avatar image
+      
       if (avatarImg) {
-        removeAvatarEffects(avatarImg);
-        if (effect && effect !== 'none') avatarImg.classList.add(`avatar-effect-${effect}`);
+        // Remove all existing avatar effect classes
+        avatarImg.className = avatarImg.className.replace(/avatar-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          avatarImg.classList.add(`avatar-effect-${effect}`);
+        }
       }
-
-      // Also apply ring/sparkle-like effects to wrapper when present
-      if (avatarWrapper) {
-        removeAvatarEffects(avatarWrapper);
-        if (effect === 'ring' || effect === 'sparkle') avatarWrapper.classList.add(`avatar-effect-${effect}`);
-      }
-
-      // Settings avatar
+      
       if (settingsAvatar) {
-        removeAvatarEffects(settingsAvatar);
-        if (effect && effect !== 'none') settingsAvatar.classList.add(`avatar-effect-${effect}`);
+        // Remove all existing avatar effect classes
+        settingsAvatar.className = settingsAvatar.className.replace(/avatar-effect-\w+/g, '');
+        // Add new effect class
+        if (effect && effect !== 'none') {
+          settingsAvatar.classList.add(`avatar-effect-${effect}`);
+        }
       }
     }
   </script>
