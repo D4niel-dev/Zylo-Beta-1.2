@@ -5,7 +5,7 @@ import base64
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import json
+import json, ssl
 import socket
 import os
 import shutil
@@ -211,6 +211,30 @@ def save_explore(posts):
         json.dump(posts, f, indent=2)
 
 
+def http_post_json(url: str, payload: dict, timeout: int = 30) -> dict:
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+
+    # Only use SSL context for HTTPS
+    if url.startswith("https://"):
+        context = ssl.create_default_context()
+        resp = urllib.request.urlopen(req, timeout=timeout, context=context)
+    else:
+        resp = urllib.request.urlopen(req, timeout=timeout)
+
+    with resp:
+        raw = resp.read()
+        return json.loads(raw.decode("utf-8"))
+
+def http_get_json(url: str, timeout: int = 10) -> dict:
+    req = urllib.request.Request(url)
+    if url.startswith("https://"):
+        context = ssl.create_default_context()
+        resp = urllib.request.urlopen(req, timeout=timeout, context=context)
+    else:
+        resp = urllib.request.urlopen(req, timeout=timeout)  # no SSL context for plain HTTP
+
+    with resp:
 def http_post_json(url: str, payload: dict, timeout: int = 20) -> dict:
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
@@ -598,6 +622,19 @@ def get_stats():
         "rooms": room_count
     })
 
+# AI models from Ollama and for exceptions
+@app.route('/api/ai/models', methods=['GET'])
+def ai_models():
+    provider = os.getenv('Zylo_AI_PROVIDER', 'auto').lower()
+    if provider in ('ollama', 'auto'):
+        try:
+            tags = http_get_json('http://127.0.0.1:11434/api/tags', timeout=30)
+            models = [m.get('name') for m in tags.get('models', []) if m.get('name')]
+            if models:
+                return jsonify({"success": True, "provider": "ollama", "models": models})
+        except Exception as e:
+            print("Ollama check failed:", e)
+            
 
 @app.route('/api/ai/models', methods=['GET'])
 def ai_models():
@@ -622,6 +659,13 @@ def ai_models():
     ]
     return jsonify({"success": True, "provider": "mock", "models": fallback_models})
 
+# AI personas list
+@app.route('/api/ai/personas', methods=['GET'])
+def ai_personas():
+    return jsonify({"success": True, "personas": ai_list_personas()})
+
+# Mock AI response if gave exceptions
+def mock_ai_response(messages: list) -> str:
 
 @app.route('/api/ai/personas', methods=['GET'])
 def ai_personas():
@@ -638,6 +682,7 @@ def mock_ai_response(messages: list) -> str:
             break
     if not last_user:
         return "Hello! Ask me anything and I'll do my best to help."
+    
     # Friendly reflection with a tiny bit of guidance
     snippet = last_user.strip()
     if len(snippet) > 240:
@@ -649,6 +694,9 @@ def mock_ai_response(messages: list) -> str:
         "I can also draft examples or explain trade-offs."
     )
 
+# Chat with an AI assistant. Uses Ollama if available, else mock.
+@app.route('/api/ai/chat', methods=['POST'])
+def ai_chat():
 
 @app.route('/api/ai/chat', methods=['POST'])
 def ai_chat():
@@ -658,6 +706,11 @@ def ai_chat():
     single_message = data.get('message')
     persona_key = (data.get('persona') or '').strip().lower() or None
     username = (data.get('username') or '').strip() or 'anonymous'
+    
+    if not messages_in and single_message:
+        messages_in = [{"role": "user", "content": str(single_message)}]
+        
+    messages_in = messages_in[-6:]
     if not messages_in and single_message:
         messages_in = [{"role": "user", "content": str(single_message)}]
 
@@ -665,11 +718,48 @@ def ai_chat():
     provider = os.getenv('Zylo_AI_PROVIDER', 'auto').lower()
     persona = pick_persona(persona_key)
 
+    # Ollama attempt
     # Try Ollama first if configured/auto
     if provider in ('ollama', 'auto'):
         try:
             payload = {
                 "model": model,
+                "messages": [{"role": "system", "content": persona.system_prompt}] + messages_in,
+            }
+            resp = http_post_json("http://127.0.0.1:11434/api/chat", payload, timeout=15)
+            reply = None
+
+            # === Parse response ===
+            if isinstance(resp, dict):
+                if "message" in resp and isinstance(resp["message"], dict):    # Full JSON response (3.1:8b, 3.2:1b)
+                    reply = resp["message"].get("content")
+                elif "messages" in resp and isinstance(resp["messages"], list):
+                    reply = " ".join(
+                        m.get("content", "") for m in resp["messages"] if m.get("role") == "assistant"
+                    )
+                elif "response" in resp:
+                    reply = resp["response"]
+            elif isinstance(resp, str) and model.startswith("tinyllama"):   
+                lines = resp.strip().splitlines()
+                contents = []
+                for line in lines:
+                    try:
+                        obj = json.loads(line)
+                        if "content" in obj:
+                            contents.append(obj["content"])
+                    except Exception:
+                        pass
+                reply = " ".join(contents)
+
+            if reply:
+                return jsonify({"success": True, "provider": "ollama", "model": model, "reply": reply, "persona": persona.key})
+            else:
+                print(f"Ollama response parsing failed for model {model}: {resp}")
+
+        except Exception as e:
+            print(f"Ollama chat failed for model {model}:", e)
+
+    # === Fallback: mock ===
                 "stream": False,
                 "messages": ([{"role": "system", "content": persona.system_prompt}] + messages_in),
             }
@@ -695,12 +785,20 @@ def ai_chat():
         memory_append_conversation(username, messages_in[-10:])
     except Exception:
         pass
+
+    try:
+        suggestion = persona_learner.suggest_phrase(
+            persona.key, username, messages_in[-1]['content'] if messages_in else ''
+        )
     try:
         suggestion = persona_learner.suggest_phrase(persona.key, username, messages_in[-1]['content'] if messages_in else '')
         if suggestion and isinstance(suggestion, str):
             reply = f"{reply}\n\n(phrase preference noted: {suggestion})"
     except Exception:
         pass
+
+    return jsonify({"success": True, "provider": "mock", "model": "mock", "reply": reply, "persona": persona.key})
+
     return jsonify({"success": True, "provider": "mock", "model": "mock", "reply": reply, "persona": persona.key})
 
 

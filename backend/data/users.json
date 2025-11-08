@@ -1,0 +1,46 @@
+[
+  {
+    "username": "Dan",
+    "email": "khacduytvt123@gmail.com",
+    "password": "123456",
+    "usertag": "@d4niel_1f",
+    "dob": "2007-06-29",
+    "gender": "",
+    "phone": "",
+    "avatar": "/uploads/Dan/explore_926235065_647773.png",
+    "banner": "/uploads/Dan/explore_187020138_821330.png",
+    "settings": {
+      "profileEffect": "none",
+      "bannerEffect": "none",
+      "compactMode": false,
+      "showTooltips": true,
+      "enableMusic": false,
+      "soundVolume": "61"
+    },
+    "friends": [
+      "Daniel"
+    ],
+    "friendRequests": {
+      "incoming": [],
+      "outgoing": []
+    }
+  },
+  {
+    "username": "Daniel",
+    "email": "nguyenkhacduy1372@gmail.com",
+    "password": "123456",
+    "usertag": "@d4niel_17",
+    "dob": "2009-07-29",
+    "gender": "other",
+    "phone": "",
+    "avatar": "/images/default_avatar.png",
+    "banner": "/images/default_banner.png",
+    "friends": [
+      "Dan"
+    ],
+    "friendRequests": {
+      "incoming": [],
+      "outgoing": []
+    }
+  }
+]

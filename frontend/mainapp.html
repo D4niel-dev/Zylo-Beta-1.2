@@ -1310,6 +1310,10 @@
       const avatar = document.createElement('img');
       const myAvatar = localStorage.getItem('avatar') || `/uploads/${username}/avatar.png`;
       avatar.src = isOwn ? myAvatar : '/images/Zylo_icon.ico';
+      avatar.onerror = function(){ 
+        this.onerror=null; 
+        this.src = '/images/default_avatar.png'; 
+      };
       avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
       avatar.alt = isOwn ? `${username}'s avatar` : 'AI avatar';
       avatar.className = 'w-8 h-8 rounded-full object-cover';
@@ -1642,6 +1646,28 @@
       } catch {}
     }
 
+    }
+
+    async function loadAiPersonas() {
+      try {
+        const res = await fetch('/api/ai/personas');
+        const data = await res.json();
+        const personas = (data.personas || []).map(p => ({ key: p.key, name: p.name }));
+        aiPersonaSelect.innerHTML = '';
+        personas.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.key;
+          opt.textContent = p.name;
+          aiPersonaSelect.appendChild(opt);
+        });
+        const saved = localStorage.getItem('ai_persona');
+        if (saved) aiPersonaSelect.value = saved;
+        aiPersonaSelect.addEventListener('change', () => {
+          localStorage.setItem('ai_persona', aiPersonaSelect.value);
+        });
+      } catch {}
+    }
+
     // Profile Functions
     // ---- Friends UI logic ----
     async function loadFriends() {
@@ -1744,6 +1770,7 @@
       avatar.src = `/uploads/${data.username}/avatar.png`;
       avatar.alt = `${data.username}'s avatar`;
       avatar.className = 'w-8 h-8 rounded-full object-cover';
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
       const bubble = document.createElement('div');
       bubble.classList.add('message', isOwnMessage ? 'self' : 'other');
       const header = document.createElement('div');
@@ -1851,6 +1878,13 @@
       const reader = new FileReader();
       reader.onload = function(e){
         const payload = { groupId: groupsState.activeId, username: localStorage.getItem('username'), fileName: file.name, fileType: file.type, fileData: e.target.result };
+        if (navigator.onLine) {
+          socket.emit('send_group_file', payload);
+          // Don't render optimistically when online - socket will handle it
+        } else {
+          // Only render optimistically when offline
+          appendGroupMessage(payload);
+        }
         if (navigator.onLine) socket.emit('send_group_file', payload);
         // Optimistically render
         appendGroupMessage(payload);
@@ -1948,6 +1982,7 @@
       avatar.src = `/uploads/${author}/avatar.png`;
       avatar.alt = `${author}'s avatar`;
       avatar.className = 'w-8 h-8 rounded-full object-cover';
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
       const bubble = document.createElement('div');
       bubble.classList.add('message', isOwn ? 'self':'other');
       const header = document.createElement('div');
@@ -1982,6 +2017,13 @@
       const msg = (input?.value||'').trim();
       if (!msg) return;
       const payload = { from: me, to: peer, message: msg };
+      if (navigator.onLine) {
+        socket.emit('send_dm', payload);
+        // Don't render optimistically when online - socket will handle it
+      } else {
+        // Only render optimistically when offline
+        appendDMMessage(payload);
+      }
       if (navigator.onLine) socket.emit('send_dm', payload);
       appendDMMessage(payload);
       input.value=''; input.style.height='auto';
@@ -1995,6 +2037,13 @@
       const reader = new FileReader();
       reader.onload = function(e){
         const payload = { from: me, to: peer, fileName: file.name, fileType: file.type, fileData: e.target.result };
+        if (navigator.onLine) {
+          socket.emit('send_dm', payload);
+          // Don't render optimistically when online - socket will handle it
+        } else {
+          // Only render optimistically when offline
+          appendDMMessage(payload);
+        }
         if (navigator.onLine) socket.emit('send_dm', payload);
         appendDMMessage(payload);
         fetch('/api/dm/send', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).catch(()=>{});

@@ -585,6 +585,21 @@ body.dark .chat-messages {
     animation: fadeIn 0.3s ease-in-out;
 }
 
+.profile-tab.active {
+    color: #fff;
+    position: relative;
+}
+.profile-tab.active::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #6366f1;
+    border-radius: 1px;
+}
+
 .profile-title {
     font-size: 1.25rem;
     font-weight: bold;
@@ -592,10 +607,47 @@ body.dark .chat-messages {
 }
 
 /* Profile Card */
+.profile-banner {
+    position: relative;
+    width: 100%;
+    height: 12rem;
+    background: #2f3136;
+    z-index: 1;
+    overflow: visible; 
+}
+
+.profile-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    border: 6px solid #1e1e22;
+    object-fit: cover;
+    background-color: #2f3136;
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .profile-avatar {
+        width: 96px;
+        height: 96px;
+        border-width: 4px;
+    }
+}
+
 .profile-card {
     background: rgba(255, 255, 255, 0.8);
     border-radius: 1rem;
     box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    overflow: visible;
+    position: relative;
+    animation: fadeIn 0.4s ease-out;
+    z-index: 0;
     overflow: hidden;
     position: relative;
 }
@@ -607,6 +659,10 @@ body.dark .profile-card {
 /* Banner */
 .profile-banner {
     position: relative;
+    overflow: hidden;
+    z-index: 1;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
     overflow: hidden; /* Contain banner effect overlays */
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
@@ -1305,6 +1361,7 @@ body.theme-custom .zylo-heading {
 }
 
 /* === Settings UI Polish === */
+
 /* Inline editable rows */
 .settings-content .editable-row {
     display: flex;
@@ -1423,6 +1480,7 @@ body.dark .edit-overlay {
 .edit-overlay svg { width: 1rem; height: 1rem; }
 
 /* Nudge avatar overlay to the bottom-right of the circle */
+.avatar-label .edit-overlay {
 .avatar-label .edit-overlay,
 .profile-avatar-label .edit-overlay,
 .settings-avatar-label .edit-overlay {
@@ -1441,4 +1499,34 @@ body.dark .edit-overlay {
 }
 body.dark .settings-tab:hover {
     background: rgba(59, 130, 246, 0.08);
+}
+
+/* Fix: ensure avatar is not clipped by banner/overlays and hide seam */
+.profile-card {
+    /* allow avatar to overflow without clipping */
+    overflow: visible !important;
+    position: relative; /* ensure stacking context */
+}
+
+.profile-banner {
+    /* prevent banner from clipping avatar */
+    overflow: visible !important;
+    z-index: 1;
+}
+
+/* Strong override for avatar styling so it sits above everything */
+.profile-avatar,
+.avatar-wrapper,
+.avatar-img {
+    position: relative !important;
+    z-index: 9999 !important;              /* put avatar on top of overlays */
+    border: 6px solid #ffffff !important;  /* white border hides dark seam */
+    background-clip: padding-box !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.55) !important;
+}
+
+/* Preserve dark-mode appearance without reintroducing the seam */
+body.dark .profile-avatar,
+body.dark .avatar-img {
+    border-color: #111827 !important;
 }
