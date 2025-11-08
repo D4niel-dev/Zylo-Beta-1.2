@@ -648,6 +648,8 @@ body.dark .chat-messages {
     position: relative;
     animation: fadeIn 0.4s ease-out;
     z-index: 0;
+    overflow: hidden;
+    position: relative;
 }
 
 body.dark .profile-card {
@@ -661,12 +663,18 @@ body.dark .profile-card {
     z-index: 1;
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
+    overflow: hidden; /* Contain banner effect overlays */
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    isolation: isolate; /* Create stacking context so overlays don't cover UI */
 }
 
 .banner-img {
     width: 100%;
     height: 12rem;
     object-fit: cover;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
     display: block; /* remove inline-gap */
 }
 
@@ -902,6 +910,7 @@ body.dark .save-profile-btn {
 
 /* Avatar */
 .avatar-wrapper {
+    /* Anchor below the banner without relying on card bottom */
     position: relative;
     margin-top: -2.5rem;
     margin-left: 1rem;
@@ -1431,6 +1440,9 @@ body.dark .edit-icon:hover { background: rgba(59, 130, 246, 0.18); }
 
 /* Image edit overlays (pencil over banner/avatar) */
 .banner-label, .avatar-label { position: relative; display: inline-block; }
+/* Make section-specific labels independent to avoid hover/click cross-talk */
+.profile-banner-label, .profile-avatar-label,
+.settings-banner-label, .settings-avatar-label { position: relative; display: inline-block; }
 
 .edit-overlay {
     position: absolute;
@@ -1452,7 +1464,11 @@ body.dark .edit-icon:hover { background: rgba(59, 130, 246, 0.18); }
     pointer-events: none;
 }
 .banner-label:hover .edit-overlay,
-.avatar-label:hover .edit-overlay {
+.avatar-label:hover .edit-overlay,
+.profile-banner-label:hover .edit-overlay,
+.profile-avatar-label:hover .edit-overlay,
+.settings-banner-label:hover .edit-overlay,
+.settings-avatar-label:hover .edit-overlay {
     opacity: 1;
     transform: scale(1);
 }
@@ -1465,6 +1481,9 @@ body.dark .edit-overlay {
 
 /* Nudge avatar overlay to the bottom-right of the circle */
 .avatar-label .edit-overlay {
+.avatar-label .edit-overlay,
+.profile-avatar-label .edit-overlay,
+.settings-avatar-label .edit-overlay {
     top: auto;
     right: -0.25rem;
     bottom: -0.25rem;

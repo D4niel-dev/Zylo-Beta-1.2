@@ -235,6 +235,25 @@ def http_get_json(url: str, timeout: int = 10) -> dict:
         resp = urllib.request.urlopen(req, timeout=timeout)  # no SSL context for plain HTTP
 
     with resp:
+def http_post_json(url: str, payload: dict, timeout: int = 20) -> dict:
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+    context = ssl.create_default_context()
+    try:
+        with urllib.request.urlopen(req, timeout=timeout, context=context) as resp:
+            raw = resp.read()
+            return json.loads(raw.decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        try:
+            return json.loads(e.read().decode("utf-8"))
+        except Exception:
+            raise
+
+
+def http_get_json(url: str, timeout: int = 10) -> dict:
+    req = urllib.request.Request(url)
+    context = ssl.create_default_context()
+    with urllib.request.urlopen(req, timeout=timeout, context=context) as resp:
         raw = resp.read()
         return json.loads(raw.decode("utf-8"))
 
@@ -616,6 +635,20 @@ def ai_models():
         except Exception as e:
             print("Ollama check failed:", e)
             
+
+@app.route('/api/ai/models', methods=['GET'])
+def ai_models():
+    """Return available AI models. Prefers Ollama if reachable."""
+    provider = os.getenv('Zylo_AI_PROVIDER', 'auto').lower()
+    # Try Ollama if explicitly requested or auto
+    if provider in ('ollama', 'auto'):
+        try:
+            tags = http_get_json('http://127.0.0.1:11434/api/tags', timeout=3)
+            models = [m.get('name') for m in tags.get('models', []) if m.get('name')]
+            if models:
+                return jsonify({"success": True, "provider": "ollama", "models": models})
+        except Exception:
+            pass
     # Fallback list (may not be installed; UI can allow selection anyway)
     fallback_models = [
         "llama3.2:1b",
@@ -633,6 +666,15 @@ def ai_personas():
 
 # Mock AI response if gave exceptions
 def mock_ai_response(messages: list) -> str:
+
+@app.route('/api/ai/personas', methods=['GET'])
+def ai_personas():
+    """Return available AI personas (helper, friend, supporter)."""
+    return jsonify({"success": True, "personas": ai_list_personas()})
+
+
+def mock_ai_response(messages: list) -> str:
+    """Very simple fallback responder when no local model is available."""
     last_user = ""
     for m in reversed(messages or []):
         if (m.get('role') or '').lower() == 'user':
@@ -655,6 +697,10 @@ def mock_ai_response(messages: list) -> str:
 # Chat with an AI assistant. Uses Ollama if available, else mock.
 @app.route('/api/ai/chat', methods=['POST'])
 def ai_chat():
+
+@app.route('/api/ai/chat', methods=['POST'])
+def ai_chat():
+    """Chat with an AI assistant. Uses Ollama if available, else mock."""
     data = request.get_json(silent=True) or {}
     messages_in = data.get('messages') or []
     single_message = data.get('message')
@@ -665,11 +711,15 @@ def ai_chat():
         messages_in = [{"role": "user", "content": str(single_message)}]
         
     messages_in = messages_in[-6:]
+    if not messages_in and single_message:
+        messages_in = [{"role": "user", "content": str(single_message)}]
+
     model = (data.get('model') or os.getenv('Zylo_AI_MODEL') or 'llama3.1:8b')
     provider = os.getenv('Zylo_AI_PROVIDER', 'auto').lower()
     persona = pick_persona(persona_key)
 
     # Ollama attempt
+    # Try Ollama first if configured/auto
     if provider in ('ollama', 'auto'):
         try:
             payload = {
@@ -710,6 +760,26 @@ def ai_chat():
             print(f"Ollama chat failed for model {model}:", e)
 
     # === Fallback: mock ===
+                "stream": False,
+                "messages": ([{"role": "system", "content": persona.system_prompt}] + messages_in),
+            }
+            resp = http_post_json('http://127.0.0.1:11434/api/chat', payload, timeout=30)
+            # Expected schema: { message: { role, content }, ... }
+            reply = (
+                ((resp or {}).get('message') or {}).get('content')
+                or (resp.get('response') if isinstance(resp, dict) else None)
+            )
+            if reply:
+                try:
+                    memory_append_conversation(username, messages_in[-10:])
+                except Exception:
+                    pass
+                return jsonify({"success": True, "provider": "ollama", "model": model, "reply": reply, "persona": persona.key})
+        except Exception as e:
+            # Fall through to mock
+            pass
+
+    # Mock fallback
     reply = mock_ai_response(messages_in)
     try:
         memory_append_conversation(username, messages_in[-10:])
@@ -720,12 +790,17 @@ def ai_chat():
         suggestion = persona_learner.suggest_phrase(
             persona.key, username, messages_in[-1]['content'] if messages_in else ''
         )
+    try:
+        suggestion = persona_learner.suggest_phrase(persona.key, username, messages_in[-1]['content'] if messages_in else '')
         if suggestion and isinstance(suggestion, str):
             reply = f"{reply}\n\n(phrase preference noted: {suggestion})"
     except Exception:
         pass
 
     return jsonify({"success": True, "provider": "mock", "model": "mock", "reply": reply, "persona": persona.key})
+
+    return jsonify({"success": True, "provider": "mock", "model": "mock", "reply": reply, "persona": persona.key})
+
 
 @app.route('/api/ai/feedback', methods=['POST'])
 def ai_feedback():

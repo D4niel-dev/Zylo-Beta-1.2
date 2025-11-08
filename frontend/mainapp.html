@@ -1233,6 +1233,7 @@
       avatar.src = `/uploads/${data.username}/avatar.png`;
       avatar.alt = `${data.username}'s avatar`;
       avatar.className = "w-8 h-8 rounded-full object-cover";
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
       avatar.onerror = function(){ this.onerror=null; this.src = fallbackAvatar; };
       msgWrapper.appendChild(avatar);
 
@@ -1313,6 +1314,7 @@
         this.onerror=null; 
         this.src = '/images/default_avatar.png'; 
       };
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
       avatar.alt = isOwn ? `${username}'s avatar` : 'AI avatar';
       avatar.className = 'w-8 h-8 rounded-full object-cover';
 
@@ -1483,6 +1485,7 @@
       avatar.alt = `${data.username}'s avatar`;
       avatar.className = "w-8 h-8 rounded-full object-cover";
       avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
+      avatar.onerror = function(){ this.onerror=null; this.src = '/images/default_avatar.png'; };
 
       // File bubble
       const bubble = document.createElement("div");
@@ -1621,6 +1624,28 @@
           localStorage.setItem('ai_model', aiModelSelect.value);
         });
       } catch {}
+    }
+
+    async function loadAiPersonas() {
+      try {
+        const res = await fetch('/api/ai/personas');
+        const data = await res.json();
+        const personas = (data.personas || []).map(p => ({ key: p.key, name: p.name }));
+        aiPersonaSelect.innerHTML = '';
+        personas.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.key;
+          opt.textContent = p.name;
+          aiPersonaSelect.appendChild(opt);
+        });
+        const saved = localStorage.getItem('ai_persona');
+        if (saved) aiPersonaSelect.value = saved;
+        aiPersonaSelect.addEventListener('change', () => {
+          localStorage.setItem('ai_persona', aiPersonaSelect.value);
+        });
+      } catch {}
+    }
+
     }
 
     async function loadAiPersonas() {
@@ -1860,6 +1885,9 @@
           // Only render optimistically when offline
           appendGroupMessage(payload);
         }
+        if (navigator.onLine) socket.emit('send_group_file', payload);
+        // Optimistically render
+        appendGroupMessage(payload);
         event.target.value = '';
       };
       reader.readAsDataURL(file);
@@ -1996,6 +2024,8 @@
         // Only render optimistically when offline
         appendDMMessage(payload);
       }
+      if (navigator.onLine) socket.emit('send_dm', payload);
+      appendDMMessage(payload);
       input.value=''; input.style.height='auto';
       fetch('/api/dm/send', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).catch(()=>{});
     }
@@ -2014,6 +2044,8 @@
           // Only render optimistically when offline
           appendDMMessage(payload);
         }
+        if (navigator.onLine) socket.emit('send_dm', payload);
+        appendDMMessage(payload);
         fetch('/api/dm/send', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).catch(()=>{});
         event.target.value='';
       };
