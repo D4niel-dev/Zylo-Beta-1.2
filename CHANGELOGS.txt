@@ -21,7 +21,6 @@
 *[FIXS]:*
 - Fix some UI functions
 
-
 > **Zylo-Beta-v1.2** *(Latest)*
 
 *[NEW]:*
